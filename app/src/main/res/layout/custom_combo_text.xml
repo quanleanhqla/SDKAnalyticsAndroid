@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingRight="8pt"
+    android:paddingLeft="8pt"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_centerVertical="true"
+        android:id="@+id/title"
+        android:text="Tài khoản nguồn"
+        android:textColor="#B3333333"
+        android:textSize="7pt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:gravity="end"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_centerVertical="true"
+        android:id="@+id/content"
+        android:layout_alignParentEnd="true"
+        android:textStyle="bold"
+        android:text="Ha Nguyen chuyen tien cho nguoi anh em thien lanh"
+        android:textColor="#333333"
+        android:textSize="7pt"
+        android:maxWidth="94pt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>

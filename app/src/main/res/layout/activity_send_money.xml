@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SendMoneyActivity">
+
+    <RelativeLayout
+        android:background="@color/white"
+        android:elevation="3pt"
+        android:paddingLeft="8pt"
+        android:paddingRight="8pt"
+        android:id="@+id/rl_header"
+        android:layout_width="match_parent"
+        android:layout_height="22pt">
+
+        <ImageView
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_back"
+            android:id="@+id/imv_back"
+            android:layout_width="12pt"
+            android:layout_height="12pt"/>
+
+        <TextView
+            android:textColor="#333333"
+            android:text="Chuyển tiền"
+            android:textStyle="bold"
+            android:textSize="8pt"
+            android:id="@+id/tv_title"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_transfer"
+        android:layout_marginTop="18pt"
+        android:layout_below="@id/rl_header"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:id="@+id/ll_in"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:src="@drawable/ic_mobio_transfer"
+                android:layout_width="20pt"
+                android:layout_height="20pt"/>
+
+            <TextView
+                android:text="Trong hệ thống"
+                android:layout_marginTop="2pt"
+                android:textColor="#333333"
+                android:textSize="6.5pt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:id="@+id/ll_out"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:src="@drawable/ic_bank_transfer"
+                android:layout_width="20pt"
+                android:layout_height="20pt"/>
+
+            <TextView
+                android:text="Ngoài hệ thống"
+                android:layout_marginTop="2pt"
+                android:textColor="#333333"
+                android:textSize="6.5pt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:id="@+id/ll_invest"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:src="@drawable/ic_invest"
+                android:layout_width="20pt"
+                android:layout_height="20pt"/>
+
+            <TextView
+                android:text="Đầu tư"
+                android:layout_marginTop="2pt"
+                android:textColor="#333333"
+                android:textSize="6.5pt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_in"
+        android:paddingLeft="8pt"
+        android:paddingRight="8pt"
+        android:layout_marginTop="20.5pt"
+        android:layout_below="@id/ll_transfer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:textSize="6.5pt"
+            android:textColor="#B3333333"
+            android:text="Tài khoản trong hệ thống"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:textStyle="bold"
+            android:textColor="#0088db"
+            android:textSize="6pt"
+            android:text="Tất cả (15)"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_account_in"
+        android:layout_marginTop="8pt"
+        android:layout_below="@id/rl_in"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/mobio_avatar" />
+            </RelativeLayout>
+
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="nguyen thu phuong"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/mobio_avatar"
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"/>
+            </RelativeLayout>
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="nguyen thi trang"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/mobio_avatar"
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"/>
+            </RelativeLayout>
+
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="vu thi hang nga"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/mobio_avatar"
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"/>
+            </RelativeLayout>
+
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="vu tien minh"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_out"
+        android:paddingLeft="8pt"
+        android:paddingRight="8pt"
+        android:layout_marginTop="20.5pt"
+        android:layout_below="@id/ll_account_in"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:textSize="6.5pt"
+            android:textColor="#B3333333"
+            android:text="Tài khoản ngoài hệ thống"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:textStyle="bold"
+            android:textColor="#0088db"
+            android:textSize="6pt"
+            android:text="Tất cả (32)"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_account_out"
+        android:layout_marginTop="8pt"
+        android:layout_below="@id/rl_out"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/tp"
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"/>
+            </RelativeLayout>
+
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="tran thao trang"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/tech"
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"/>
+            </RelativeLayout>
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="nguyen thi han"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/vietcom"
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"/>
+            </RelativeLayout>
+
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="pham ngoc thanh"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:background="@drawable/bgr_circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/vib"
+                    android:layout_width="28pt"
+                    android:layout_height="28pt"/>
+            </RelativeLayout>
+
+            <TextView
+                android:textAllCaps="true"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="nguyen minh tu"
+                android:layout_marginTop="4pt"
+                android:textColor="#333333"
+                android:textSize="5pt"
+                android:layout_width="28pt"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

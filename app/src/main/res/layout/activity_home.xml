@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomeActivity">
+
+    <ImageView
+        android:id="@+id/imv_background_profile"
+        android:layout_width="match_parent"
+        android:layout_height="84pt"
+        android:background="@mipmap/background_profile" />
+
+    <RelativeLayout
+        android:layout_marginTop="20.5pt"
+        android:layout_marginLeft="10pt"
+        android:layout_width="wrap_content"
+        android:layout_height="24pt">
+
+        <RelativeLayout
+            android:id="@+id/rl_profile"
+            android:background="@drawable/bgr_circle_no_border"
+            android:layout_width="24pt"
+            android:layout_height="24pt">
+
+            <ImageView
+                android:id="@+id/imv_profile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_hello"
+            android:textColor="@color/white"
+            android:text="Xin chào,"
+            android:layout_marginLeft="8pt"
+            android:layout_toRightOf="@id/rl_profile"
+            android:textSize="6.5pt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:textStyle="bold"
+            android:layout_marginTop="2pt"
+            android:layout_below="@id/tv_hello"
+            android:textColor="@color/white"
+            android:text="Oliver"
+            android:layout_marginLeft="8pt"
+            android:layout_toRightOf="@id/rl_profile"
+            android:textSize="7.5pt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_balance"
+        android:layout_width="match_parent"
+        android:layout_height="59pt"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="8pt"
+        android:layout_marginTop="54.5pt"
+        android:layout_marginRight="8pt"
+        android:background="@drawable/bgr_profile"
+        android:elevation="5pt"
+        android:padding="8pt">
+
+        <TextView
+            android:id="@+id/tv_title_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Số dư tài khoản"
+            android:textColor="#80333333"
+            android:textSize="6.5pt" />
+
+        <TextView
+            android:id="@+id/tv_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_title_balance"
+            android:layout_marginTop="2pt"
+            android:text="0111688898"
+            android:textColor="#333333"
+            android:textSize="6.5pt" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_no"
+            android:layout_marginTop="6pt">
+
+            <TextView
+                android:id="@+id/tv_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="30.000.000 VNĐ"
+                android:textColor="#0088db"
+                android:textSize="12pt"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:background="?attr/selectableItemBackground"
+                android:id="@+id/imv_show_balance"
+                android:layout_width="12pt"
+                android:layout_height="12pt"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5pt"
+                android:layout_toRightOf="@id/tv_balance"
+                android:src="@drawable/ic_hide_gray" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_marginLeft="12.5pt"
+        android:layout_marginRight="12.5pt"
+        android:id="@+id/ll_first_row"
+        android:layout_below="@id/rl_balance"
+        android:layout_marginTop="24pt"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.mobio.analytics.CombineView
+            android:gravity="center"
+            android:id="@+id/cv_account"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content"
+            app:image="@drawable/ic_my_card"
+            app:text="Tài khoản"
+            app:type="0"/>
+
+        <com.mobio.analytics.CombineView
+            android:gravity="center"
+            android:id="@+id/cv_send_money"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content"
+            app:image="@drawable/ic_send"
+            app:text="Chuyển tiền"
+            app:type="0"/>
+
+        <com.mobio.analytics.CombineView
+            android:gravity="center"
+            android:id="@+id/cv_payment"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content"
+            app:image="@drawable/ic_payment"
+            app:text="Thanh toán"
+            app:type="0"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_below="@id/ll_first_row"
+        android:id="@+id/ll_second_row"
+        android:layout_marginTop="24.5pt"
+        android:layout_marginLeft="12.5pt"
+        android:layout_marginRight="12.5pt"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.mobio.analytics.CombineView
+            android:gravity="center"
+            android:id="@+id/cv_receive"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content"
+            app:image="@drawable/ic_receive"
+            app:text="Nạp tiền"
+            app:type="0"/>
+
+        <com.mobio.analytics.CombineView
+            android:gravity="center"
+            android:id="@+id/cv_save"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content"
+            app:image="@drawable/ic_save"
+            app:text="Tiết kiệm"
+            app:type="0"/>
+
+        <com.mobio.analytics.CombineView
+            android:gravity="center"
+            android:id="@+id/cv_card"
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="wrap_content"
+            app:image="@drawable/ic_card"
+            app:text="Thẻ"
+            app:type="0"/>
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/ll_tab"
+        android:elevation="5pt"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="24pt">
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_home_active"
+                android:layout_width="12pt"
+                android:layout_height="12pt"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_transaction_unactive"
+                android:layout_width="12pt"
+                android:layout_height="12pt"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:src="@drawable/ic_scan_qr"
+                android:layout_width="18pt"
+                android:layout_height="18pt"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_notification_unactive"
+                android:layout_width="12pt"
+                android:layout_height="12pt"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0pt"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_account_unactive"
+                android:layout_width="12pt"
+                android:layout_height="12pt"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_above="@id/ll_tab"
+        android:background="@drawable/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="2pt"/>
+
+</RelativeLayout>

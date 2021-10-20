@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="147.5pt"
+    android:background="@drawable/bgr_profile"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:layout_marginRight="4pt"
+        android:layout_marginTop="4pt"
+        android:layout_gravity="end"
+        android:src="@drawable/ic_cancel"
+        android:id="@+id/imv_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:textSize="9pt"
+        android:textColor="@color/black"
+        android:text="Nội dung title"
+        android:layout_marginTop="20pt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:gravity="center"
+        android:paddingLeft="12pt"
+        android:paddingRight="12pt"
+        android:layout_marginTop="4pt"
+        android:id="@+id/tv_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vui lòng tiếp tục để hoàn thành giao dịch của bạn."
+        android:textColor="#80333333"
+        android:textSize="7pt"/>
+
+
+    <Button
+        android:layout_margin="8pt"
+        android:id="@+id/btn_action"
+        android:textColor="#FFFFFF"
+        android:textSize="8pt"
+        android:text="Action"
+        android:background="@drawable/bgr_button_login"
+        android:layout_width="match_parent"
+        android:layout_height="24pt"/>
+
+</LinearLayout>

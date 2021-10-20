@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#0D0088db"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SendMoneyInActivity">
+
+    <RelativeLayout
+        android:background="@color/white"
+        android:elevation="3pt"
+        android:paddingLeft="8pt"
+        android:paddingRight="8pt"
+        android:id="@+id/rl_header"
+        android:layout_width="match_parent"
+        android:layout_height="22pt">
+
+        <ImageView
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_back"
+            android:id="@+id/imv_back"
+            android:layout_width="12pt"
+            android:layout_height="12pt"/>
+
+        <TextView
+            android:textColor="#333333"
+            android:text="Chuyển tiền trong Mobio"
+            android:textStyle="bold"
+            android:textSize="8pt"
+            android:id="@+id/tv_title"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_header"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="8pt"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:id="@+id/ll_tab"
+            android:layout_width="match_parent"
+            android:layout_height="23.5pt"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Số tài khoản"
+                    android:textColor="#333333"
+                    android:textSize="7pt"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="53pt"
+                    android:layout_height="1pt"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:background="#0088db" />
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Số điện thoại"
+                android:textColor="#4D333333"
+                android:textSize="7pt"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/v_line"
+            android:layout_width="match_parent"
+            android:layout_height="0.5pt"
+            android:layout_below="@id/ll_tab"
+            android:background="#0D333333" />
+
+        <EditText
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:id="@+id/et_account"
+            android:layout_width="match_parent"
+            android:layout_height="24pt"
+            android:layout_below="@id/v_line"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="8pt"
+            android:layout_marginTop="8pt"
+            android:layout_marginRight="8pt"
+            android:background="@drawable/bgr_edittext_no_color"
+            android:gravity="center_vertical"
+            android:hint="Nhập số tài khoản"
+            android:inputType="numberDecimal"
+            android:paddingLeft="8pt"
+            android:paddingRight="8pt"
+            android:textColor="@color/black"
+            android:textColorHint="#e2e2e2"
+            android:textSize="7pt" />
+
+        <TextView
+            android:text="Trinh Kim Ngan"
+            android:visibility="gone"
+            android:id="@+id/tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="24pt"
+            android:layout_below="@id/et_account"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="8pt"
+            android:layout_marginTop="8pt"
+            android:layout_marginRight="8pt"
+            android:background="@drawable/bgr_edittext_no_color"
+            android:gravity="center_vertical"
+            android:paddingLeft="8pt"
+            android:paddingRight="8pt"
+            android:textColor="@color/black"
+            android:textColorHint="#e2e2e2"
+            android:textSize="7pt" />
+
+        <EditText
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:id="@+id/et_amount_money"
+            android:layout_width="match_parent"
+            android:layout_height="24pt"
+            android:layout_below="@id/tv_name"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="8pt"
+            android:layout_marginTop="8pt"
+            android:layout_marginRight="8pt"
+            android:background="@drawable/bgr_edittext_no_color"
+            android:gravity="center_vertical"
+            android:hint="Nhập số tiền (VND)"
+            android:inputType="numberDecimal"
+            android:paddingLeft="8pt"
+            android:paddingRight="8pt"
+            android:textColor="@color/black"
+            android:textColorHint="#e2e2e2"
+            android:textSize="7pt" />
+
+        <EditText
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:id="@+id/et_content"
+            android:layout_width="match_parent"
+            android:layout_height="24pt"
+            android:layout_below="@id/et_amount_money"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="8pt"
+            android:layout_marginTop="8pt"
+            android:layout_marginRight="8pt"
+            android:background="@drawable/bgr_edittext_no_color"
+            android:gravity="center_vertical"
+            android:hint="Nội dung chuyển tiền"
+            android:paddingLeft="8pt"
+            android:paddingRight="8pt"
+            android:textColor="@color/black"
+            android:textColorHint="#e2e2e2"
+            android:textSize="7pt" />
+
+        <RelativeLayout
+            android:id="@+id/rl_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/et_content"
+            android:layout_marginTop="9pt"
+            android:paddingLeft="8pt"
+            android:paddingRight="8pt">
+
+            <CheckBox
+                android:buttonTint="#0088db"
+                android:id="@+id/cb_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/cb_save"
+                android:text="Lưu người thụ hưởng"
+                android:textColor="#80333333"
+                android:textSize="7pt" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btn_continue"
+            android:layout_width="match_parent"
+            android:layout_height="24pt"
+            android:layout_below="@id/rl_save"
+            android:layout_marginLeft="8pt"
+            android:layout_marginTop="37pt"
+            android:layout_marginRight="8pt"
+            android:background="@drawable/bgr_button_login"
+            android:text="Tiếp Tục"
+            android:textColor="#FFFFFF"
+            android:textSize="8pt" />
+
+
+    </RelativeLayout>
+</RelativeLayout>

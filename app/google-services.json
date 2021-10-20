@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "786916336835",
+    "project_id": "sdk-mobio-android",
+    "storage_bucket": "sdk-mobio-android.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786916336835:android:1fed9179ea741b8a672e76",
+        "android_client_info": {
+          "package_name": "com.mobio.analytics"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "786916336835-3f83jpfk6kq32ikqvar2umlpd8s0l0ur.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4GFeIJgVuPAZelHljr947TI22R_wBs6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "786916336835-3f83jpfk6kq32ikqvar2umlpd8s0l0ur.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

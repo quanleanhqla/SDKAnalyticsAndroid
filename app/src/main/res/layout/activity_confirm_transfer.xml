@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0088db"
+    tools:context=".ConfirmTransferActivity">
+
+    <RelativeLayout
+        android:background="@color/white"
+        android:elevation="3pt"
+        android:paddingLeft="8pt"
+        android:paddingRight="8pt"
+        android:id="@+id/rl_header"
+        android:layout_width="match_parent"
+        android:layout_height="22pt">
+
+        <ImageView
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_back"
+            android:id="@+id/imv_back"
+            android:layout_width="12pt"
+            android:layout_height="12pt"/>
+
+        <TextView
+            android:textColor="#333333"
+            android:text="Xác nhận chuyển tiền"
+            android:textStyle="bold"
+            android:textSize="8pt"
+            android:id="@+id/tv_title"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <TextView
+        android:textColor="#80333333"
+        android:text="Quý khách vui lòng kiểm tra thông tin giao dịch vừa khởi tạo"
+        android:gravity="center"
+        android:layout_marginTop="8pt"
+        android:id="@+id/tv_advise"
+        android:textSize="6pt"
+        android:layout_below="@id/rl_header"
+        android:layout_centerHorizontal="true"
+        android:maxWidth="137.5pt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <LinearLayout
+        android:id="@+id/ll_content"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="8pt"
+        android:layout_below="@id/tv_advise"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        
+        <com.mobio.analytics.ComboText
+            android:id="@+id/ct_from"
+            android:layout_marginTop="8pt"
+            app:textContent="0111688898"
+            app:textTitle="Tài khoản nguồn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.mobio.analytics.ComboText
+            android:id="@+id/ct_to"
+            android:layout_marginTop="8pt"
+            app:textContent="0111579219"
+            app:textTitle="Tài khoản nhận"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.mobio.analytics.ComboText
+            android:id="@+id/ct_to_name"
+            android:layout_marginTop="8pt"
+            app:textContent="Trinh Kim Ngan"
+            app:textTitle="Chủ tài khoản nhận"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.mobio.analytics.ComboText
+            android:id="@+id/ct_money"
+            android:layout_marginTop="8pt"
+            app:textContent="5.020.000 VND"
+            app:textTitle="Số tiền"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.mobio.analytics.ComboText
+            android:id="@+id/ct_fee"
+            android:layout_marginTop="8pt"
+            app:textContent="0 VND"
+            app:textTitle="Phí giao dịch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.mobio.analytics.ComboText
+            android:id="@+id/ct_content"
+            android:layout_marginTop="8pt"
+            app:textContent="Ha Nguyen chuyen tien cho nguoi anh em thien lanh"
+            app:textTitle="Nội dung"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:layout_marginRight="8pt"
+            android:layout_marginLeft="8pt"
+            android:id="@+id/btn_confirm"
+            android:textColor="#FFFFFF"
+            android:textSize="8pt"
+            android:text="Xác Nhận"
+            android:layout_marginTop="36pt"
+            android:background="@drawable/bgr_button_login"
+            android:layout_width="match_parent"
+            android:layout_height="24pt"/>
+    </LinearLayout>
+
+</RelativeLayout>
