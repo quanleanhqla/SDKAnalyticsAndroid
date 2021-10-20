@@ -1,16 +1,12 @@
 package com.mobio.analytics.client;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.widget.Toast;
 
-import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.ActivityTraitsObject;
 import com.mobio.analytics.client.models.AppStateTraitsObject;
 import com.mobio.analytics.client.models.ClickTraitsObject;
@@ -34,13 +30,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 
 import retrofit2.Response;

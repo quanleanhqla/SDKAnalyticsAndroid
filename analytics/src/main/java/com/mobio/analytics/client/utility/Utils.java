@@ -23,9 +23,6 @@ import com.mobio.analytics.client.models.TraitsObject;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
