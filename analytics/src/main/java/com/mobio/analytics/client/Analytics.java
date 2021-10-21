@@ -122,6 +122,7 @@ public class Analytics {
     public void setDeviceToken(String deviceToken){
         this.deviceToken = deviceToken;
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
+        this.cacheDataObject.setProfileInfo(Utils.getProfileCreateDeviceObject(application));
     }
 
     public void track(String eventKey, int eventType, String detail){
