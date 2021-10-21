@@ -1,5 +1,6 @@
 package com.mobio.analytics.client.utility;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -23,8 +24,11 @@ import com.mobio.analytics.client.models.PropertiesObject;
 import com.mobio.analytics.client.models.TraitsObject;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -97,10 +101,11 @@ public class Utils {
     }
 
     public static String getTimeUTC(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return Instant.now().atZone(ZoneId.systemDefault()).toString();
-        }
-        return null;
+        @SuppressLint("SimpleDateFormat") final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        sdf.setTimeZone(TimeZone.getDefault());
+        final String utcTime = sdf.format(new Date());
+
+        return utcTime;
     }
 
     public static OsObject getOsObject(){
