@@ -231,7 +231,7 @@ public class SendMoneyInActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                Analytics.with(SendMoneyInActivity.this).track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
+                Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
             }
         });
 
@@ -240,7 +240,7 @@ public class SendMoneyInActivity extends AppCompatActivity implements View.OnCli
             public void onClick(View v) {
                 dialog.dismiss();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Analytics.with(SendMoneyInActivity.this).track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Yes on Popup");
+                    Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Yes on Popup");
                     resetDisconnectTimer();
                 }
             }
@@ -285,7 +285,7 @@ public class SendMoneyInActivity extends AppCompatActivity implements View.OnCli
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         LogMobio.logD("SendMoneyInActivity", "abc");
-        Analytics.with(this).track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Open from noti");
+        Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Open from noti");
         resetDisconnectTimer();
     }
 

@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        Analytics.with(LoginActivity.this).identify(new IdentifyObject.Builder()
+                        Analytics.getInstance().identify(new IdentifyObject.Builder()
                         .withEmail(userName).build());
                     }
                     //Analytics.with(LoginActivity.this).track("Login success");

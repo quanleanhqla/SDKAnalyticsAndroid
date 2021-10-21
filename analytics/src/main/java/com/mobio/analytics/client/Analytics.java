@@ -69,7 +69,7 @@ public class Analytics {
     private final ScheduledExecutorService sendSyncScheduler;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static Analytics with(Context context) {
+    public static Analytics getInstance() {
         synchronized (Analytics.class) {
             if (singleton == null) {
                 singleton = new Builder().build();

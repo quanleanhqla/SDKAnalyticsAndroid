@@ -42,7 +42,7 @@ public class MobioApplication extends Application {
                         // Get new FCM registration token
                         String token = task.getResult();
 
-                        Analytics.with(MobioApplication.this).setDeviceToken(token);
+                        Analytics.getInstance().setDeviceToken(token);
 
                         LogMobio.logD("MobioApplication", token);
 

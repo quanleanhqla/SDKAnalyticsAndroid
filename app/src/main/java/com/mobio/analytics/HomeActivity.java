@@ -44,7 +44,7 @@ public class HomeActivity extends AppCompatActivity {
         cvAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Analytics.with(HomeActivity.this).track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Yes on Popup");
+                Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Yes on Popup");
             }
         });
 
