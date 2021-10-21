@@ -60,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         
-        <com.mobio.analytics.ComboText
+        <com.mobio.sample.ComboText
             android:id="@+id/ct_from"
             android:layout_marginTop="8pt"
             app:textContent="0111688898"
@@ -68,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <com.mobio.analytics.ComboText
+        <com.mobio.sample.ComboText
             android:id="@+id/ct_to"
             android:layout_marginTop="8pt"
             app:textContent="0111579219"
@@ -76,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <com.mobio.analytics.ComboText
+        <com.mobio.sample.ComboText
             android:id="@+id/ct_to_name"
             android:layout_marginTop="8pt"
             app:textContent="Trinh Kim Ngan"
@@ -84,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <com.mobio.analytics.ComboText
+        <com.mobio.sample.ComboText
             android:id="@+id/ct_money"
             android:layout_marginTop="8pt"
             app:textContent="5.020.000 VND"
@@ -92,7 +92,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <com.mobio.analytics.ComboText
+        <com.mobio.sample.ComboText
             android:id="@+id/ct_fee"
             android:layout_marginTop="8pt"
             app:textContent="0 VND"
@@ -100,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <com.mobio.analytics.ComboText
+        <com.mobio.sample.ComboText
             android:id="@+id/ct_content"
             android:layout_marginTop="8pt"
             app:textContent="Ha Nguyen chuyen tien cho nguoi anh em thien lanh"

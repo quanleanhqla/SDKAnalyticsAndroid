@@ -1,8 +1,4 @@
-package com.mobio.analytics;
-
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
+package com.mobio.sample;
 
 import androidx.annotation.NonNull;
 import androidx.work.OneTimeWorkRequest;

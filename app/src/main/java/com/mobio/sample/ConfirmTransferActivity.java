@@ -1,9 +1,9 @@
-package com.mobio.analytics;
+package com.mobio.sample;
 
-import static com.mobio.analytics.SendMoneyInActivity.ACCOUNT_NAME_TO;
-import static com.mobio.analytics.SendMoneyInActivity.ACCOUNT_TO;
-import static com.mobio.analytics.SendMoneyInActivity.CONTENT_TO;
-import static com.mobio.analytics.SendMoneyInActivity.MONEY_TO;
+import static com.mobio.sample.SendMoneyInActivity.ACCOUNT_NAME_TO;
+import static com.mobio.sample.SendMoneyInActivity.ACCOUNT_TO;
+import static com.mobio.sample.SendMoneyInActivity.CONTENT_TO;
+import static com.mobio.sample.SendMoneyInActivity.MONEY_TO;
 
 import androidx.appcompat.app.AppCompatActivity;
 

@@ -4,7 +4,7 @@
 
     <application>
         <service
-            android:name=".client.service.NotificationService"
+            android:name="com.mobio.sample.client.service.NotificationService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

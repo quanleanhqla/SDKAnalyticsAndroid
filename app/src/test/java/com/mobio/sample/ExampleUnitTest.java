@@ -1,4 +1,4 @@
-package com.mobio.analytics;
+package com.mobio.sample;
 
 import org.junit.Test;
 

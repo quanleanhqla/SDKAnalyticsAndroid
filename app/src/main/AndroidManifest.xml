@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mobio.analytics">
+    package="com.mobio.sample">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".MobioApplication"
+        android:name="com.mobio.sample.MobioApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AnalyticsSDK">
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name="com.mobio.sample.MyFirebaseMessagingService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -22,27 +22,27 @@
         </service>
 
         <activity
-            android:name=".TransferSuccessActivity"
+            android:name="com.mobio.sample.TransferSuccessActivity"
             android:exported="true"></activity>
         <activity
-            android:name=".ConfirmTransferActivity"
+            android:name="com.mobio.sample.ConfirmTransferActivity"
             android:exported="true" />
         <activity
-            android:name=".SendMoneyInActivity"
+            android:name="com.mobio.sample.SendMoneyInActivity"
             android:exported="true" />
         <activity
-            android:name=".SendMoneyActivity"
+            android:name="com.mobio.sample.SendMoneyActivity"
             android:exported="true" />
         <activity
             android:theme="@style/CustomTheme"
-            android:name=".HomeActivity"
+            android:name="com.mobio.sample.HomeActivity"
             android:exported="true" />
         <activity
-            android:name=".SavingActivity"
+            android:name="com.mobio.sample.SavingActivity"
             android:exported="true"
             android:launchMode="singleTop" />
         <activity
-            android:name=".SplashActivity"
+            android:name="com.mobio.sample.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,11 +52,11 @@
         </activity>
         <activity
             android:theme="@style/CustomTheme"
-            android:name=".LoginActivity"
+            android:name="com.mobio.sample.LoginActivity"
             android:exported="true" />
 
         <receiver
-            android:name=".NotificationDismissedReceiver"
+            android:name="com.mobio.sample.NotificationDismissedReceiver"
             android:exported="false" />
     </application>
 

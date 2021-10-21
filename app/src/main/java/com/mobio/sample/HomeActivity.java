@@ -1,4 +1,4 @@
-package com.mobio.analytics;
+package com.mobio.sample;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 
 import com.mobio.analytics.client.Analytics;
 

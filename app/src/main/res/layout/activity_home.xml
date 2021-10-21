@@ -123,7 +123,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.mobio.analytics.CombineView
+        <com.mobio.sample.CombineView
             android:gravity="center"
             android:id="@+id/cv_account"
             android:layout_weight="1"
@@ -133,7 +133,7 @@
             app:text="Tài khoản"
             app:type="0"/>
 
-        <com.mobio.analytics.CombineView
+        <com.mobio.sample.CombineView
             android:gravity="center"
             android:id="@+id/cv_send_money"
             android:layout_weight="1"
@@ -143,7 +143,7 @@
             app:text="Chuyển tiền"
             app:type="0"/>
 
-        <com.mobio.analytics.CombineView
+        <com.mobio.sample.CombineView
             android:gravity="center"
             android:id="@+id/cv_payment"
             android:layout_weight="1"
@@ -166,7 +166,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.mobio.analytics.CombineView
+        <com.mobio.sample.CombineView
             android:gravity="center"
             android:id="@+id/cv_receive"
             android:layout_weight="1"
@@ -176,7 +176,7 @@
             app:text="Nạp tiền"
             app:type="0"/>
 
-        <com.mobio.analytics.CombineView
+        <com.mobio.sample.CombineView
             android:gravity="center"
             android:id="@+id/cv_save"
             android:layout_weight="1"
@@ -186,7 +186,7 @@
             app:text="Tiết kiệm"
             app:type="0"/>
 
-        <com.mobio.analytics.CombineView
+        <com.mobio.sample.CombineView
             android:gravity="center"
             android:id="@+id/cv_card"
             android:layout_weight="1"

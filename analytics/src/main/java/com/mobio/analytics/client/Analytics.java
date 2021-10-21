@@ -7,18 +7,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-import com.mobio.analytics.client.models.ActivityTraitsObject;
-import com.mobio.analytics.client.models.AppStateTraitsObject;
-import com.mobio.analytics.client.models.ClickTraitsObject;
 import com.mobio.analytics.client.models.DataObject;
 import com.mobio.analytics.client.models.EventTraitsObject;
 import com.mobio.analytics.client.models.IdentifyObject;
 import com.mobio.analytics.client.models.ProfileBaseObject;
 import com.mobio.analytics.client.models.ProfileInfoObject;
-import com.mobio.analytics.client.models.PushObject;
 import com.mobio.analytics.client.models.ScreenRecordTraitsObject;
 import com.mobio.analytics.client.models.SendSyncObject;
-import com.mobio.analytics.client.models.TrackObject;
 import com.mobio.analytics.client.models.TraitsObject;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;

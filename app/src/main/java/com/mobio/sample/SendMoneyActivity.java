@@ -1,7 +1,6 @@
-package com.mobio.analytics;
+package com.mobio.sample;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.graphics.Color;

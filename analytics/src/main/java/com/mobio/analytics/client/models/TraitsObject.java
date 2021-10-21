@@ -3,8 +3,6 @@ package com.mobio.analytics.client.models;
 import com.google.gson.annotations.SerializedName;
 import com.mobio.analytics.client.utility.Utils;
 
-import java.time.Instant;
-
 public class TraitsObject {
 
     @SerializedName("action_time")

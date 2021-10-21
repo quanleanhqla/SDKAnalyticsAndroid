@@ -1,4 +1,4 @@
-package com.mobio.analytics;
+package com.mobio.sample;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
