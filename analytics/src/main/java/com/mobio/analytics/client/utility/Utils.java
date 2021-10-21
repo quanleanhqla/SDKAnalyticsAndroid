@@ -24,6 +24,7 @@ import com.mobio.analytics.client.models.TraitsObject;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -97,7 +98,7 @@ public class Utils {
 
     public static String getTimeUTC(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return Instant.now().toString();
+            return Instant.now().atZone(ZoneId.systemDefault()).toString();
         }
         return null;
     }
