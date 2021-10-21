@@ -1,5 +1,6 @@
 package com.mobio.analytics.client.models;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 public class DataObject {
@@ -126,13 +127,6 @@ public class DataObject {
 
     @Override
     public String toString() {
-        return "DataObject{" +
-                "context=" + context +
-                ", profileInfo=" + profileInfo +
-                ", eventKey='" + eventKey + '\'' +
-                ", anonymousId='" + anonymousId + '\'' +
-                ", properties=" + properties +
-                ", type='" + type + '\'' +
-                '}';
+        return new Gson().toJson(this).toString();
     }
 }

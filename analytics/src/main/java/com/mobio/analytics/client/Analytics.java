@@ -11,9 +11,11 @@ import com.mobio.analytics.client.models.ActivityTraitsObject;
 import com.mobio.analytics.client.models.AppStateTraitsObject;
 import com.mobio.analytics.client.models.ClickTraitsObject;
 import com.mobio.analytics.client.models.DataObject;
+import com.mobio.analytics.client.models.EventTraitsObject;
 import com.mobio.analytics.client.models.IdentifyObject;
 import com.mobio.analytics.client.models.ProfileBaseObject;
 import com.mobio.analytics.client.models.ProfileInfoObject;
+import com.mobio.analytics.client.models.PushObject;
 import com.mobio.analytics.client.models.ScreenRecordTraitsObject;
 import com.mobio.analytics.client.models.SendSyncObject;
 import com.mobio.analytics.client.models.TrackObject;
@@ -40,6 +42,14 @@ import retrofit2.Response;
 
 public class Analytics {
     private static final String TAG = Analytics.class.getName();
+    public static final String DEMO_EVENT = "android_sdk_demo_event";
+    public static final int TYPE_LOGIN_SUCCESS = 1;
+    public static final int TYPE_TRANSFER_SUCCESS = 2;
+    public static final int TYPE_TRANSFER = 3;
+    public static final int TYPE_APP_LIFECYCLE = 7;
+    public static final int TYPE_SCREEN_LIFECYCLE = 8;
+    public static final int TYPE_CLICK = 9;
+
     @SuppressLint("StaticFieldLeak")
     static volatile Analytics singleton = null;
     private Application application;
@@ -49,7 +59,10 @@ public class Analytics {
     private boolean shouldRecordScreen;
     private boolean shouldTrackScroll;
     private DataObject cacheDataObject;
+    private String apiToken;
+    private String merchantId;
     private int intervalSecond;
+    private String deviceToken;
     private ArrayList<DataObject> listDataWaitToSend;
 
     private final ExecutorService analyticsExecutor;
@@ -73,6 +86,12 @@ public class Analytics {
         shouldRecordScreen = builder.mShouldRecordScreen;
         intervalSecond = builder.mIntervalSecond;
         shouldTrackScroll = builder.mShouldTrackScroll;
+        apiToken = builder.mApiToken;
+        merchantId = builder.mMerchantId;
+        deviceToken = builder.mDeviceToken;
+
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
 
         analyticsExecutor = Executors.newSingleThreadExecutor();
         sendSyncScheduler = Executors.newScheduledThreadPool(1);
@@ -100,34 +119,27 @@ public class Analytics {
                 .build();
     }
 
-    public void track(String eventKey){
-        if(cacheDataObject != null){
-            LogMobio.logD("Analytics","Track");
-            Future<?> future = analyticsExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    TrackObject trackObject = new TrackObject.Builder().withEventKey(eventKey).build();
-                    cacheDataObject.setType("track");
-                    if(eventKey.contains("Application")){
-                        cacheDataObject.setEventKey("sdk_android_mobio_app_state");
-                        cacheDataObject.getContext().setTraits((TraitsObject) new AppStateTraitsObject(eventKey));
-                    }
-                    else if(eventKey.contains("Activity")){
-                        cacheDataObject.setEventKey("sdk_mobio_android_screen_track");
-                        cacheDataObject.getContext().setTraits((TraitsObject) new ActivityTraitsObject(eventKey));
-                    }
-                    else if(eventKey.contains("thong bao")){
-                        cacheDataObject.setEventKey("sdk_mobio_android_notification_event");
-                        cacheDataObject.getContext().setTraits((TraitsObject) new ClickTraitsObject("thong bao"));
-                    }
-                    sendSync(cacheDataObject);
-                    //listDataWaitToSend.add(cacheDataObject);
-                    LogMobio.logD("Analytics track", cacheDataObject.toString());
-                }
-            });
-        }
+    public void setDeviceToken(String deviceToken){
+        this.deviceToken = deviceToken;
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
     }
 
+    public void track(String eventKey, int eventType, String detail){
+        analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                cacheDataObject.setType("track");
+                cacheDataObject.setEventKey(eventKey);
+                if(eventKey.equals(DEMO_EVENT)){
+                    cacheDataObject.getContext().setTraits((TraitsObject) new EventTraitsObject.Builder()
+                            .withEventType(eventType)
+                    .withDetail(detail).build());
+                }
+                sendSync(cacheDataObject);
+                LogMobio.logD(TAG, cacheDataObject.toString());
+            }
+        });
+    }
 
     public void autoSendSync(){
         LogMobio.logD("Analytics","Scheduler");
@@ -146,7 +158,7 @@ public class Analytics {
                 SendSyncObject sendSyncObject = new SendSyncObject(dataObject);
                 try {
                     LogMobio.logD("Analytics","1");
-                    Response<Void> response = RetrofitClient.getInstance().getMyApi().sendSync(Utils.getHeader(), sendSyncObject).execute();
+                    Response<Void> response = RetrofitClient.getInstance().getMyApi().sendSync(Utils.getHeader(application.getApplicationContext()), sendSyncObject).execute();
                     LogMobio.logD("Analytics","2");
                     if(response.code() != 200){
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
@@ -174,6 +186,7 @@ public class Analytics {
                 public void run() {
                     cacheDataObject.setType("identify");
                     cacheDataObject.setProfileInfo((ProfileBaseObject) new ProfileInfoObject.Builder()
+                            .withContext(application.getApplicationContext())
                             .withCif(identifyObject.getCif())
                     .withEmail(identifyObject.getEmail())
                     .withPhoneNumber(identifyObject.getPhoneNumber())
@@ -232,7 +245,7 @@ public class Analytics {
         if(currentVersionCode != previousVersionCode){
             SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
             SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
-            track("Application updated");
+            track(DEMO_EVENT, TYPE_APP_LIFECYCLE,"Application updated");
         }
     }
 
@@ -251,7 +264,10 @@ public class Analytics {
         private boolean mShouldTrackDeepLink = false;
         private boolean mShouldRecordScreen = false;
         private boolean mShouldTrackScroll = false;
+        private String mApiToken;
+        private String mMerchantId;
         private int mIntervalSecond = 30;
+        private String mDeviceToken;
 
 
         public Builder(){}
@@ -283,6 +299,21 @@ public class Analytics {
 
         public Builder shouldTrackScroll(boolean shouldTrackScroll){
             mShouldTrackScroll = shouldTrackScroll;
+            return this;
+        }
+
+        public Builder withMerchantId(String merchantId){
+            mMerchantId = merchantId;
+            return this;
+        }
+
+        public Builder withApiToken(String apiToken){
+            mApiToken = apiToken;
+            return this;
+        }
+
+        public Builder withDeviceToken(String deviceToken){
+            mDeviceToken = deviceToken;
             return this;
         }
 

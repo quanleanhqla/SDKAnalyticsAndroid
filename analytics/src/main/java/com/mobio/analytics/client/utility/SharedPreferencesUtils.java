@@ -12,6 +12,9 @@ public class SharedPreferencesUtils {
     public static final String KEY_STATE_LOGIN = "key_state_login";
     public static final String KEY_USER_NAME = "key_username";
     public static final String KEY_PASSWORD = "key_password";
+    public static final String KEY_API_TOKEN = "key_api_token";
+    public static final String KEY_MERCHANT_ID = "key_merchant_id";
+    public static final String KEY_DEVICE_TOKEN = "key_device_token";
 
     private static SharedPreferences getSharedPreferences(Context context){
         return context.getSharedPreferences(KEY_SP, Context.MODE_PRIVATE);

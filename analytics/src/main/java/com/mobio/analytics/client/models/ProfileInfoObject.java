@@ -1,5 +1,7 @@
 package com.mobio.analytics.client.models;
 
+import android.content.Context;
+
 import com.google.gson.annotations.SerializedName;
 
 public class ProfileInfoObject extends ProfileBaseObject{
@@ -12,8 +14,8 @@ public class ProfileInfoObject extends ProfileBaseObject{
     @SerializedName("email")
     private String email;
 
-    public ProfileInfoObject(Builder builder) {
-        super();
+    public ProfileInfoObject(Builder builder, Context context) {
+        super(context);
         this.email = builder.email;
         this.phoneNumber = builder.phoneNumber;
         this.cif = builder.cif;
@@ -35,6 +37,7 @@ public class ProfileInfoObject extends ProfileBaseObject{
         private String cif;
         private String phoneNumber;
         private String email;
+        private Context context;
 
         public Builder(){}
 
@@ -53,8 +56,13 @@ public class ProfileInfoObject extends ProfileBaseObject{
             return this;
         }
 
+        public Builder withContext(Context context){
+            this.context = context;
+            return this;
+        }
+
         public ProfileInfoObject build(){
-            return new ProfileInfoObject(this);
+            return new ProfileInfoObject(this, context);
         }
 
     }

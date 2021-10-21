@@ -1,5 +1,7 @@
 package com.mobio.analytics.client.models;
 
+import android.content.Context;
+
 import com.google.gson.annotations.SerializedName;
 
 public class CreateDeviceObject extends ProfileBaseObject{
@@ -7,8 +9,8 @@ public class CreateDeviceObject extends ProfileBaseObject{
     @SerializedName("source")
     private String source;
 
-    public CreateDeviceObject(String source) {
-        super();
+    public CreateDeviceObject(Context context, String source) {
+        super(context);
         this.source = source;
     }
 

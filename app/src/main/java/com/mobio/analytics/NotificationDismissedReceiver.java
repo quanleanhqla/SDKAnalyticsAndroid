@@ -16,7 +16,7 @@ public class NotificationDismissedReceiver extends BroadcastReceiver {
 
         LogMobio.logD("NotificationDismissedReceiver", notificationId+"");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Analytics.with(context).track("Click remove noti");
+            Analytics.with(context).track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click remove noti");
         }
     }
 }

@@ -1,25 +1,20 @@
 package com.mobio.analytics;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.mobio.analytics.client.utility.LogMobio;
+
+import com.mobio.analytics.client.Analytics;
 
 public class HomeActivity extends AppCompatActivity {
     private CombineView cvSendMoney;
+    private CombineView cvAccount;
     private boolean isShowMoney;
     private ImageView imvShowMoney;
     private TextView tvMoney;
@@ -36,12 +31,20 @@ public class HomeActivity extends AppCompatActivity {
         tvMoney = findViewById(R.id.tv_balance);
         imvShowMoney = findViewById(R.id.imv_show_balance);
         cvSendMoney = findViewById(R.id.cv_send_money);
+        cvAccount = findViewById(R.id.cv_account);
         isShowMoney = true;
 
         cvSendMoney.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(HomeActivity.this, SendMoneyActivity.class));
+            }
+        });
+
+        cvAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Analytics.with(HomeActivity.this).track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Yes on Popup");
             }
         });
 
@@ -59,23 +62,6 @@ public class HomeActivity extends AppCompatActivity {
                 isShowMoney = !isShowMoney;
             }
         });
-
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            LogMobio.logD("HomeActivity", "Fetching FCM registration token failed" + task.getException());
-                            return;
-                        }
-
-                        // Get new FCM registration token
-                        String token = task.getResult();
-
-                        LogMobio.logD("HomeActivity", token);
-
-                    }
-                });
     }
 
     private void showCustomUI() {

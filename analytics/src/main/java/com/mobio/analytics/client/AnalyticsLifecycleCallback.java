@@ -82,7 +82,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
             SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
 
-            analytics.track("Application first installed");
+            analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_APP_LIFECYCLE,"Application first installed");
         }
         analytics.trackApplicationLifecycleEvents();
         if (trackDeepLinks) {
@@ -111,11 +111,11 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             LogMobio.logD(TAG,"app went to foreground");
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, true);
             if(shouldTrackApplicationLifecycleEvents){
-                analytics.track("Application started");
+                analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_APP_LIFECYCLE,"Application started");
             }
         }
         numStarted++;
-        analytics.track("Activity "+getNameOfActivity(activity)+" started");
+        analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_SCREEN_LIFECYCLE,"Activity "+getNameOfActivity(activity)+" started");
 
         if (shouldRecordScreenViews) {
             if(lifeCycleHandler != null) {
@@ -221,7 +221,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             }
 
             if(shouldTrackApplicationLifecycleEvents){
-                analytics.track("Application backgrouded");
+                analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_APP_LIFECYCLE,"Application backgrouded");
             }
         }
 
@@ -232,7 +232,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             }
         }
 
-        analytics.track("Activity "+getNameOfActivity(activity)+" stopped");
+        analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_SCREEN_LIFECYCLE,"Activity "+getNameOfActivity(activity)+" stopped");
     }
 
     @Override
