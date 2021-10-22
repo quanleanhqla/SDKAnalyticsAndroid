@@ -37,7 +37,7 @@ import retrofit2.Response;
 
 public class Analytics {
     private static final String TAG = Analytics.class.getName();
-    public static final String DEMO_EVENT = "android_sdk_demo_event";
+    public static final String DEMO_EVENT = "android_event";
     public static final int TYPE_LOGIN_SUCCESS = 1;
     public static final int TYPE_TRANSFER_SUCCESS = 2;
     public static final int TYPE_TRANSFER = 3;
