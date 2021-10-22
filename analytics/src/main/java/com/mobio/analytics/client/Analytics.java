@@ -107,7 +107,7 @@ public class Analytics {
         application.registerActivityLifecycleCallbacks(analyticsLifecycleCallback);
 
         cacheDataObject = new DataObject.Builder()
-                .withContext(Utils.getContextObject())
+                .withContext(Utils.getContextObject(application))
                 .withProfileInfoObject(Utils.getProfileCreateDeviceObject(application))
                 .withAnonymousId(Build.ID)
                 .withProperties(Utils.getProperties())

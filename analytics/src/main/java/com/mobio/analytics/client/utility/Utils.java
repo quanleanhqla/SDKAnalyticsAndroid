@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
@@ -78,13 +80,26 @@ public class Utils {
                 .build();
     }
 
-    public static AppObject getAppObject(){
-        LogMobio.logD("Utils", "Namespace "+ BuildConfig.LIBRARY_PACKAGE_NAME +
-                "\nBuild "+BuildConfig.VERSION_CODE+
-                "\nVersion "+BuildConfig.VERSION_NAME);
+    public static AppObject getAppObject(Application application){
+        String namespace = application.getPackageName();
+        String name = "";
+        String versionName = "";
+        int versionCode=0;
+        PackageManager packageManager = application.getPackageManager();
+        try {
+            name =(String) packageManager.getApplicationLabel(packageManager.getApplicationInfo(namespace, 0));
+            versionName = packageManager.getPackageInfo(namespace, 0).versionName;
+            versionCode = packageManager.getPackageInfo(namespace, 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
-        return new AppObject(BuildConfig.LIBRARY_PACKAGE_NAME, "",
-                String.valueOf(BuildConfig.VERSION_CODE), BuildConfig.VERSION_NAME);
+        LogMobio.logD("Utils", "Namespace "+ namespace +
+                "\nBuild "+versionCode+
+                "\nVersion "+versionName);
+
+        return new AppObject(namespace, name,
+                String.valueOf(versionCode), versionName);
     }
 
     public static String getTimeZone(){
@@ -127,8 +142,8 @@ public class Utils {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static ContextObject getContextObject(){
-        return new ContextObject.Builder().withApp(getAppObject())
+    public static ContextObject getContextObject(Application application){
+        return new ContextObject.Builder().withApp(getAppObject(application))
                 .withDevice(getDeviceObject())
                 .withOs(getOsObject())
                 .withTimezone(getTimeZone())
