@@ -24,6 +24,7 @@ import com.mobio.analytics.client.models.TraitsObject;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,11 +98,7 @@ public class Utils {
     }
 
     public static String getTimeUTC(){
-        @SuppressLint("SimpleDateFormat") final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        sdf.setTimeZone(TimeZone.getDefault());
-        final String utcTime = sdf.format(new Date());
-
-        return utcTime;
+        return Instant.now().toString();
     }
 
     public static OsObject getOsObject(){

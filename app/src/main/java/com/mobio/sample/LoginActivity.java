@@ -70,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                         Analytics.getInstance().identify(new IdentifyObject.Builder()
                         .withEmail(userName).build());
                     }
+                    Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_LOGIN_SUCCESS, "Login");
                     //Analytics.with(LoginActivity.this).track("Login success");
                 }
                 else {
