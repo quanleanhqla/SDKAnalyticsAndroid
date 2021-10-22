@@ -1,6 +1,7 @@
 package com.mobio.analytics.network;
 
 import com.mobio.analytics.client.models.SendSyncObject;
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 
 import java.util.Map;
 

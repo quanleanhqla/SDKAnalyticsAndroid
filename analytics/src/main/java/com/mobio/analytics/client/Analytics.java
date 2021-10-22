@@ -41,6 +41,7 @@ public class Analytics {
     public static final int TYPE_LOGIN_SUCCESS = 1;
     public static final int TYPE_TRANSFER_SUCCESS = 2;
     public static final int TYPE_TRANSFER = 3;
+    public static final int TYPE_CONFIRM_TRANSFER = 4;
     public static final int TYPE_APP_LIFECYCLE = 7;
     public static final int TYPE_SCREEN_LIFECYCLE = 8;
     public static final int TYPE_CLICK = 9;
@@ -59,6 +60,7 @@ public class Analytics {
     private int intervalSecond;
     private String deviceToken;
     private ArrayList<DataObject> listDataWaitToSend;
+    private String domainURL;
 
     private final ExecutorService analyticsExecutor;
     private final ScheduledExecutorService sendSyncScheduler;
@@ -84,6 +86,7 @@ public class Analytics {
         apiToken = builder.mApiToken;
         merchantId = builder.mMerchantId;
         deviceToken = builder.mDeviceToken;
+        domainURL = builder.mDomainURL;
 
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
@@ -264,6 +267,7 @@ public class Analytics {
         private String mMerchantId;
         private int mIntervalSecond = 30;
         private String mDeviceToken;
+        private String mDomainURL;
 
 
         public Builder(){}
@@ -310,6 +314,11 @@ public class Analytics {
 
         public Builder withDeviceToken(String deviceToken){
             mDeviceToken = deviceToken;
+            return this;
+        }
+
+        public Builder withDomainURL(String domainURL){
+            mDomainURL = domainURL;
             return this;
         }
 
