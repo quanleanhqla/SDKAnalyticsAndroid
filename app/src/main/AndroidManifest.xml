@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mobio.sample">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name="com.mobio.sample.MobioApplication"
+        android:name=".MobioApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AnalyticsSDK">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+
         <service
-            android:name="com.mobio.sample.MyFirebaseMessagingService"
+            android:name=".MyFirebaseMessagingService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -22,27 +33,27 @@
         </service>
 
         <activity
-            android:name="com.mobio.sample.TransferSuccessActivity"
-            android:exported="true"></activity>
-        <activity
-            android:name="com.mobio.sample.ConfirmTransferActivity"
+            android:name=".TransferSuccessActivity"
             android:exported="true" />
         <activity
-            android:name="com.mobio.sample.SendMoneyInActivity"
+            android:name=".ConfirmTransferActivity"
             android:exported="true" />
         <activity
-            android:name="com.mobio.sample.SendMoneyActivity"
+            android:name=".SendMoneyInActivity"
             android:exported="true" />
         <activity
-            android:theme="@style/CustomTheme"
-            android:name="com.mobio.sample.HomeActivity"
+            android:name=".SendMoneyActivity"
             android:exported="true" />
         <activity
-            android:name="com.mobio.sample.SavingActivity"
+            android:name=".HomeActivity"
+            android:exported="true"
+            android:theme="@style/CustomTheme" />
+        <activity
+            android:name=".SavingActivity"
             android:exported="true"
             android:launchMode="singleTop" />
         <activity
-            android:name="com.mobio.sample.SplashActivity"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,12 +62,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:theme="@style/CustomTheme"
-            android:name="com.mobio.sample.LoginActivity"
-            android:exported="true" />
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:theme="@style/CustomTheme" />
 
         <receiver
-            android:name="com.mobio.sample.NotificationDismissedReceiver"
+            android:name=".NotificationDismissedReceiver"
             android:exported="false" />
     </application>
 

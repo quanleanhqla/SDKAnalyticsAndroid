@@ -12,7 +12,8 @@ import com.mobio.analytics.client.models.EventTraitsObject;
 import com.mobio.analytics.client.models.IdentifyObject;
 import com.mobio.analytics.client.models.ProfileBaseObject;
 import com.mobio.analytics.client.models.ProfileInfoObject;
-import com.mobio.analytics.client.models.ScreenRecordTraitsObject;
+import com.mobio.analytics.client.models.ScreenConfigObject;
+import com.mobio.analytics.client.models.ScreenTraitsObject;
 import com.mobio.analytics.client.models.SendSyncObject;
 import com.mobio.analytics.client.models.TraitsObject;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -27,6 +28,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -45,12 +47,15 @@ public class Analytics {
     public static final int TYPE_APP_LIFECYCLE = 7;
     public static final int TYPE_SCREEN_LIFECYCLE = 8;
     public static final int TYPE_CLICK = 9;
+    public static final int TYPE_SCREEN_START= 11;
+    public static final int TYPE_SCREEN_END= 22;
 
     @SuppressLint("StaticFieldLeak")
     static volatile Analytics singleton = null;
     private Application application;
     private AnalyticsLifecycleCallback analyticsLifecycleCallback;
-    private boolean shouldTrackLifecycle;
+    private boolean shouldTrackAppLifecycle;
+    private boolean shouldTrackScreenLifecycle;
     private boolean shouldTrackDeepLink;
     private boolean shouldRecordScreen;
     private boolean shouldTrackScroll;
@@ -61,6 +66,7 @@ public class Analytics {
     private String deviceToken;
     private ArrayList<DataObject> listDataWaitToSend;
     private String domainURL;
+    private HashMap<String, ScreenConfigObject> configActivityMap;
 
     private final ExecutorService analyticsExecutor;
     private final ScheduledExecutorService sendSyncScheduler;
@@ -78,7 +84,8 @@ public class Analytics {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public Analytics(Builder builder){
         application = builder.mApplication;
-        shouldTrackLifecycle = builder.mShouldTrackLifecycle;
+        shouldTrackAppLifecycle = builder.mShouldTrackAppLifecycle;
+        shouldTrackScreenLifecycle = builder.mShouldTrackScreenLifecycle;
         shouldTrackDeepLink = builder.mShouldTrackDeepLink;
         shouldRecordScreen = builder.mShouldRecordScreen;
         intervalSecond = builder.mIntervalSecond;
@@ -87,6 +94,7 @@ public class Analytics {
         merchantId = builder.mMerchantId;
         deviceToken = builder.mDeviceToken;
         domainURL = builder.mDomainURL;
+        configActivityMap = builder.mActivityMap;
 
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
@@ -104,8 +112,8 @@ public class Analytics {
 
         listDataWaitToSend = new ArrayList<>();
 
-        analyticsLifecycleCallback = new AnalyticsLifecycleCallback(this, shouldTrackLifecycle,
-                    shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application);
+        analyticsLifecycleCallback = new AnalyticsLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
+                    shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application, configActivityMap);
 
         application.registerActivityLifecycleCallbacks(analyticsLifecycleCallback);
 
@@ -133,6 +141,21 @@ public class Analytics {
                     cacheDataObject.getContext().setTraits((TraitsObject) new EventTraitsObject.Builder()
                             .withEventType(eventType)
                     .withDetail(detail).build());
+                }
+                sendSync(cacheDataObject);
+                LogMobio.logD(TAG, cacheDataObject.toString());
+            }
+        });
+    }
+
+    public void track(String eventKey, TraitsObject traitsObject){
+        analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                cacheDataObject.setType("track");
+                cacheDataObject.setEventKey(eventKey);
+                if(eventKey.equals(DEMO_EVENT)){
+                    cacheDataObject.getContext().setTraits(traitsObject);
                 }
                 sendSync(cacheDataObject);
                 LogMobio.logD(TAG, cacheDataObject.toString());
@@ -198,19 +221,14 @@ public class Analytics {
         }
     }
 
-    public void screen(String name){
-
-    }
-
-    void recordScreenViews(String name, int recordTime) {
+    void recordScreen(ScreenTraitsObject screenTraitsObject){
         if(cacheDataObject != null){
             Future<?> future = analyticsExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
                     cacheDataObject.setType("screen");
-                    cacheDataObject.setEventKey("sdk_mobio_android_record_screen");
-                    cacheDataObject.getContext().setTraits((TraitsObject) new ScreenRecordTraitsObject(name, recordTime));
-                    //listDataWaitToSend.add(cacheDataObject);
+                    cacheDataObject.setEventKey("sdk_mobio_android_screen_visit_time");
+                    cacheDataObject.getContext().setTraits(screenTraitsObject);
                     sendSync(cacheDataObject);
                     LogMobio.logD("Analytics recordScreenViews", cacheDataObject.toString());
                 }
@@ -259,7 +277,8 @@ public class Analytics {
 
     public static class Builder {
         private Application mApplication;
-        private boolean mShouldTrackLifecycle = false;
+        private boolean mShouldTrackAppLifecycle = false;
+        private boolean mShouldTrackScreenLifecycle = false;
         private boolean mShouldTrackDeepLink = false;
         private boolean mShouldRecordScreen = false;
         private boolean mShouldTrackScroll = false;
@@ -268,7 +287,7 @@ public class Analytics {
         private int mIntervalSecond = 30;
         private String mDeviceToken;
         private String mDomainURL;
-
+        private HashMap<String, ScreenConfigObject> mActivityMap;
 
         public Builder(){}
 
@@ -277,8 +296,13 @@ public class Analytics {
             return this;
         }
 
-        public Builder shouldTrackLifecycle(boolean shouldTrackLifecycle){
-            mShouldTrackLifecycle = shouldTrackLifecycle;
+        public Builder shouldTrackScreenLifeCycle(boolean shouldTrackScreenLifeCycle){
+            mShouldTrackScreenLifecycle = shouldTrackScreenLifeCycle;
+            return this;
+        }
+
+        public Builder shouldTrackAppLifeCycle(boolean shouldTrackLifecycle){
+            mShouldTrackAppLifecycle = shouldTrackLifecycle;
             return this;
         }
 
@@ -319,6 +343,11 @@ public class Analytics {
 
         public Builder withDomainURL(String domainURL){
             mDomainURL = domainURL;
+            return this;
+        }
+        
+        public Builder withActivityMap(HashMap<String, ScreenConfigObject> activityMap){
+            mActivityMap = activityMap;
             return this;
         }
 

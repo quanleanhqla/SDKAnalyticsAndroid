@@ -1,5 +1,6 @@
 package com.mobio.analytics.client.utility;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
@@ -9,6 +10,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
@@ -78,6 +81,38 @@ public class Utils {
                 .withModel(Build.MODEL)
                 .withDeviceId(Build.ID)
                 .build();
+    }
+
+    @SuppressLint("HardwareIds")
+    public static String getIMEIDeviceId(Context context) {
+
+        String deviceId;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        } else {
+            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    return "";
+                }
+            }
+            assert mTelephony != null;
+            if (mTelephony.getDeviceId() != null)
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                {
+                    deviceId = mTelephony.getImei();
+                }else {
+                    deviceId = mTelephony.getDeviceId();
+                }
+            } else {
+                deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            }
+        }
+        LogMobio.logD("deviceId", deviceId);
+        return deviceId;
     }
 
     public static AppObject getAppObject(Application application){

@@ -22,6 +22,9 @@ import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mobio.analytics.client.models.ScreenTraitsObject;
+import com.mobio.analytics.client.models.EventTraitsObject;
+import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
@@ -34,6 +37,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private static final String TAG = AnalyticsLifecycleCallback.class.getName();
     private Analytics analytics;
     private boolean shouldTrackApplicationLifecycleEvents;
+    private boolean shouldTrackScreenLifecycleEvents;
     private boolean trackDeepLinks;
     private boolean shouldRecordScreenViews;
     private boolean shouldTrackScrollEvent;
@@ -44,12 +48,14 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     final int delay = 1000;
     private int countSecond;
     private HashMap<String, Integer> mapScreenAndCountTime;
+    private HashMap<String, ScreenConfigObject> screenConfigObjectHashMap;
 
-    public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents,
+    public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
-                                      boolean shouldTrackScrollEvent ,Application application) {
+                                      boolean shouldTrackScrollEvent ,Application application, HashMap<String, ScreenConfigObject> screenConfigObjectHashMap) {
         this.analytics = analytics;
         this.shouldTrackApplicationLifecycleEvents = shouldTrackApplicationLifecycleEvents;
+        this.shouldTrackScreenLifecycleEvents  = shouldTrackScreenLifecycleEvents;
         this.trackDeepLinks = trackDeepLinks;
         this.shouldRecordScreenViews = shouldRecordScreenViews;
         this.numStarted = 0;
@@ -59,6 +65,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         this.countSecond = 0;
         this.lifeCycleHandler = new Handler();
         this.mapScreenAndCountTime = new HashMap<>();
+        this.screenConfigObjectHashMap = screenConfigObjectHashMap;
     }
 
     @Override
@@ -107,19 +114,42 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             }
         }
         numStarted++;
-        analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_SCREEN_LIFECYCLE,"Activity "+getNameOfActivity(activity)+" started");
 
-        if (shouldRecordScreenViews) {
-            if(lifeCycleHandler != null) {
-                lifeCycleHandler.removeCallbacksAndMessages(null);
-                countSecond = 0;
-                lifeCycleHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        countSecond++;
-                        mapScreenAndCountTime.put(getNameOfActivity(activity), countSecond);
-                        lifeCycleHandler.postDelayed(this, delay);
+        if(screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0){
+            ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
+            if(screenConfigObject != null) {
+                ScreenTraitsObject screenTraitsObject = new ScreenTraitsObject(screenConfigObject.getTitle(),
+                        screenConfigObject.getActivityName(), 0);
+
+                if(shouldTrackScreenLifecycleEvents) {
+                    EventTraitsObject eventTraitsObject = new EventTraitsObject.Builder()
+                            .withEventType(Analytics.TYPE_SCREEN_LIFECYCLE)
+                            .withDetail(screenConfigObject.getTitle() + " start").build();
+                    analytics.track(Analytics.DEMO_EVENT, eventTraitsObject);
+                }
+
+                if (shouldRecordScreenViews) {
+                    if(lifeCycleHandler != null) {
+                        lifeCycleHandler.removeCallbacksAndMessages(null);
+                        countSecond = 0;
+                        lifeCycleHandler.postDelayed(new Runnable() {
+                            public void run() {
+                                countSecond++;
+                                mapScreenAndCountTime.put(getNameOfActivity(activity), countSecond);
+                                lifeCycleHandler.postDelayed(this, delay);
+
+                                if(screenConfigObject.getVisitTime().length > 0){
+                                    for(int i = 0 ; i < screenConfigObject.getVisitTime().length; i++){
+                                        if(screenConfigObject.getVisitTime()[i] == countSecond){
+                                            screenTraitsObject.setRecordTime(countSecond);
+                                            analytics.recordScreen(screenTraitsObject);
+                                        }
+                                    }
+                                }
+                            }
+                        }, delay);
                     }
-                }, delay);
+                }
             }
         }
     }
@@ -217,14 +247,26 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             }
         }
 
-        if(shouldRecordScreenViews){
-            String name = getNameOfActivity(activity);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                analytics.recordScreenViews(name, mapScreenAndCountTime.getOrDefault(name, 0));
+        if(shouldTrackScreenLifecycleEvents && screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0){
+            ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
+            if(screenConfigObject != null) {
+
+                EventTraitsObject eventTraitsObject = new EventTraitsObject.Builder()
+                        .withEventType(Analytics.TYPE_SCREEN_LIFECYCLE)
+                        .withDetail(screenConfigObject.getTitle() + " stop").build();
+                analytics.track(Analytics.DEMO_EVENT, eventTraitsObject);
+
+                if(shouldRecordScreenViews){
+                    String name = getNameOfActivity(activity);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        ScreenTraitsObject screenTraitsObject = new ScreenTraitsObject(screenConfigObject.getTitle(),
+                                screenConfigObject.getActivityName(), mapScreenAndCountTime.getOrDefault(name, 0));
+                        analytics.recordScreen(screenTraitsObject);
+                    }
+                }
+
             }
         }
-
-        analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_SCREEN_LIFECYCLE,"Activity "+getNameOfActivity(activity)+" stopped");
     }
 
     @Override
