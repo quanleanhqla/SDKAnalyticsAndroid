@@ -3,10 +3,10 @@ package com.mobio.sample;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +15,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.mobio.analytics.client.utility.GpsTracker;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.Utils;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
 
         String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LogMobio.logD("LoginActivity", "imei " + android_id);
+            LogMobio.logD("LoginActivity", "imei " + Utils.getIMEIDeviceId(this));
         }
     }
 
@@ -86,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvLat.setText(String.valueOf(latitude));
+                    tvLat.setText(new StringBuilder().append(latitude).append(" ").append(Utils.getIMEIDeviceId(LoginActivity.this)).toString());
                     tvLong.setText(String.valueOf(longitude));
                 }
             });
@@ -131,8 +134,8 @@ public class LoginActivity extends AppCompatActivity {
 //                String userName = etUsername.getText().toString();
 //                String password = etPassword.getText().toString();
 //
-//                Log.d("LoginActivity","userName" + userName);
-//                Log.d("LoginActivity","password" + password);
+//                LogMobio.logD("LoginActivity","userName" + userName);
+//                LogMobio.logD("LoginActivity","password" + password);
 //
 //                if(!TextUtils.isEmpty(userName) &&
 //                        !TextUtils.isEmpty(password) &&

@@ -179,9 +179,7 @@ public class Analytics {
 //            public void run() {
                 SendSyncObject sendSyncObject = new SendSyncObject(dataObject);
                 try {
-                    LogMobio.logD("Analytics","1");
                     Response<Void> response = RetrofitClient.getInstance().getMyApi().sendSync(Utils.getHeader(application.getApplicationContext()), sendSyncObject).execute();
-                    LogMobio.logD("Analytics","2");
                     if(response.code() != 200){
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
                         LogMobio.logD(TAG, "body = "+jObjError.toString());
@@ -216,6 +214,7 @@ public class Analytics {
                     sendSync(cacheDataObject);
                     //listDataWaitToSend.add(cacheDataObject);
                     LogMobio.logD("Analytics identify", cacheDataObject.toString());
+                    SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_USER_NAME, identifyObject.getEmail());
                 }
             });
         }

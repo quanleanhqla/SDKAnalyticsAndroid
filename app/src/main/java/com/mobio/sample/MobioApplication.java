@@ -29,6 +29,7 @@ public class MobioApplication extends Application {
                 .shouldTrackDeepLink(true)
                 .shouldTrackAppLifeCycle(true)
                 .shouldTrackScreenLifeCycle(true)
+                .shouldTrackScroll(true)
                 .withActivityMap(screenConfigObjectHashMap)
                 .withIntervalSecond(10)
                 .shouldRecordScreen(true)

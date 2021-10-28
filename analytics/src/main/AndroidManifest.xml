@@ -5,9 +5,13 @@
 
     <application>
         <service
-            android:name="com.mobio.analytics.client.service.NotificationService"
+            android:name=".client.service.TerminateService"
+            android:stopWithTask="false"
+              />
+        <service
+            android:name=".client.service.NotificationService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
     </application>
 
 </manifest>

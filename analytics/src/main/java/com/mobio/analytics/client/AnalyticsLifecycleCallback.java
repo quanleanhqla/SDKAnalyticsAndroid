@@ -10,10 +10,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
@@ -25,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mobio.analytics.client.models.ScreenTraitsObject;
 import com.mobio.analytics.client.models.EventTraitsObject;
 import com.mobio.analytics.client.models.ScreenConfigObject;
+import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
@@ -87,6 +91,8 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         if (trackDeepLinks) {
             trackDeepLink(activity);
         }
+
+        activity.startService(new Intent(activity, TerminateService.class));
     }
 
     public String getNameOfActivity(Activity activity){
@@ -165,7 +171,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     }
 
     public void trackScrollEvent(Activity activity){
-        for(View view : getAllViewCanScroll(activity.getWindow().getDecorView())){
+        for(View view : getAllViewCanScrollOrEdittext(activity.getWindow().getDecorView())){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if(view instanceof ScrollView) {
                     int[] scrollRange = {0};
@@ -200,26 +206,42 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         }
                     });
                 }
+                else if(view instanceof EditText){
+                    ((EditText) view).addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                            LogMobio.logD("Saving", view.toString()+ " out text " + charSequence.toString());
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+
+                        }
+                    });
+                }
             }
         }
     }
 
-    List<View> getAllViewCanScroll(View v){
+
+
+    List<View> getAllViewCanScrollOrEdittext(View v){
         ArrayList<View> viewCanScroll = new ArrayList<>();
         ViewGroup viewgroup=(ViewGroup)v;
         for (int i=0;i<viewgroup.getChildCount();i++) {
             View v1=viewgroup.getChildAt(i);
-            if (v1 instanceof ViewGroup) viewCanScroll.addAll(getAllViewCanScroll(v1));
-            LogMobio.logD("SavingActivity",v1.toString() +" "+(v1 instanceof ListView
-                    || v1 instanceof ScrollView
-                    || v1 instanceof NestedScrollView
-                    || v1 instanceof RecyclerView
-                    || v1 instanceof WebView));
+            if (v1 instanceof ViewGroup) viewCanScroll.addAll(getAllViewCanScrollOrEdittext(v1));
+            LogMobio.logD("SavingActivity",v1.toString() +" "+(v1 instanceof EditText));
             if(v1 instanceof ListView
                     || v1 instanceof ScrollView
                     || v1 instanceof NestedScrollView
                     || v1 instanceof RecyclerView
-                    || v1 instanceof WebView){
+                    || v1 instanceof WebView || v1 instanceof EditText){
                 viewCanScroll.add(v1);
             }
         }

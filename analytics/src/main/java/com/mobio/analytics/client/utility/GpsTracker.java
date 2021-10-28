@@ -1,4 +1,4 @@
-package com.mobio.sample;
+package com.mobio.analytics.client.utility;
 
 import android.Manifest;
 import android.app.Activity;
@@ -16,8 +16,6 @@ import android.provider.Settings;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
-
-import com.mobio.analytics.client.utility.LogMobio;
 
 public class GpsTracker extends Service implements LocationListener {
     private final Context mContext;
@@ -64,52 +62,18 @@ public class GpsTracker extends Service implements LocationListener {
                 // no network provider is enabled
             } else {
                 this.canGetLocation = true;
-                // First get location from Network Provider
-                if (isNetworkEnabled) {
-                    //check the network permission
-                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions((Activity) mContext, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
-                    }
-                    locationManager.requestLocationUpdates(
-                            LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
 
-                    LogMobio.logD("Network", "Network");
-                    if (locationManager != null) {
-                        location = locationManager
-                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                        }
-                    }
-                }
 
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
-                    if (location == null) {
-                        //check the network permission
-                        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions((Activity) mContext, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
-                        }
-                        locationManager.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-
-                        LogMobio.logD("GPS Enabled", "GPS Enabled");
-                        if (locationManager != null) {
-                            location = locationManager
-                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-                            if (location != null) {
-                                latitude = location.getLatitude();
-                                longitude = location.getLongitude();
-                            }
-                        }
+                    getLocationFromGPS();
+                    if(getLatitude() == 0 && getLongitude() == 0){
+                        getLocationFromNetwork();
                     }
+                }
+                // Get location from Network Provider
+                else {
+                    getLocationFromNetwork();
                 }
             }
 
@@ -119,6 +83,53 @@ public class GpsTracker extends Service implements LocationListener {
 
         return location;
     }
+
+    public void getLocationFromGPS(){
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
+        }
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                MIN_TIME_BW_UPDATES,
+                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+
+        LogMobio.logD("GPS Enabled", "GPS Enabled");
+        if (locationManager != null) {
+            location = locationManager
+                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            updateGPSCoordinates();
+        }
+    }
+
+    public void getLocationFromNetwork(){
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
+        }
+        locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                MIN_TIME_BW_UPDATES,
+                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+
+        LogMobio.logD("Network", "Network");
+        if (locationManager != null) {
+            location = locationManager
+                    .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            updateGPSCoordinates();
+        }
+    }
+
+
+    public void updateGPSCoordinates()
+    {
+        if (location != null)
+        {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+        }
+    }
+
 
     /**
      * Stop using GPS listener
@@ -199,6 +210,8 @@ public class GpsTracker extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        this.location = location;
+        updateGPSCoordinates();
     }
 
     @Override
