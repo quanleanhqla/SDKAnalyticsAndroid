@@ -189,13 +189,6 @@ public class Utils {
             if(addresses != null && addresses.size() > 0) {
                 Address obj = addresses.get(0);
                 String add = obj.getAddressLine(0);
-                add = add + "\n" + obj.getCountryName();
-                add = add + "\n" + obj.getCountryCode();
-                add = add + "\n" + obj.getAdminArea();
-                add = add + "\n" + obj.getPostalCode();
-                add = add + "\n" + obj.getSubAdminArea();
-                add = add + "\n" + obj.getLocality();
-                add = add + "\n" + obj.getSubThoroughfare();
                 address = add;
                 LogMobio.logD("IGA", "Address" + add);
             }
