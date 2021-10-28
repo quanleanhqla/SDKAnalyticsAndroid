@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -27,11 +29,14 @@ import com.mobio.analytics.client.models.ProfileInfoObject;
 import com.mobio.analytics.client.models.PropertiesObject;
 import com.mobio.analytics.client.models.TraitsObject;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -174,6 +179,31 @@ public class Utils {
             }
         }
         return new OsObject(String.valueOf(Build.VERSION.SDK_INT), String.valueOf(Build.VERSION.RELEASE));
+    }
+
+    public static String getAddress(Context context, double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        String address = "";
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if(addresses != null && addresses.size() > 0) {
+                Address obj = addresses.get(0);
+                String add = obj.getAddressLine(0);
+                add = add + "\n" + obj.getCountryName();
+                add = add + "\n" + obj.getCountryCode();
+                add = add + "\n" + obj.getAdminArea();
+                add = add + "\n" + obj.getPostalCode();
+                add = add + "\n" + obj.getSubAdminArea();
+                add = add + "\n" + obj.getLocality();
+                add = add + "\n" + obj.getSubThoroughfare();
+                address = add;
+                LogMobio.logD("IGA", "Address" + add);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            LogMobio.logD("LoginActivity", e.toString());
+        }
+        return address;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
