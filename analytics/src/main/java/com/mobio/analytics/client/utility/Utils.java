@@ -246,7 +246,6 @@ public class Utils {
                 .withDevice(getDeviceObject())
                 .withOs(getOsObject())
                 .withTimezone(getTimeZone())
-                .withTraits(getTraitsObject())
                 .build();
     }
 

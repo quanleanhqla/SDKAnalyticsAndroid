@@ -147,6 +147,7 @@ public class Analytics {
                 .withProfileInfoObject(Utils.getProfileCreateDeviceObject(application))
                 .withAnonymousId(Build.ID)
                 .withProperties(propertiesObject)
+                .withTraits(Utils.getTraitsObject())
                 .build();
 
         String cacheStr = new Gson().toJson(cacheDataObject);
@@ -169,8 +170,7 @@ public class Analytics {
                                         .put("type", deviceObject.getType()))
                                 .put("os", new ValueMap().put("name", osObject.getName())
                                         .put("version", osObject.getVersion()))
-                                .put("timezone", Utils.getTimeZone())
-                                .put("traits", new ValueMap().put("action_time", Utils.getTimeUTC())))
+                                .put("timezone", Utils.getTimeZone()))
                         .put("profile_info", new ValueMap().put("source", "APP")
                                 .put("customer_id", Build.ID)
                                 .put("push_id", new ValueMap().put("app_id", "ANDROID")
@@ -180,7 +180,8 @@ public class Analytics {
                                         .put("os_type", 2)
                                         .put("push_id", SharedPreferencesUtils.getString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN))))
                         .put("properties", new ValueMap().put("build", propertiesObject.getBuild())
-                                .put("version", propertiesObject.getVersion()));
+                                .put("version", propertiesObject.getVersion()))
+                        .put("event_data", new ValueMap().put("action_time", Utils.getTimeUTC()));
             }
             catch (Exception exception){
                 exception.printStackTrace();
@@ -238,7 +239,7 @@ public class Analytics {
             public void run() {
                 if(traits != null && cacheValueMap != null) {
                     traits.put("action_time", Utils.getTimeUTC());
-                    cacheValueMap.get("context").put("traits", traits);
+                    cacheValueMap.put("event_data", traits);
                     cacheValueMap.put("event_key", eventKey);
                     cacheValueMap.put("type", "track");
                     sendSync(cacheValueMap);
@@ -306,7 +307,7 @@ public class Analytics {
                     cacheValueMap.put("profile_info", profile);
 
 
-                    cacheValueMap.get("context").put("traits", profileParam);
+                    cacheValueMap.put("event_data", profileParam);
                     cacheValueMap.get("profile_info").put("customer_id", Build.ID);
                     cacheValueMap.get("profile_info").put("push_id", profileVM.get("push_id"));
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
@@ -323,7 +324,7 @@ public class Analytics {
                 @Override
                 public void run() {
                     traits.put("action_time", Utils.getTimeUTC());
-                    cacheValueMap.get("context").put("traits", traits);
+                    cacheValueMap.put("event_data", traits);
                     cacheValueMap.put("event_key", SDK_Mobile_Test_Time_Visit_App);
                     cacheValueMap.put("type", "screen");
                     sendSync(cacheValueMap);

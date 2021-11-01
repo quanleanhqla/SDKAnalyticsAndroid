@@ -12,9 +12,6 @@ public class ContextObject {
     @SerializedName("timezone")
     private String timezone;
 
-    @SerializedName("traits")
-    private TraitsObject traits;
-
     @SerializedName("os")
     private OsObject os;
 
@@ -37,7 +34,6 @@ public class ContextObject {
         this.device = builder.device;
         this.app = builder.app;
         this.timezone = builder.timezone;
-        this.traits = builder.traits;
         this.os = builder.os;
         this.screen = builder.screen;
         this.network = builder.network;
@@ -50,7 +46,6 @@ public class ContextObject {
         private DeviceObject device;
         private AppObject app;
         private String timezone;
-        private TraitsObject traits;
         private OsObject os;
         private ScreenObject screen;
         private NetworkObject network;
@@ -76,10 +71,6 @@ public class ContextObject {
             return this;
         }
 
-        public Builder withTraits(TraitsObject traits){
-            this.traits = traits;
-            return this;
-        }
 
         public Builder withOs(OsObject os){
             this.os = os;
@@ -140,14 +131,6 @@ public class ContextObject {
         this.timezone = timezone;
     }
 
-    public TraitsObject getTraits() {
-        return traits;
-    }
-
-    public void setTraits(TraitsObject traits) {
-        this.traits = traits;
-    }
-
     public OsObject getOs() {
         return os;
     }
@@ -202,7 +185,6 @@ public class ContextObject {
                 "device=" + device +
                 ", app=" + app +
                 ", timezone='" + timezone + '\'' +
-                ", traits=" + traits +
                 ", os=" + os +
                 ", screen=" + screen +
                 ", network=" + network +

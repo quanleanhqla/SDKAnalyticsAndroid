@@ -22,6 +22,9 @@ public class DataObject {
     @SerializedName("type")
     private String type;
 
+    @SerializedName("event_data")
+    private TraitsObject traits;
+
     public DataObject(Builder b) {
         this.context = b.mContext;
         this.profileInfo = b.mProfileInfo;
@@ -38,6 +41,7 @@ public class DataObject {
         private String mAnonymousId;
         private PropertiesObject mProperties;
         private String mType;
+        private TraitsObject mTraits;
 
         public Builder(){
         }
@@ -69,6 +73,11 @@ public class DataObject {
 
         public Builder withType(String type){
             this.mType = type;
+            return this;
+        }
+
+        public Builder withTraits(TraitsObject traits){
+            this.mTraits = traits;
             return this;
         }
 
