@@ -29,7 +29,6 @@ public class MobioApplication extends Application {
                 .shouldTrackDeepLink(true)
                 .shouldTrackAppLifeCycle(true)
                 .shouldTrackScreenLifeCycle(true)
-                .shouldTrackScroll(true)
                 .withActivityMap(screenConfigObjectHashMap)
                 .withIntervalSecond(10)
                 .shouldRecordScreen(true)
@@ -37,9 +36,9 @@ public class MobioApplication extends Application {
                 .withMerchantId("1b99bdcf-d582-4f49-9715-1b61dfff3924");
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Analytics.setSingletonInstance(builder.build());
-        }
+
+        Analytics.setSingletonInstance(builder.build());
+
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {

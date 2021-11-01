@@ -1,5 +1,7 @@
 package com.mobio.analytics.client.utility;
 
+import static org.json.JSONObject.wrap;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -29,10 +31,15 @@ import com.mobio.analytics.client.models.ProfileInfoObject;
 import com.mobio.analytics.client.models.PropertiesObject;
 import com.mobio.analytics.client.models.TraitsObject;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -147,13 +154,20 @@ public class Utils {
         return TimeZone.getDefault().getDisplayName();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public static TraitsObject getTraitsObject(){
         return new TraitsObject();
     }
 
     public static String getTimeUTC(){
-        return Instant.now().toString();
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            return Instant.now().toString();
+//        }
+//        else {
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            return sdf.format(new Date());
+//        }
     }
 
     public static OsObject getOsObject(){
@@ -199,7 +213,34 @@ public class Utils {
         return address;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static float coerceToFloat(Object value, float defaultValue) {
+        if (value instanceof Float) {
+            return (float) value;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).floatValue();
+        } else if (value instanceof String) {
+            try {
+                return Float.valueOf((String) value);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return defaultValue;
+    }
+
+    public static JSONObject toJsonObject(Map<String, ?> map) {
+        JSONObject jsonObject = new JSONObject();
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            Object value = wrap(entry.getValue());
+            try {
+                jsonObject.put(entry.getKey(), value);
+            } catch (JSONException ignored) {
+                // Ignore values that JSONObject doesn't accept.
+            }
+        }
+        return jsonObject;
+    }
+
     public static ContextObject getContextObject(Application application){
         return new ContextObject.Builder().withApp(getAppObject(application))
                 .withDevice(getDeviceObject())

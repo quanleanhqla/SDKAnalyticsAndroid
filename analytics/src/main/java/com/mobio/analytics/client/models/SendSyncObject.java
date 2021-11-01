@@ -4,24 +4,24 @@ import com.google.gson.annotations.SerializedName;
 
 public class SendSyncObject {
     @SerializedName("data")
-    private DataObject dataObject;
+    private DataObject data;
 
     public SendSyncObject(DataObject dataObject) {
-        this.dataObject = dataObject;
+        this.data = dataObject;
     }
 
     public DataObject getDataObject() {
-        return dataObject;
+        return data;
     }
 
     public void setDataObject(DataObject dataObject) {
-        this.dataObject = dataObject;
+        this.data = dataObject;
     }
 
     @Override
     public String toString() {
         return "SendSyncObject{" +
-                "dataObject=" + dataObject +
+                "data=" + data +
                 '}';
     }
 }

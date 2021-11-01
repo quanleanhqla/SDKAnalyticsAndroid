@@ -44,7 +44,6 @@ public class SavingActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private Runnable timeOutRunable = new Runnable() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void run() {
             if(com.mobio.analytics.client.utility.SharedPreferencesUtils.getBool(SavingActivity.this,
@@ -64,7 +63,7 @@ public class SavingActivity extends AppCompatActivity implements View.OnClickLis
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         LogMobio.logD("SavingActivity", "abc");
-        Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Open from noti");
+        //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Open from noti");
     }
 
     public void showNotification(Context context, String title, String message, Intent intent, int reqCode) {

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,11 +12,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.GpsTracker;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.Utils;
@@ -46,9 +51,9 @@ public class LoginActivity extends AppCompatActivity {
         addListener();
 
         String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LogMobio.logD("LoginActivity", "imei " + Utils.getIMEIDeviceId(this));
-        }
+
+        LogMobio.logD("LoginActivity", "imei " + Utils.getIMEIDeviceId(this));
+
     }
 
     private void getAddress(double latitude, double longitude) {
@@ -131,42 +136,47 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                String userName = etUsername.getText().toString();
-//                String password = etPassword.getText().toString();
-//
-//                LogMobio.logD("LoginActivity","userName" + userName);
-//                LogMobio.logD("LoginActivity","password" + password);
-//
-//                if(!TextUtils.isEmpty(userName) &&
-//                        !TextUtils.isEmpty(password) &&
-//                        isEmailValid(userName)){
-//                    SharedPreferencesUtils.editString(LoginActivity.this, SharedPreferencesUtils.KEY_USER_NAME, userName);
-//                    SharedPreferencesUtils.editString(LoginActivity.this, SharedPreferencesUtils.KEY_PASSWORD, password);
-//                    SharedPreferencesUtils.editBool(LoginActivity.this, SharedPreferencesUtils.KEY_STATE_LOGIN, true);
-//                    startActivity(new Intent(LoginActivity.this, HomeActivity.class));
-//                    finish();
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                        Analytics.getInstance().identify(new IdentifyObject.Builder()
-//                        .withEmail(userName).build());
-//                    }
-//                    Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_LOGIN_SUCCESS, "Login");
-//                    //Analytics.with(LoginActivity.this).track("Login success");
-//                }
-//                else {
-//                    if(TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)){
-//                        Toast.makeText(LoginActivity.this, "Mail or password is null", Toast.LENGTH_SHORT).show();
-//                    }
-//                    else {
-//                        Toast.makeText(LoginActivity.this, "Invalid mail", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
+                String userName = etUsername.getText().toString();
+                String password = etPassword.getText().toString();
 
-                new Handler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        getLocation();
+                LogMobio.logD("LoginActivity","userName" + userName);
+                LogMobio.logD("LoginActivity","password" + password);
+
+                if(!TextUtils.isEmpty(userName) &&
+                        !TextUtils.isEmpty(password) &&
+                        isEmailValid(userName)){
+                    startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                    finish();
+
+                    Analytics.getInstance().identify(new ValueMap().put("email", userName));
+
+                    Analytics.getInstance().track(Analytics.SDK_Mobile_Test_Click_Button_In_App, new ValueMap().put("button_name", "login button")
+                    .put("screen_name", LoginActivity.class.getSimpleName()).put("status", "success"));
+                    //Analytics.with(LoginActivity.this).track("Login success");
+                }
+                else {
+                    if(TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)){
+                        Toast.makeText(LoginActivity.this, "Mail or password is null", Toast.LENGTH_SHORT).show();
                     }
-                });
+                    else {
+                        Toast.makeText(LoginActivity.this, "Invalid mail", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+//                ValueMap vkl = new ValueMap().put("abc", "abc");
+//                ValueMap vcl = new ValueMap().put("abcd", "abc").put("abc", "abc");
+//                vkl.put("vcl", vcl);
+//                vcl.put("xxx", "xxx");
+//
+//                LogMobio.logD("LoginActivity", "vkl "+ vkl.toString());
+//                LogMobio.logD("LoginActivity", "vcl "+ vcl.toString());
+
+//                new Handler().post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        getLocation();
+//                    }
+//                });
 
             }
         });

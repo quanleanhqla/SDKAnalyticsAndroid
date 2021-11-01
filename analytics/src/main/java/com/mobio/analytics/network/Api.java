@@ -1,8 +1,6 @@
 package com.mobio.analytics.network;
 
-import com.mobio.analytics.client.models.SendSyncObject;
-import com.mobio.analytics.client.utility.SharedPreferencesUtils;
-
+import java.util.HashMap;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -13,5 +11,5 @@ import retrofit2.http.POST;
 public interface Api {
     String BASE_URL = "https://api-test1.mobio.vn/dynamic-event/api/v1.0/";
     @POST("sync")
-    Call<Void> sendSync(@HeaderMap Map<String, String> headers, @Body SendSyncObject sendSyncObject);
+    Call<Void> sendSync(@HeaderMap Map<String, String> headers, @Body HashMap<String, Object> sendSyncObject);
 }

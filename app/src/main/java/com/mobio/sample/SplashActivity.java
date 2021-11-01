@@ -18,13 +18,8 @@ public class SplashActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         setContentView(R.layout.activity_splash);
-        Intent i = null;
-        if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_STATE_LOGIN)){
-            i = new Intent(SplashActivity.this, HomeActivity.class);
-        }
-        else {
-            i = new Intent(SplashActivity.this, LoginActivity.class);
-        }
+        Intent i = new Intent(SplashActivity.this, LoginActivity.class);
+
         Intent finalI = i;
         new Handler().postDelayed(new Runnable() {
             @Override

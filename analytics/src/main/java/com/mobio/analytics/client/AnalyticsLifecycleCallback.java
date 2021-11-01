@@ -25,9 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mobio.analytics.client.models.ScreenTraitsObject;
-import com.mobio.analytics.client.models.EventTraitsObject;
 import com.mobio.analytics.client.models.ScreenConfigObject;
+import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class AnalyticsLifecycleCallback implements Application.ActivityLifecycleCallbacks{
+public class AnalyticsLifecycleCallback implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = AnalyticsLifecycleCallback.class.getName();
     private Analytics analytics;
     private boolean shouldTrackApplicationLifecycleEvents;
@@ -56,10 +55,10 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
-                                      boolean shouldTrackScrollEvent ,Application application, HashMap<String, ScreenConfigObject> screenConfigObjectHashMap) {
+                                      boolean shouldTrackScrollEvent, Application application, HashMap<String, ScreenConfigObject> screenConfigObjectHashMap) {
         this.analytics = analytics;
         this.shouldTrackApplicationLifecycleEvents = shouldTrackApplicationLifecycleEvents;
-        this.shouldTrackScreenLifecycleEvents  = shouldTrackScreenLifecycleEvents;
+        this.shouldTrackScreenLifecycleEvents = shouldTrackScreenLifecycleEvents;
         this.trackDeepLinks = trackDeepLinks;
         this.shouldRecordScreenViews = shouldRecordScreenViews;
         this.numStarted = 0;
@@ -74,7 +73,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-        if(!alreadyLaunch){
+        if (!alreadyLaunch) {
             alreadyLaunch = true;
 
             PackageInfo packageInfo = analytics.getPackageInfo(application);
@@ -85,17 +84,17 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
             SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
 
-            analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_APP_LIFECYCLE,"Application first installed");
+            analytics.track(Analytics.SDK_Mobile_Test_Open_First_App, new ValueMap().put("build", String.valueOf(currentVersionCode))
+                                                                                      .put("version", currentVersionName));
         }
         analytics.trackApplicationLifecycleEvents();
         if (trackDeepLinks) {
             trackDeepLink(activity);
         }
-
         activity.startService(new Intent(activity, TerminateService.class));
     }
 
-    public String getNameOfActivity(Activity activity){
+    public String getNameOfActivity(Activity activity) {
         String name = null;
         PackageManager packageManager = activity.getPackageManager();
         try {
@@ -105,37 +104,34 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         } catch (PackageManager.NameNotFoundException e) {
             throw new AssertionError("Activity Not Found: " + e.toString());
         } catch (Exception e) {
-            LogMobio.logE(TAG, "Unable to track screen view for "+ activity.toString());
+            LogMobio.logE(TAG, "Unable to track screen view for " + activity.toString());
         }
         return name;
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        if(numStarted == 0){
-            LogMobio.logD(TAG,"app went to foreground");
+        if (numStarted == 0) {
+            LogMobio.logD(TAG, "app went to foreground");
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, true);
-            if(shouldTrackApplicationLifecycleEvents){
-                analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_APP_LIFECYCLE,"Application started");
+            if (shouldTrackApplicationLifecycleEvents) {
+                analytics.track(Analytics.SDK_Mobile_Test_Open_App, new ValueMap().put("version", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
+                        .put("build", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
             }
         }
         numStarted++;
 
-        if(screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0){
+        if (screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0) {
             ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
-            if(screenConfigObject != null) {
-                ScreenTraitsObject screenTraitsObject = new ScreenTraitsObject(screenConfigObject.getTitle(),
-                        screenConfigObject.getActivityName(), 0);
+            if (screenConfigObject != null) {
 
-                if(shouldTrackScreenLifecycleEvents) {
-                    EventTraitsObject eventTraitsObject = new EventTraitsObject.Builder()
-                            .withEventType(Analytics.TYPE_SCREEN_LIFECYCLE)
-                            .withDetail(screenConfigObject.getTitle() + " start").build();
-                    analytics.track(Analytics.DEMO_EVENT, eventTraitsObject);
+                if (shouldTrackScreenLifecycleEvents) {
+                    analytics.track(Analytics.SDK_Mobile_Test_Screen_Start_In_App, new ValueMap().put("screen_name", screenConfigObject.getTitle())
+                            .put("time", Utils.getTimeUTC()));
                 }
 
                 if (shouldRecordScreenViews) {
-                    if(lifeCycleHandler != null) {
+                    if (lifeCycleHandler != null) {
                         lifeCycleHandler.removeCallbacksAndMessages(null);
                         countSecond = 0;
                         lifeCycleHandler.postDelayed(new Runnable() {
@@ -144,11 +140,10 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                                 mapScreenAndCountTime.put(getNameOfActivity(activity), countSecond);
                                 lifeCycleHandler.postDelayed(this, delay);
 
-                                if(screenConfigObject.getVisitTime().length > 0){
-                                    for(int i = 0 ; i < screenConfigObject.getVisitTime().length; i++){
-                                        if(screenConfigObject.getVisitTime()[i] == countSecond){
-                                            screenTraitsObject.setRecordTime(countSecond);
-                                            analytics.recordScreen(screenTraitsObject);
+                                if (screenConfigObject.getVisitTime().length > 0) {
+                                    for (int i = 0; i < screenConfigObject.getVisitTime().length; i++) {
+                                        if (screenConfigObject.getVisitTime()[i] == countSecond) {
+                                            analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
                                         }
                                     }
                                 }
@@ -162,7 +157,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        if(shouldTrackScrollEvent) {
+        if (shouldTrackScrollEvent) {
             trackScrollEvent(activity);
         }
 
@@ -170,10 +165,10 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
     }
 
-    public void trackScrollEvent(Activity activity){
-        for(View view : getAllViewCanScrollOrEdittext(activity.getWindow().getDecorView())){
+    public void trackScrollEvent(Activity activity) {
+        for (View view : getAllViewCanScrollOrEdittext(activity.getWindow().getDecorView())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if(view instanceof ScrollView) {
+                if (view instanceof ScrollView) {
                     int[] scrollRange = {0};
                     final ViewTreeObserver vto = view.getViewTreeObserver();
                     if (vto.isAlive()) {
@@ -184,7 +179,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                                 int scrollviewHeight = view.getMeasuredHeight();
                                 // handle viewWidth here...
 
-                                LogMobio.logD("AnalyticsLifecycleCallback", "height " + viewHeight+"\n scrollviewHeight "+scrollviewHeight);
+                                LogMobio.logD("AnalyticsLifecycleCallback", "height " + viewHeight + "\n scrollviewHeight " + scrollviewHeight);
 
                                 scrollRange[0] = viewHeight - scrollviewHeight;
 
@@ -201,12 +196,11 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     view.setOnScrollChangeListener(new View.OnScrollChangeListener() {
                         @Override
                         public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-                            percentScroll[0] = (int) (((float)i1/scrollRange[0]) * 100);
-                            LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] +"%");
+                            percentScroll[0] = (int) (((float) i1 / scrollRange[0]) * 100);
+                            LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
                         }
                     });
-                }
-                else if(view instanceof EditText){
+                } else if (view instanceof EditText) {
                     ((EditText) view).addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -215,7 +209,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
                         @Override
                         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                            LogMobio.logD("Saving", view.toString()+ " out text " + charSequence.toString());
+                            LogMobio.logD("Saving", view.toString() + " out text " + charSequence.toString());
                         }
 
                         @Override
@@ -229,19 +223,18 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     }
 
 
-
-    List<View> getAllViewCanScrollOrEdittext(View v){
+    List<View> getAllViewCanScrollOrEdittext(View v) {
         ArrayList<View> viewCanScroll = new ArrayList<>();
-        ViewGroup viewgroup=(ViewGroup)v;
-        for (int i=0;i<viewgroup.getChildCount();i++) {
-            View v1=viewgroup.getChildAt(i);
+        ViewGroup viewgroup = (ViewGroup) v;
+        for (int i = 0; i < viewgroup.getChildCount(); i++) {
+            View v1 = viewgroup.getChildAt(i);
             if (v1 instanceof ViewGroup) viewCanScroll.addAll(getAllViewCanScrollOrEdittext(v1));
-            LogMobio.logD("SavingActivity",v1.toString() +" "+(v1 instanceof EditText));
-            if(v1 instanceof ListView
+            LogMobio.logD("SavingActivity", v1.toString() + " " + (v1 instanceof EditText));
+            if (v1 instanceof ListView
                     || v1 instanceof ScrollView
                     || v1 instanceof NestedScrollView
                     || v1 instanceof RecyclerView
-                    || v1 instanceof WebView || v1 instanceof EditText){
+                    || v1 instanceof WebView || v1 instanceof EditText) {
                 viewCanScroll.add(v1);
             }
         }
@@ -260,30 +253,25 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         if (numStarted == 0) {
             LogMobio.logD(TAG, "app went to background");
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, false);
-            if(lifeCycleHandler!=null) {
+            if (lifeCycleHandler != null) {
                 lifeCycleHandler.removeCallbacksAndMessages(null);
             }
 
-            if(shouldTrackApplicationLifecycleEvents){
-                analytics.track(Analytics.DEMO_EVENT, Analytics.TYPE_APP_LIFECYCLE,"Application backgrouded");
+            if (shouldTrackApplicationLifecycleEvents) {
+//                analytics.track("", new ValueMap().put("version", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
+//                        .put("build", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
             }
         }
 
-        if(shouldTrackScreenLifecycleEvents && screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0){
+        if (shouldTrackScreenLifecycleEvents && screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0) {
             ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
-            if(screenConfigObject != null) {
+            if (screenConfigObject != null) {
+                analytics.track(Analytics.SDK_Mobile_Test_Screen_End_In_App, new ValueMap().put("screen_name", screenConfigObject.getTitle())
+                        .put("time", Utils.getTimeUTC()));
 
-                EventTraitsObject eventTraitsObject = new EventTraitsObject.Builder()
-                        .withEventType(Analytics.TYPE_SCREEN_LIFECYCLE)
-                        .withDetail(screenConfigObject.getTitle() + " stop").build();
-                analytics.track(Analytics.DEMO_EVENT, eventTraitsObject);
-
-                if(shouldRecordScreenViews){
-                    String name = getNameOfActivity(activity);
+                if (shouldRecordScreenViews) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        ScreenTraitsObject screenTraitsObject = new ScreenTraitsObject(screenConfigObject.getTitle(),
-                                screenConfigObject.getActivityName(), mapScreenAndCountTime.getOrDefault(name, 0));
-                        analytics.recordScreen(screenTraitsObject);
+                        analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
                     }
                 }
 
@@ -321,7 +309,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                 String value = uri.getQueryParameter(parameter);
                 if (value != null && !value.trim().isEmpty()) {
                     //Todo save
-                    LogMobio.logD(TAG, "parameter: "+parameter+" value: "+value);
+                    LogMobio.logD(TAG, "parameter: " + parameter + " value: " + value);
                 }
             }
         } catch (Exception e) {

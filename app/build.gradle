@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.mobio.sample"
-        minSdk 21
+        minSdk 16
         targetSdk 30
         versionCode 2
         versionName "2.0"
