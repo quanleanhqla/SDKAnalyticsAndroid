@@ -6,7 +6,12 @@ import androidx.work.WorkManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.mobio.analytics.client.Analytics;
 import com.mobio.analytics.client.utility.LogMobio;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public MyFirebaseMessagingService() {
@@ -32,6 +37,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             LogMobio.logD("MyFirebaseMessagingService", "Message data payload: " + remoteMessage.getData());
 
+            try {
+                JSONObject json= (JSONObject) new JSONTokener(remoteMessage.getData().toString()).nextValue();
+                JSONObject json2 = json.getJSONObject("alert");
+                String title = (String) json2.get("title");
+                String body = (String) json2.get("body");
+
+                LogMobio.logD("MyFirebaseMessagingService", "title: " + title);
+                LogMobio.logD("MyFirebaseMessagingService", "body: " + body);
+
+//                Intent i = new Intent();
+//                i.setAction(RECEIVE_NOTIFICATION_ACTION);
+//                i.putExtra(INTENT_KEY_TITLE, title);
+//                i.putExtra(INTENT_KEY_DETAIL, body);
+//                sendBroadcast(i);
+
+                Analytics.getInstance().showGlobalPopup(title, body, null, null);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 scheduleJob();
@@ -40,11 +65,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 handleNow();
             }
 
-        }
+            if (remoteMessage.getNotification() != null) {
+                LogMobio.logD("MyFirebaseMessagingService", "Message Notification Body: " + remoteMessage.getNotification().getBody());
 
-        // Check if message contains a notification payload.
-        if (remoteMessage.getNotification() != null) {
-            LogMobio.logD("MyFirebaseMessagingService", "Message Notification Body: " + remoteMessage.getNotification().getBody());
+
+
+                String title = remoteMessage.getNotification().getTitle();
+                String detail = remoteMessage.getNotification().getBody();
+
+
+                Analytics.getInstance().showGlobalPopup(title, detail, null, null);
+
+//            Intent i = new Intent();
+//            i.setAction(RECEIVE_NOTIFICATION_ACTION);
+//            i.putExtra(INTENT_KEY_TITLE, title);
+//            i.putExtra(INTENT_KEY_DETAIL, detail);
+//            sendBroadcast(i);
+            }
+
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM

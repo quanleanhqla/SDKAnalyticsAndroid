@@ -1,6 +1,5 @@
 package com.mobio.sample;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
@@ -24,7 +23,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mobio.analytics.client.Analytics;
 import com.mobio.analytics.client.utility.LogMobio;
 
 import java.util.StringTokenizer;
@@ -221,7 +219,7 @@ public class SendMoneyInActivity extends AppCompatActivity implements View.OnCli
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
-        dialog.setContentView(R.layout.custom_dialog);
+        dialog.setContentView(R.layout.custom_popup);
 
         Button btnAction = (Button) dialog.findViewById(R.id.btn_action);
         ImageView imvClose = (ImageView) dialog.findViewById(R.id.imv_close);
