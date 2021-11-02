@@ -219,6 +219,12 @@ public class Analytics {
         return map;
     }
 
+    public void showGlobalPopup(String title, String content, String source, String des){
+        if(analyticsLifecycleCallback != null){
+            analyticsLifecycleCallback.showPopup(title, content, source, des);
+        }
+    }
+
     private List<Object> toList(JSONArray array) throws JSONException {
         List<Object> list = new ArrayList<Object>();
         for (int i = 0; i < array.length(); i++) {
@@ -249,6 +255,16 @@ public class Analytics {
 
     }
 
+    public String getVersionCode(){
+        PackageInfo packageInfo = getPackageInfo(application);
+        return String.valueOf(packageInfo.versionCode);
+    }
+
+    public String getVersionBuild(){
+        PackageInfo packageInfo = getPackageInfo(application);
+        return packageInfo.versionName;
+    }
+
     public void autoSendSync() {
         LogMobio.logD("Analytics", "Scheduler");
         if (listDataWaitToSend.size() > 0) {
@@ -259,7 +275,7 @@ public class Analytics {
         }
     }
 
-    public static Map<String, Object> parameters(Object obj) {
+    public Map<String, Object> parameters(Object obj) {
         Map<String, Object> map = new HashMap<>();
         for (Field field : obj.getClass().getDeclaredFields()) {
             field.setAccessible(true);
@@ -328,7 +344,6 @@ public class Analytics {
                     cacheValueMap.put("event_key", SDK_Mobile_Test_Time_Visit_App);
                     cacheValueMap.put("type", "screen");
                     sendSync(cacheValueMap);
-                    LogMobio.logD("Analytics recordScreenViews", cacheValueMap.toString());
                 }
             });
         }

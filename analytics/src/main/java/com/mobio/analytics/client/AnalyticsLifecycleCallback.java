@@ -2,6 +2,7 @@ package com.mobio.analytics.client;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -15,16 +16,21 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.service.TerminateService;
@@ -52,6 +58,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private int countSecond;
     private HashMap<String, Integer> mapScreenAndCountTime;
     private HashMap<String, ScreenConfigObject> screenConfigObjectHashMap;
+    private Activity currentActivity;
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
@@ -94,6 +101,43 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         activity.startService(new Intent(activity, TerminateService.class));
     }
 
+    public void showPopup(String title, String content, String source, String des){
+        if(currentActivity != null) {
+            final Dialog dialog = new Dialog(currentActivity);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.custom_dialog);
+
+            Button btnAction = (Button) dialog.findViewById(R.id.btn_action);
+            ImageView imvClose = (ImageView) dialog.findViewById(R.id.imv_close);
+            TextView tvTitle = (TextView) dialog.findViewById(R.id.tv_title);
+            TextView tvDetail = (TextView) dialog.findViewById(R.id.tv_detail);
+
+            tvTitle.setText(title);
+            tvDetail.setText(content);
+
+            imvClose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                    //todo
+                    //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
+
+                }
+            });
+
+            btnAction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    //todo
+                }
+            });
+
+            dialog.show();
+        }
+    }
+
     public String getNameOfActivity(Activity activity) {
         String name = null;
         PackageManager packageManager = activity.getPackageManager();
@@ -111,6 +155,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
+        currentActivity = activity;
         if (numStarted == 0) {
             LogMobio.logD(TAG, "app went to foreground");
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, true);
@@ -251,6 +296,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         LogMobio.logD(TAG, "onstop");
         numStarted--;
         if (numStarted == 0) {
+            currentActivity = null;
             LogMobio.logD(TAG, "app went to background");
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, false);
             if (lifeCycleHandler != null) {
