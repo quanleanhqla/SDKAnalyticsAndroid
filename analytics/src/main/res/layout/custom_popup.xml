@@ -20,7 +20,7 @@
         android:textSize="9pt"
         android:textColor="@android:color/black"
         android:text="Nội dung title"
-        android:layout_marginTop="20pt"
+        android:layout_marginTop="4pt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
