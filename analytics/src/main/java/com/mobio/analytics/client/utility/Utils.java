@@ -213,34 +213,6 @@ public class Utils {
         return address;
     }
 
-    public static float coerceToFloat(Object value, float defaultValue) {
-        if (value instanceof Float) {
-            return (float) value;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).floatValue();
-        } else if (value instanceof String) {
-            try {
-                return Float.valueOf((String) value);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return defaultValue;
-    }
-
-    public static JSONObject toJsonObject(Map<String, ?> map) {
-        JSONObject jsonObject = new JSONObject();
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            Object value = wrap(entry.getValue());
-            try {
-                jsonObject.put(entry.getKey(), value);
-            } catch (JSONException ignored) {
-                // Ignore values that JSONObject doesn't accept.
-            }
-        }
-        return jsonObject;
-    }
-
     public static ContextObject getContextObject(Application application){
         return new ContextObject.Builder().withApp(getAppObject(application))
                 .withDevice(getDeviceObject())

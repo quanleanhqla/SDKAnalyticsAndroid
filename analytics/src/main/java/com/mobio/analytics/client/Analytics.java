@@ -87,6 +87,7 @@ public class Analytics {
     private String deviceToken;
     private ArrayList<DataObject> listDataWaitToSend;
     private String domainURL;
+    private String endPoint;
     private HashMap<String, ScreenConfigObject> configActivityMap;
     private ValueMap cacheValueMap;
 
@@ -114,10 +115,13 @@ public class Analytics {
         merchantId = builder.mMerchantId;
         deviceToken = builder.mDeviceToken;
         domainURL = builder.mDomainURL;
+        endPoint = builder.mEndPoint;
         configActivityMap = builder.mActivityMap;
 
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_BASE_URL, domainURL);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_ENDPOINT, endPoint);
 
         analyticsExecutor = Executors.newSingleThreadExecutor();
         sendSyncScheduler = Executors.newScheduledThreadPool(1);
@@ -288,10 +292,12 @@ public class Analytics {
     }
 
     public void sendSync(ValueMap dataObject) {
+        String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
+        String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
         try {
             ValueMap bodyMap = new ValueMap().put("data", dataObject);
             LogMobio.logD("Analytics", "send = " + new Gson().toJson(bodyMap));
-            Response<Void> response = RetrofitClient.getInstance().getMyApi().sendSync(Utils.getHeader(application.getApplicationContext()), bodyMap).execute();
+            Response<Void> response = RetrofitClient.getInstance(url).getMyApi().sendSync(Utils.getHeader(application.getApplicationContext()), bodyMap, endpoint).execute();
             if (response.code() != 200) {
                 JSONObject jObjError = new JSONObject(response.errorBody().string());
                 LogMobio.logD(TAG, "body = " + jObjError.toString());
@@ -326,6 +332,7 @@ public class Analytics {
                     cacheValueMap.put("event_data", profileParam);
                     cacheValueMap.get("profile_info").put("customer_id", Build.ID);
                     cacheValueMap.get("profile_info").put("push_id", profileVM.get("push_id"));
+                    cacheValueMap.get("profile_info").put("name", "Android Mobio Bank");
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
                     sendSync(cacheValueMap);
                     //listDataWaitToSend.add(cacheDataObject);
@@ -402,6 +409,7 @@ public class Analytics {
         private int mIntervalSecond = 30;
         private String mDeviceToken;
         private String mDomainURL;
+        private String mEndPoint;
         private HashMap<String, ScreenConfigObject> mActivityMap;
 
         public Builder() {
@@ -459,6 +467,11 @@ public class Analytics {
 
         public Builder withDomainURL(String domainURL) {
             mDomainURL = domainURL;
+            return this;
+        }
+
+        public Builder withEndPoint(String endPoint){
+            mEndPoint = endPoint;
             return this;
         }
 

@@ -15,6 +15,8 @@ public class SharedPreferencesUtils {
     public static final String KEY_API_TOKEN = "key_api_token";
     public static final String KEY_MERCHANT_ID = "key_merchant_id";
     public static final String KEY_DEVICE_TOKEN = "key_device_token";
+    public static final String KEY_BASE_URL = "key_base_url";
+    public static final String KEY_ENDPOINT = "key_endpoint";
 
     private static SharedPreferences getSharedPreferences(Context context){
         return context.getSharedPreferences(KEY_SP, Context.MODE_PRIVATE);

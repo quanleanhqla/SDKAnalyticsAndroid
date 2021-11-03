@@ -32,6 +32,8 @@ public class MobioApplication extends Application {
                 .withActivityMap(screenConfigObjectHashMap)
                 .withIntervalSecond(10)
                 .shouldRecordScreen(true)
+                .withDomainURL("https://api-test1.mobio.vn/dynamic-event/api/v1.0/")
+                .withEndPoint("sync")
                 .withApiToken("Basic f5e27185-b53d-4aee-a9b7-e0579c24d29d")
                 .withMerchantId("1b99bdcf-d582-4f49-9715-1b61dfff3924");
 

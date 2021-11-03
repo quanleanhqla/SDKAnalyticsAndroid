@@ -18,17 +18,17 @@ public class RetrofitClient {
     private static RetrofitClient instance = null;
     private Api myApi;
 
-    private RetrofitClient() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(Api.BASE_URL)
+    private RetrofitClient(String baseUrl) {
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(getUnsafeOkHttpClient().build())
                 .build();
         myApi = retrofit.create(Api.class);
     }
 
-    public static synchronized RetrofitClient getInstance() {
+    public static synchronized RetrofitClient getInstance(String baseUrl) {
         if (instance == null) {
-            instance = new RetrofitClient();
+            instance = new RetrofitClient(baseUrl);
         }
         return instance;
     }
