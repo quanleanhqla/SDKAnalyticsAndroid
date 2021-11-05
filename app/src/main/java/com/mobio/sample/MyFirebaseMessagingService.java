@@ -52,7 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //                i.putExtra(INTENT_KEY_DETAIL, body);
 //                sendBroadcast(i);
 
-                Analytics.getInstance().showGlobalPopup(title, body, null, null);
+                Analytics.getInstance().showGlobalPopup(title, body, null, null, "");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -74,7 +74,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 String detail = remoteMessage.getNotification().getBody();
 
 
-                Analytics.getInstance().showGlobalPopup(title, detail, null, null);
+                Analytics.getInstance().showGlobalPopup(title, detail, null, null, "");
 
 //            Intent i = new Intent();
 //            i.setAction(RECEIVE_NOTIFICATION_ACTION);

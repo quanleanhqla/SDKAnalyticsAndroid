@@ -3,6 +3,7 @@ package com.mobio.analytics.client;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -102,7 +103,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         activity.startService(new Intent(activity, TerminateService.class));
     }
 
-    public void showPopup(String title, String content, String source, String des){
+    public void showPopup(String title, String content, Context source, Class des, String nameButton){
         if(currentActivity != null) {
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -136,6 +137,10 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         public void onClick(View v) {
                             dialog.dismiss();
                             //todo
+                            if(des != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")){
+                                Intent desIntent = new Intent(currentActivity, des);
+                                currentActivity.startActivity(desIntent);
+                            }
                         }
                     });
 

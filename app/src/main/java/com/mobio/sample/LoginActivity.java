@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Analytics.getInstance().showGlobalPopup("abc", "abc", "", "");
+        Analytics.getInstance().showGlobalPopup("abc", "abc", null, HomeActivity.class, "");
     }
 
     private void getAddress(double latitude, double longitude) {

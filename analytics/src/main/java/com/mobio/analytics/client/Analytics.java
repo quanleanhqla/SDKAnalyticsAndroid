@@ -223,9 +223,9 @@ public class Analytics {
         return map;
     }
 
-    public void showGlobalPopup(String title, String content, String source, String des){
+    public void showGlobalPopup(String title, String content, Context source, Class des, String nameButton){
         if(analyticsLifecycleCallback != null){
-            analyticsLifecycleCallback.showPopup(title, content, source, des);
+            analyticsLifecycleCallback.showPopup(title, content, source, des, nameButton);
         }
     }
 
