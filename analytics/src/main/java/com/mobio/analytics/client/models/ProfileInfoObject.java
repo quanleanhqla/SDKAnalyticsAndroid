@@ -14,11 +14,15 @@ public class ProfileInfoObject extends ProfileBaseObject{
     @SerializedName("email")
     private String email;
 
+    @SerializedName("source")
+    private String source;
+
     public ProfileInfoObject(Builder builder, Context context) {
         super(context);
         this.email = builder.email;
         this.phoneNumber = builder.phoneNumber;
         this.cif = builder.cif;
+        this.source = "APP";
     }
 
     public void setCif(String cif) {
@@ -31,6 +35,14 @@ public class ProfileInfoObject extends ProfileBaseObject{
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public static class Builder{

@@ -331,6 +331,7 @@ public class Analytics {
 
                     cacheValueMap.put("event_data", profileParam);
                     cacheValueMap.get("profile_info").put("customer_id", Build.ID);
+                    cacheValueMap.get("profile_info").put("source", "APP");
                     cacheValueMap.get("profile_info").put("push_id", profileVM.get("push_id"));
                     cacheValueMap.get("profile_info").put("name", "Android Mobio Bank");
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
