@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -107,6 +109,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                 public void run() {
                     final Dialog dialog = new Dialog(currentActivity);
                     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                     dialog.setCancelable(false);
                     dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
 

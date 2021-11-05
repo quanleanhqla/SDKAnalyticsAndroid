@@ -56,6 +56,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Analytics.getInstance().showGlobalPopup("abc", "abc", "", "");
+    }
+
     private void getAddress(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
