@@ -121,6 +121,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
                     tvTitle.setText(title);
                     tvDetail.setText(content);
+                    btnAction.setText(nameButton);
 
                     imvClose.setOnClickListener(new View.OnClickListener() {
                         @Override
