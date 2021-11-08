@@ -178,6 +178,7 @@ public class Analytics {
                         .put("profile_info", new ValueMap().put("source", "APP")
                                 .put("name", "Android Mobio Bank")
                                 .put("customer_id", Build.ID)
+                                .put("device_id", Build.ID)
                                 .put("push_id", new ValueMap().put("app_id", "ANDROID")
                                         .put("is_logged", true)
                                         .put("lang", "VI")
@@ -333,6 +334,7 @@ public class Analytics {
                     cacheValueMap.put("event_data", profileParam);
                     cacheValueMap.get("profile_info").put("customer_id", Build.ID);
                     cacheValueMap.get("profile_info").put("source", "APP");
+                    cacheValueMap.get("profile_info").put("device_id", Build.ID);
                     cacheValueMap.get("profile_info").put("push_id", profileVM.get("push_id"));
                     cacheValueMap.get("profile_info").put("name", "Android Mobio Bank");
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
