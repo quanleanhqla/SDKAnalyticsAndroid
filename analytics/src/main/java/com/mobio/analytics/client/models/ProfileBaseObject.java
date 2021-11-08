@@ -14,10 +14,15 @@ public class ProfileBaseObject {
     @SerializedName("push_id")
     private PushObject pushId;
 
+    @SerializedName("name")
+    private String name;
+
+
     public ProfileBaseObject(Context context) {
         this.customerId = Build.ID;
         this.pushId = new PushObject(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_DEVICE_TOKEN)
                 , true, Utils.getTimeUTC(), "VI");
+        this.name = "Android Mobio Bank";
     }
 
     public String getCustomerId() {
@@ -34,5 +39,13 @@ public class ProfileBaseObject {
 
     public void setPushId(PushObject pushId) {
         this.pushId = pushId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

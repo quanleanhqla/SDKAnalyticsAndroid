@@ -31,6 +31,12 @@ public class HomeActivity extends AppCompatActivity {
         init();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Analytics.getInstance().showGlobalPopup("abc", "abc", null, HomeActivity.class, "");
+    }
+
     @SuppressLint("MissingPermission")
     public void init(){
         tvMoney = findViewById(R.id.tv_balance);

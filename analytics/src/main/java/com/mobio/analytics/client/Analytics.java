@@ -176,6 +176,7 @@ public class Analytics {
                                         .put("version", osObject.getVersion()))
                                 .put("timezone", Utils.getTimeZone()))
                         .put("profile_info", new ValueMap().put("source", "APP")
+                                .put("name", "Android Mobio Bank")
                                 .put("customer_id", Build.ID)
                                 .put("push_id", new ValueMap().put("app_id", "ANDROID")
                                         .put("is_logged", true)
