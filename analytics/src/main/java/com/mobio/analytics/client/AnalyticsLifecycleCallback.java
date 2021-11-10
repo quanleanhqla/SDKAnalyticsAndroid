@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.service.TerminateService;
@@ -118,18 +119,25 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     ImageView imvClose = (ImageView) dialog.findViewById(com.mobio.analytics.R.id.imv_close);
                     TextView tvTitle = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_title);
                     TextView tvDetail = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_detail);
+                    Button btnCancel = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_cancel);
 
                     tvTitle.setText(title);
                     tvDetail.setText(content);
-                    btnAction.setText(nameButton);
 
                     imvClose.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view) {
+                       public void onClick(View view) {
                             dialog.dismiss();
                             //todo
                             //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
 
+                        }
+                    });
+
+                    btnCancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
                         }
                     });
 
