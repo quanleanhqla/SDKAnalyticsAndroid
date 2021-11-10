@@ -173,8 +173,8 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             LogMobio.logD(TAG, "app went to foreground");
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, true);
             if (shouldTrackApplicationLifecycleEvents) {
-                analytics.track(Analytics.SDK_Mobile_Test_Open_App, new ValueMap().put("version", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
-                        .put("build", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
+                analytics.track(Analytics.SDK_Mobile_Test_Open_App, new ValueMap().put("build", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
+                        .put("version", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
             }
         }
         numStarted++;
