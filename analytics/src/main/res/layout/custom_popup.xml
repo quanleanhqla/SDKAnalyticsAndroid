@@ -16,6 +16,9 @@
         android:layout_height="wrap_content"/>
 
     <TextView
+        android:gravity="center"
+        android:layout_marginRight="4pt"
+        android:layout_marginLeft="4pt"
         android:id="@+id/tv_title"
         android:textSize="9pt"
         android:textColor="@android:color/black"
