@@ -41,14 +41,13 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
         <Button
             android:textAllCaps="false"
-            android:layout_margin="8pt"
-            android:id="@+id/btn_action"
+            android:layout_margin="4pt"
+            android:id="@+id/btn_cancel"
             android:textColor="#FFFFFF"
             android:textSize="8pt"
-            android:text="Đồng ý"
+            android:text="Huỷ"
             android:background="@drawable/bgr_button_login"
             android:layout_weight="1"
             android:layout_width="0dp"
@@ -56,11 +55,11 @@
 
         <Button
             android:textAllCaps="false"
-            android:layout_margin="8pt"
-            android:id="@+id/btn_cancel"
+            android:layout_margin="4pt"
+            android:id="@+id/btn_action"
             android:textColor="#FFFFFF"
             android:textSize="8pt"
-            android:text="Huỷ"
+            android:text="Đồng ý"
             android:background="@drawable/bgr_button_login"
             android:layout_weight="1"
             android:layout_width="0dp"
