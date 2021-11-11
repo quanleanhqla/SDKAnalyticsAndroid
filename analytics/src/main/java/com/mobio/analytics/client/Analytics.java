@@ -322,7 +322,6 @@ public class Analytics {
                 public void run() {
                     ValueMap profileParam = (ValueMap) profile.clone();
                     profileParam.put("action_time", Utils.getTimeUTC());
-                    profileParam.put("name", profile.get("email"));
 
                     cacheValueMap.put("type", "identify");
                     cacheValueMap.put("event_key", SDK_Mobile_Test_Identify_App);
@@ -335,7 +334,6 @@ public class Analytics {
                     cacheValueMap.get("profile_info").put("source", "APP");
                     cacheValueMap.get("profile_info").put("device_id", Build.ID);
                     cacheValueMap.get("profile_info").put("push_id", profileVM.get("push_id"));
-                    cacheValueMap.get("profile_info").put("name", profile.get("email"));
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
                     sendSync(cacheValueMap);
                     //listDataWaitToSend.add(cacheDataObject);

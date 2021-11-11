@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();
 
-                    Analytics.getInstance().identify(new ValueMap().put("email", userName));
+                    Analytics.getInstance().identify(new ValueMap().put("email", userName).put("name", userName));
 
                     Analytics.getInstance().track(Analytics.SDK_Mobile_Test_Click_Button_In_App, new ValueMap().put("button_name", "login button")
                     .put("screen_name", LoginActivity.class.getSimpleName()).put("status", "success"));
