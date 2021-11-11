@@ -25,7 +25,7 @@ public class ProfileBaseObject {
         this.customerId = Build.ID;
         this.pushId = new PushObject(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_DEVICE_TOKEN)
                 , true, Utils.getTimeUTC(), "VI");
-        this.name = "Android Mobio Bank";
+        this.name = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_USER_NAME);
         this.deviceId = Build.ID;
     }
 

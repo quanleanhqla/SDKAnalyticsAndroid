@@ -176,7 +176,6 @@ public class Analytics {
                                         .put("version", osObject.getVersion()))
                                 .put("timezone", Utils.getTimeZone()))
                         .put("profile_info", new ValueMap().put("source", "APP")
-                                .put("name", "Android Mobio Bank")
                                 .put("customer_id", Build.ID)
                                 .put("device_id", Build.ID)
                                 .put("push_id", new ValueMap().put("app_id", "ANDROID")
@@ -323,7 +322,7 @@ public class Analytics {
                 public void run() {
                     ValueMap profileParam = (ValueMap) profile.clone();
                     profileParam.put("action_time", Utils.getTimeUTC());
-                    profileParam.put("name", "Android Mobio Bank");
+                    profileParam.put("name", profile.get("email"));
 
                     cacheValueMap.put("type", "identify");
                     cacheValueMap.put("event_key", SDK_Mobile_Test_Identify_App);
@@ -336,7 +335,7 @@ public class Analytics {
                     cacheValueMap.get("profile_info").put("source", "APP");
                     cacheValueMap.get("profile_info").put("device_id", Build.ID);
                     cacheValueMap.get("profile_info").put("push_id", profileVM.get("push_id"));
-                    cacheValueMap.get("profile_info").put("name", "Android Mobio Bank");
+                    cacheValueMap.get("profile_info").put("name", profile.get("email"));
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
                     sendSync(cacheValueMap);
                     //listDataWaitToSend.add(cacheDataObject);
