@@ -122,7 +122,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             intent.addCategory(Intent.CATEGORY_DEFAULT);
             intent.setData(Uri.parse("package:" + application.getPackageName()));
         }
-        application.startActivity(intent);
+        currentActivity.startActivity(intent);
     }
 
     public void showPopup(String title, String content, Context source, Class des, String nameButton){
