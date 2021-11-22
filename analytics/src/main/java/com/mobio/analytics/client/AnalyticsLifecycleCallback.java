@@ -3,6 +3,8 @@ package com.mobio.analytics.client;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -14,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -30,6 +33,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -102,6 +106,23 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             trackDeepLink(activity);
         }
         activity.startService(new Intent(activity, TerminateService.class));
+    }
+
+    private void addPermissionNoti(){
+        Intent intent = new Intent();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra(Settings.EXTRA_APP_PACKAGE, application.getPackageName());
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+            intent.putExtra("app_package", application.getPackageName());
+            intent.putExtra("app_uid", application.getApplicationInfo().uid);
+        } else {
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            intent.setData(Uri.parse("package:" + application.getPackageName()));
+        }
+        application.startActivity(intent);
     }
 
     public void showPopup(String title, String content, Context source, Class des, String nameButton){
@@ -183,6 +204,59 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             if (shouldTrackApplicationLifecycleEvents) {
                 analytics.track(Analytics.SDK_Mobile_Test_Open_App, new ValueMap().put("build", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
                         .put("version", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
+            }
+            if(!Utils.areNotificationsEnabled(application)){
+                if(currentActivity != null) {
+                    currentActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Dialog dialog = new Dialog(currentActivity);
+                            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.setCancelable(false);
+                            dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
+
+                            Button btnAction = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_action);
+                            ImageView imvClose = (ImageView) dialog.findViewById(com.mobio.analytics.R.id.imv_close);
+                            TextView tvTitle = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_title);
+                            TextView tvDetail = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_detail);
+                            Button btnCancel = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_cancel);
+
+                            tvTitle.setText("Cấp quyền thông báo!");
+                            tvDetail.setText("Quý khách vui lòng cấp quyền thông báo");
+
+                            imvClose.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    dialog.dismiss();
+                                    //todo call api update device token
+
+                                }
+                            });
+
+                            btnCancel.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    dialog.dismiss();
+                                    //todo call api update device token
+                                }
+                            });
+
+                            btnAction.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dialog.dismiss();
+                                    addPermissionNoti();
+                                }
+                            });
+
+                            dialog.show();
+                        }
+                    });
+                }
+            }
+            else {
+                //todo get devicetoken
             }
         }
         numStarted++;
