@@ -131,10 +131,25 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     }
 
     private boolean isHtml(String content){
-        String PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>";
-        Pattern pattern = Pattern.compile(PATTERN);
-        Matcher matcher = pattern.matcher(content);
-        return matcher.matches();
+        // adapted from post by Phil Haack and modified to match better
+        String tagStart=
+                "\\<\\w+((\\s+\\w+(\\s*\\=\\s*(?:\".*?\"|'.*?'|[^'\"\\>\\s]+))?)+\\s*|\\s*)\\>";
+        String tagEnd=
+                "\\</\\w+\\>";
+        String tagSelfClosing=
+                "\\<\\w+((\\s+\\w+(\\s*\\=\\s*(?:\".*?\"|'.*?'|[^'\"\\>\\s]+))?)+\\s*|\\s*)/\\>";
+        String htmlEntity=
+                "&[a-zA-Z][a-zA-Z0-9]+;";
+        Pattern htmlPattern=Pattern.compile(
+                "("+tagStart+".*"+tagEnd+")|("+tagSelfClosing+")|("+htmlEntity+")",
+                Pattern.DOTALL
+        );
+
+        boolean ret = false;
+        if(content != null){
+            ret = htmlPattern.matcher(content).find();
+        }
+        return ret;
     }
 
     public void showPopup(String title, String content, Context source, Class des, String nameButton){
