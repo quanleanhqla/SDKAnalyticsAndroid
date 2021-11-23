@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,6 +50,8 @@ import com.mobio.analytics.client.utility.Utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AnalyticsLifecycleCallback implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = AnalyticsLifecycleCallback.class.getName();
@@ -66,6 +70,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private HashMap<String, Integer> mapScreenAndCountTime;
     private HashMap<String, ScreenConfigObject> screenConfigObjectHashMap;
     private Activity currentActivity;
+    private Dialog dialog;
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
@@ -125,59 +130,108 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         currentActivity.startActivity(intent);
     }
 
+    private boolean isHtml(String content){
+        String PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>";
+        Pattern pattern = Pattern.compile(PATTERN);
+        Matcher matcher = pattern.matcher(content);
+        return matcher.matches();
+    }
+
     public void showPopup(String title, String content, Context source, Class des, String nameButton){
         if(currentActivity != null) {
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    final Dialog dialog = new Dialog(currentActivity);
-                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    dialog.setCancelable(false);
-                    dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
+                    if(dialog == null) {
+                        dialog = new Dialog(currentActivity);
+                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        dialog.setCancelable(false);
+                    }
+                    if(!isHtml(content)) {
+                        dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
 
-                    Button btnAction = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_action);
-                    ImageView imvClose = (ImageView) dialog.findViewById(com.mobio.analytics.R.id.imv_close);
-                    TextView tvTitle = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_title);
-                    TextView tvDetail = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_detail);
-                    Button btnCancel = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_cancel);
+                        Button btnAction = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_action);
+                        ImageView imvClose = (ImageView) dialog.findViewById(com.mobio.analytics.R.id.imv_close);
+                        TextView tvTitle = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_title);
+                        TextView tvDetail = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_detail);
+                        Button btnCancel = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_cancel);
 
-                    tvTitle.setText(title);
-                    tvDetail.setText(content);
+                        tvTitle.setText(title);
+                        tvDetail.setText(content);
 
-                    imvClose.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                       public void onClick(View view) {
-                            dialog.dismiss();
-                            //todo
-                            //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
+                        imvClose.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                                //todo
+                                //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
 
-                        }
-                    });
-
-                    btnCancel.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog.dismiss();
-                        }
-                    });
-
-                    btnAction.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                            //todo
-                            if(des != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")){
-                                Intent desIntent = new Intent(currentActivity, des);
-                                currentActivity.startActivity(desIntent);
                             }
-                        }
-                    });
+                        });
+
+                        btnCancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                        btnAction.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                                //todo
+                                if (des != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")) {
+                                    Intent desIntent = new Intent(currentActivity, des);
+                                    currentActivity.startActivity(desIntent);
+                                }
+                            }
+                        });
+                    }
+                    else {
+                        dialog.setContentView(R.layout.custom_html_popup);
+                        WebView webView = (WebView) dialog.findViewById(R.id.wv_popup);
+                        webView.getSettings().setJavaScriptEnabled(true);
+                        webView.getSettings().setUserAgentString("Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+                        webView.loadDataWithBaseURL(null, content, "text/html", "utf-8", null);
+                        webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
+                        webView.requestFocus();
+                    }
 
                     dialog.show();
                 }
             });
         }
+    }
+
+    public class JS_INTERFACE {
+
+        Context mContext;
+        Class dest;
+
+        /**
+         * Instantiate the interface and set the context
+         */
+        JS_INTERFACE(Context c, Class des) {
+            dest = des;
+            mContext = c;
+        }
+
+        @JavascriptInterface
+        public void trackClick() {
+            if (dest != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")) {
+                Intent desIntent = new Intent(currentActivity, dest);
+                currentActivity.startActivity(desIntent);
+            }
+            dialog.dismiss();
+        }
+
+        @JavascriptInterface
+        public void dismissMessage() {
+            dialog.dismiss();
+        }
+
     }
 
     public String getNameOfActivity(Activity activity) {
