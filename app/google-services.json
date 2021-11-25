@@ -36,7 +36,36 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:786916336835:android:ec54201c4208cb95672e76",
+        "mobilesdk_app_id": "1:786916336835:android:204e672cb0fefed8672e76",
+        "android_client_info": {
+          "package_name": "com.mobio.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "786916336835-3f83jpfk6kq32ikqvar2umlpd8s0l0ur.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4GFeIJgVuPAZelHljr947TI22R_wBs6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "786916336835-3f83jpfk6kq32ikqvar2umlpd8s0l0ur.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786916336835:android:e2cef656961b07f1672e76",
         "android_client_info": {
           "package_name": "com.mobio.sample"
         }

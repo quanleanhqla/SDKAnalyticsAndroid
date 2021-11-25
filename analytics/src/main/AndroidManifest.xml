@@ -12,6 +12,10 @@
             android:name=".client.service.NotificationService"
             android:enabled="true"
             android:exported="true" />
+
+        <receiver
+            android:name=".client.receiver.NotificationDismissedReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

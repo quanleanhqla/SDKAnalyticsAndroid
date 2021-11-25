@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.GpsTracker;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -59,7 +60,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Analytics.getInstance().showGlobalPopup("abc", "abc", null, HomeActivity.class, "");
+        NotiResponseObject notiResponseObject = new NotiResponseObject.Builder()
+                .withType(NotiResponseObject.TYPE_NATIVE).withContent("Haha")
+                .withData("body").withTitle("title").withDes_screen("Home screen")
+                .build();
+
+        Analytics.getInstance().showGlobalNotification(notiResponseObject);
     }
 
     private void getAddress(double latitude, double longitude) {

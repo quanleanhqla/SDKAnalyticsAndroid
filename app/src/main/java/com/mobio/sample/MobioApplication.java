@@ -20,9 +20,9 @@ public class MobioApplication extends Application {
         super.onCreate();
 
         HashMap<String, ScreenConfigObject> screenConfigObjectHashMap = new HashMap<>();
-        screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {5, 10, 15}));
-        screenConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home screen", "HomeActivity", new int[] {5, 10, 15}));
-        screenConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer screen", "SendMoneyInActivity", new int[] {5, 10, 15}));
+        screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {5, 10, 15}, LoginActivity.class));
+        screenConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home screen", "HomeActivity", new int[] {5, 10, 15}, HomeActivity.class));
+        screenConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer screen", "SendMoneyInActivity", new int[] {5, 10, 15}, SendMoneyInActivity.class));
 
         Analytics.Builder builder = new Analytics.Builder()
                 .withApplication(this)

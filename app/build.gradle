@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.mobio.sample"
-        minSdk 16
+        minSdk 19
         targetSdk 30
         versionCode 2
         versionName "2.0"
@@ -32,7 +32,7 @@ android {
 
 dependencies {
     // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:28.4.2')
+    implementation platform('com.google.firebase:firebase-bom:29.0.0')
     // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-messaging'

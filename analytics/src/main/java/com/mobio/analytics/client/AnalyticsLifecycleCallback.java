@@ -24,7 +24,9 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -40,6 +42,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mobio.analytics.R;
+import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.service.TerminateService;
@@ -71,6 +74,10 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private HashMap<String, ScreenConfigObject> screenConfigObjectHashMap;
     private Activity currentActivity;
     private Dialog dialog;
+    private final String FILE_URI_SCHEME_PREFIX = "file://";
+    private final String FILE_PATH_SEPARATOR = "/";
+    private final String HTML_MIME_TYPE = "text/html";
+    private final String HTML_ENCODING = "utf-8";
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
@@ -152,18 +159,28 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         return ret;
     }
 
-    public void showPopup(String title, String content, Context source, Class des, String nameButton){
+    public void showPopup(NotiResponseObject notiResponseObject){
         if(currentActivity != null) {
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Class des = null;
+                    for(int i = 0; i < screenConfigObjectHashMap.values().size(); i++){
+                        ScreenConfigObject screenConfigObject = (ScreenConfigObject) screenConfigObjectHashMap.values().toArray()[i];
+                        if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
+                            des = screenConfigObject.getClassName();
+                            LogMobio.logD("ABC", screenConfigObject.getActivityName());
+                            break;
+                        }
+                    }
+
                     if(dialog == null) {
                         dialog = new Dialog(currentActivity);
                         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dialog.setCancelable(false);
                     }
-                    if(!isHtml(content)) {
+                    if(notiResponseObject.getType()==NotiResponseObject.TYPE_NATIVE) {
                         dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
 
                         Button btnAction = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_action);
@@ -172,8 +189,8 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         TextView tvDetail = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_detail);
                         Button btnCancel = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_cancel);
 
-                        tvTitle.setText(title);
-                        tvDetail.setText(content);
+                        tvTitle.setText(notiResponseObject.getTitle());
+                        tvDetail.setText(notiResponseObject.getContent());
 
                         imvClose.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -192,26 +209,47 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                             }
                         });
 
+                        Class finalDes = des;
                         btnAction.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 dialog.dismiss();
                                 //todo
-                                if (des != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")) {
-                                    Intent desIntent = new Intent(currentActivity, des);
+                                if (finalDes != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")) {
+                                    Intent desIntent = new Intent(currentActivity, finalDes);
                                     currentActivity.startActivity(desIntent);
                                 }
                             }
                         });
                     }
                     else {
-                        dialog.setContentView(R.layout.custom_html_popup);
-                        WebView webView = (WebView) dialog.findViewById(R.id.wv_popup);
-                        webView.getSettings().setJavaScriptEnabled(true);
-                        webView.getSettings().setUserAgentString("Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
-                        webView.loadDataWithBaseURL(null, content, "text/html", "utf-8", null);
+
+                        //dialog.setContentView(R.layout.custom_html_popup);
+
+                        WebView webView = new WebView(currentActivity);
                         webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
+                        webView.setWebViewClient(new WebViewClient());
+
+                        WebSettings webSettings = webView.getSettings();
+                        webSettings.setJavaScriptEnabled(true);
+                        webSettings.setUseWideViewPort(true);
+                        webSettings.setLoadWithOverviewMode(true);
+                        webSettings.setDisplayZoomControls(false);
+                        webSettings.setDomStorageEnabled(true);
+                        webSettings.setAllowFileAccess(true);
+
+                        if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
+                            webView.loadUrl(notiResponseObject.getData());
+                        }
+                        else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML){
+                            webView.loadDataWithBaseURL("",
+                                    notiResponseObject.getData(),
+                                    HTML_MIME_TYPE,
+                                    HTML_ENCODING, null);
+                        }
                         webView.requestFocus();
+
+                        dialog.setContentView(webView);
                     }
 
                     dialog.show();

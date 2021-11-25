@@ -2,17 +2,25 @@ package com.mobio.analytics.client;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.AppObject;
 import com.mobio.analytics.client.models.DataObject;
 import com.mobio.analytics.client.models.DeviceObject;
+import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.OsObject;
 import com.mobio.analytics.client.models.PropertiesObject;
 import com.mobio.analytics.client.models.TraitsObject;
@@ -22,12 +30,14 @@ import com.mobio.analytics.client.models.ProfileBaseObject;
 import com.mobio.analytics.client.models.ProfileInfoObject;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.models.ScreenTraitsObject;
+import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 import com.mobio.analytics.network.RetrofitClient;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,6 +81,8 @@ public class Analytics {
     public static final int TYPE_SCREEN_START = 11;
     public static final int TYPE_SCREEN_END = 22;
 
+    public static final int REQUEST_CODE = 1001;
+
     @SuppressLint("StaticFieldLeak")
     static volatile Analytics singleton = null;
     private Application application;
@@ -90,6 +102,7 @@ public class Analytics {
     private String endPoint;
     private HashMap<String, ScreenConfigObject> configActivityMap;
     private ValueMap cacheValueMap;
+    private NotificationManager notificationManager;
 
     private final ExecutorService analyticsExecutor;
     private final ScheduledExecutorService sendSyncScheduler;
@@ -117,6 +130,7 @@ public class Analytics {
         domainURL = builder.mDomainURL;
         endPoint = builder.mEndPoint;
         configActivityMap = builder.mActivityMap;
+        notificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
 
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
@@ -224,10 +238,54 @@ public class Analytics {
         return map;
     }
 
-    public void showGlobalPopup(String title, String content, Context source, Class des, String nameButton){
+    public void showGlobalPopup(NotiResponseObject notiResponseObject){
         if(analyticsLifecycleCallback != null){
-            analyticsLifecycleCallback.showPopup(title, content, source, des, nameButton);
+            analyticsLifecycleCallback.showPopup(notiResponseObject);
         }
+    }
+
+    public void showGlobalNotification(NotiResponseObject notiResponseObject){
+        Class classDes = null;
+        for(int i = 0; i < configActivityMap.values().size(); i++){
+            ScreenConfigObject screenConfigObject = (ScreenConfigObject) configActivityMap.values().toArray()[i];
+            if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
+                classDes = screenConfigObject.getClassName();
+                break;
+            }
+        }
+        Intent i = new Intent(application.getApplicationContext(), classDes);
+        i.putExtra("OPEN_FROM_NOTI", 1);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(application.getApplicationContext(), REQUEST_CODE, i, PendingIntent.FLAG_IMMUTABLE);
+        String CHANNEL_ID = "channel_name";// The id of the channel.
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(application.getApplicationContext(), CHANNEL_ID)
+                .setSmallIcon(R.mipmap.icon)
+                .setLargeIcon(BitmapFactory.decodeResource(application.getResources(),
+                        R.mipmap.icon))
+                .setContentTitle(notiResponseObject.getTitle())
+                .setContentText(notiResponseObject.getContent())
+                .setDeleteIntent(createOnDismissedIntent(application.getApplicationContext(), 1001))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Channel Name";// The user-visible name of the channel.
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            notificationManager.createNotificationChannel(mChannel);
+        }
+        Notification notification = notificationBuilder.build();
+        notification.flags = Notification.FLAG_AUTO_CANCEL;
+        notificationManager.notify(REQUEST_CODE, notification); // 0 is the request code, it should be unique id
+    }
+
+    private PendingIntent createOnDismissedIntent(Context context, int notificationId) {
+        Intent intent = new Intent(context, NotificationDismissedReceiver.class);
+        intent.putExtra("notificationId", notificationId);
+
+        PendingIntent pendingIntent =
+                PendingIntent.getBroadcast(context.getApplicationContext(),
+                        notificationId, intent, PendingIntent.FLAG_IMMUTABLE);
+        return pendingIntent;
     }
 
     private List<Object> toList(JSONArray array) throws JSONException {

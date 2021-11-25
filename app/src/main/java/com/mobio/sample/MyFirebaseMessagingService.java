@@ -7,6 +7,7 @@ import androidx.work.WorkManager;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.utility.LogMobio;
 
 import org.json.JSONException;
@@ -52,7 +53,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //                i.putExtra(INTENT_KEY_DETAIL, body);
 //                sendBroadcast(i);
 
-                Analytics.getInstance().showGlobalPopup(title, body, null, null, "");
+                NotiResponseObject notiResponseObject = new NotiResponseObject.Builder()
+                        .withType(NotiResponseObject.TYPE_NATIVE).withContent(body)
+                        .withData(body).withTitle(title)
+                        .build();
+
+                if(title.contains("[Case demo 1]")){
+                    notiResponseObject.setDes_screen("Recharge");
+                }
+
+                Analytics.getInstance().showGlobalPopup(notiResponseObject);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -74,7 +84,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 String detail = remoteMessage.getNotification().getBody();
 
 
-                Analytics.getInstance().showGlobalPopup(title, detail, null, null, "");
+                NotiResponseObject notiResponseObject = new NotiResponseObject.Builder()
+                        .withType(NotiResponseObject.TYPE_NATIVE).withContent(detail)
+                        .withData(detail).withTitle(title)
+                        .build();
+
+                Analytics.getInstance().showGlobalPopup(notiResponseObject);
 
 //            Intent i = new Intent();
 //            i.setAction(RECEIVE_NOTIFICATION_ACTION);

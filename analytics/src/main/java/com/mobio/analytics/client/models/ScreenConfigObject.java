@@ -6,11 +6,13 @@ public class ScreenConfigObject {
     private String title;
     private String activityName;
     private int[] visitTime;
+    private Class className;
 
-    public ScreenConfigObject(String title, String activityName, int[] visitTime) {
+    public ScreenConfigObject(String title, String activityName, int[] visitTime, Class className) {
         this.title = title;
         this.activityName = activityName;
         this.visitTime = visitTime;
+        this.className = className;
     }
 
     public String getTitle() {
@@ -37,12 +39,21 @@ public class ScreenConfigObject {
         this.visitTime = visitTime;
     }
 
+    public Class getClassName() {
+        return className;
+    }
+
+    public void setClassName(Class className) {
+        this.className = className;
+    }
+
     @Override
     public String toString() {
         return "ScreenConfigObject{" +
                 "title='" + title + '\'' +
                 ", activityName='" + activityName + '\'' +
                 ", visitTime=" + Arrays.toString(visitTime) +
+                ", className=" + className +
                 '}';
     }
 }

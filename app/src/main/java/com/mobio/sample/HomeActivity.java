@@ -34,7 +34,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Analytics.getInstance().showGlobalPopup("abc", "abc", null, HomeActivity.class, "");
     }
 
     @SuppressLint("MissingPermission")
