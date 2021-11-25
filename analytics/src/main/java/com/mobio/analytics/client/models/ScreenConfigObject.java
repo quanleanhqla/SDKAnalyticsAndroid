@@ -7,12 +7,14 @@ public class ScreenConfigObject {
     private String activityName;
     private int[] visitTime;
     private Class className;
+    private boolean isInitialScreen;
 
-    public ScreenConfigObject(String title, String activityName, int[] visitTime, Class className) {
+    public ScreenConfigObject(String title, String activityName, int[] visitTime, Class className, boolean isInitialScreen) {
         this.title = title;
         this.activityName = activityName;
         this.visitTime = visitTime;
         this.className = className;
+        this.isInitialScreen = isInitialScreen;
     }
 
     public String getTitle() {
@@ -45,6 +47,14 @@ public class ScreenConfigObject {
 
     public void setClassName(Class className) {
         this.className = className;
+    }
+
+    public boolean isInitialScreen() {
+        return isInitialScreen;
+    }
+
+    public void setInitialScreen(boolean initialScreen) {
+        isInitialScreen = initialScreen;
     }
 
     @Override

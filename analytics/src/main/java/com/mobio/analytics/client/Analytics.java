@@ -246,17 +246,25 @@ public class Analytics {
 
     public void showGlobalNotification(NotiResponseObject notiResponseObject){
         Class classDes = null;
-        for(int i = 0; i < configActivityMap.values().size(); i++){
+        Class classInitial = null;
+        Intent intent = null;
+        for (int i = 0; i < configActivityMap.values().size(); i++) {
             ScreenConfigObject screenConfigObject = (ScreenConfigObject) configActivityMap.values().toArray()[i];
-            if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
+            if (screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())) {
                 classDes = screenConfigObject.getClassName();
                 break;
             }
+            if(screenConfigObject.isInitialScreen()){
+                classInitial = screenConfigObject.getClassName();
+            }
         }
-        Intent i = new Intent(application.getApplicationContext(), classDes);
-        i.putExtra("OPEN_FROM_NOTI", 1);
+        if(classDes == null) {
+            classDes = classInitial;
+        }
+        intent = new Intent(application.getApplicationContext(), classDes);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("OPEN_FROM_NOTI", 1);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(application.getApplicationContext(), REQUEST_CODE, i, PendingIntent.FLAG_IMMUTABLE);
         String CHANNEL_ID = "channel_name";// The id of the channel.
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(application.getApplicationContext(), CHANNEL_ID)
                 .setSmallIcon(R.mipmap.icon)
@@ -264,8 +272,8 @@ public class Analytics {
                         R.mipmap.icon))
                 .setContentTitle(notiResponseObject.getTitle())
                 .setContentText(notiResponseObject.getContent())
-                .setDeleteIntent(createOnDismissedIntent(application.getApplicationContext(), 1001))
-                .setContentIntent(pendingIntent)
+                .setDeleteIntent(createOnDismissedIntent(application.getApplicationContext(), REQUEST_CODE, false))
+                .setContentIntent(classDes != null ? PendingIntent.getActivity(application.getApplicationContext(), REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE) : null)
                 .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Channel Name";// The user-visible name of the channel.
@@ -278,9 +286,10 @@ public class Analytics {
         notificationManager.notify(REQUEST_CODE, notification); // 0 is the request code, it should be unique id
     }
 
-    private PendingIntent createOnDismissedIntent(Context context, int notificationId) {
+    private PendingIntent createOnDismissedIntent(Context context, int notificationId, boolean isDelete) {
         Intent intent = new Intent(context, NotificationDismissedReceiver.class);
         intent.putExtra("notificationId", notificationId);
+        intent.putExtra("type_delete", isDelete);
 
         PendingIntent pendingIntent =
                 PendingIntent.getBroadcast(context.getApplicationContext(),

@@ -62,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         NotiResponseObject notiResponseObject = new NotiResponseObject.Builder()
                 .withType(NotiResponseObject.TYPE_NATIVE).withContent("Haha")
-                .withData("body").withTitle("title").withDes_screen("Home screen")
                 .build();
 
         Analytics.getInstance().showGlobalNotification(notiResponseObject);
