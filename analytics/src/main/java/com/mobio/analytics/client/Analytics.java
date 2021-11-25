@@ -14,8 +14,6 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.AppObject;
 import com.mobio.analytics.client.models.DataObject;
@@ -23,20 +21,13 @@ import com.mobio.analytics.client.models.DeviceObject;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.OsObject;
 import com.mobio.analytics.client.models.PropertiesObject;
-import com.mobio.analytics.client.models.TraitsObject;
 import com.mobio.analytics.client.models.ValueMap;
-import com.mobio.analytics.client.models.IdentifyObject;
-import com.mobio.analytics.client.models.ProfileBaseObject;
-import com.mobio.analytics.client.models.ProfileInfoObject;
 import com.mobio.analytics.client.models.ScreenConfigObject;
-import com.mobio.analytics.client.models.ScreenTraitsObject;
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 import com.mobio.analytics.network.RetrofitClient;
-
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import org.json.JSONArray;
@@ -45,7 +36,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -148,7 +138,7 @@ public class Analytics {
 //            }
 //        }, intervalSecond, intervalSecond, TimeUnit.SECONDS);
 
-        listDataWaitToSend = new ArrayList<>();
+        listDataWaitToSend = new ArrayList<DataObject>();
 
         analyticsLifecycleCallback = new AnalyticsLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
                 shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application, configActivityMap);

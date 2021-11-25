@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 

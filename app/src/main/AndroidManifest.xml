@@ -67,9 +67,6 @@
             android:exported="true"
             android:theme="@style/CustomTheme" />
 
-        <receiver
-            android:name=".NotificationDismissedReceiver"
-            android:exported="false" />
     </application>
 
 </manifest>
