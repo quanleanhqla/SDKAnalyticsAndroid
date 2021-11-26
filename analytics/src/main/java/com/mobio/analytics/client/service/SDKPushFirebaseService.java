@@ -61,7 +61,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                     notiResponseObject.setData(Utils.HTML_RAW);
                 }
                 else if(title.contains("[HTML URL]")){
-                    notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
+                    notiResponseObject.setType(NotiResponseObject.TYPE_HTML_URL);
                 }
 
                 if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
@@ -99,7 +99,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 notiResponseObject.setData(Utils.HTML_RAW);
             }
             else if(title.contains("[HTML URL]")){
-                notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
+                notiResponseObject.setType(NotiResponseObject.TYPE_HTML_URL);
             }
 
             if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
