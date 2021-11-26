@@ -1,5 +1,6 @@
 package com.mobio.analytics.client;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
@@ -29,8 +30,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +41,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -78,6 +82,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private final String FILE_PATH_SEPARATOR = "/";
     private final String HTML_MIME_TYPE = "text/html";
     private final String HTML_ENCODING = "utf-8";
+    private FrameLayout root;
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
@@ -159,6 +164,68 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         return ret;
     }
 
+    public void showHtmlPopup(NotiResponseObject notiResponseObject, Class des){
+        root = getWindowRoot(currentActivity);
+        root.addView(createPrimaryContainer(currentActivity,
+                "", notiResponseObject, des));
+    }
+
+    private FrameLayout getWindowRoot(Activity activity) {
+        return (FrameLayout) activity.getWindow()
+                .getDecorView()
+                .findViewById(android.R.id.content)
+                .getRootView();
+    }
+
+    private void createWebview(ViewGroup container,String assetPath,  NotiResponseObject notiResponseObject, Class des){
+        currentActivity.runOnUiThread(new Runnable() {
+            @SuppressLint("SetJavaScriptEnabled")
+            @Override
+            public void run() {
+                WebView webView = new WebView(currentActivity);
+                webView.setId(ViewCompat.generateViewId());
+                webView.setFocusableInTouchMode(true);
+                webView.requestFocus();
+
+                WebSettings webSettings = webView.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                webSettings.setUseWideViewPort(true);
+                webSettings.setLoadWithOverviewMode(true);
+                webSettings.setDisplayZoomControls(false);
+                webSettings.setDomStorageEnabled(true);
+                webSettings.setAllowFileAccess(true);
+
+                webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
+                if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
+                    webView.loadUrl("https://test38.mobio.vn/template/Feedback.html");
+                }
+                else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML) {
+                webView.loadDataWithBaseURL(assetPath,
+                        notiResponseObject.getData(),
+                        HTML_MIME_TYPE,
+                        HTML_ENCODING, null);
+                }
+
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT);
+                webView.setLayoutParams(layoutParams);
+                container.addView(webView);
+            }
+        });
+    }
+
+    @SuppressLint("ResourceType")
+    private View createPrimaryContainer(Activity activity, String assetPath, NotiResponseObject notiResponseObject, Class des){
+        RelativeLayout containerLayout = new RelativeLayout(activity);
+        containerLayout.setId(20001);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(Utils.getScreenDimension(currentActivity).width,
+                Utils.getScreenDimension(currentActivity).height);
+        containerLayout.setLayoutParams(layoutParams);
+        containerLayout.setBackgroundColor(Color.parseColor("#cc000000"));
+        createWebview(containerLayout, assetPath, notiResponseObject, des);
+        return containerLayout;
+    }
+
     public void showPopup(NotiResponseObject notiResponseObject){
         if(currentActivity != null) {
             currentActivity.runOnUiThread(new Runnable() {
@@ -226,30 +293,32 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
                         //dialog.setContentView(R.layout.custom_html_popup);
 
-                        WebView webView = new WebView(currentActivity);
-                        webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
-                        webView.setWebViewClient(new WebViewClient());
+//                        WebView webView = new WebView(currentActivity);
+//                        webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
+//                        webView.setWebViewClient(new WebViewClient());
+//
+//                        WebSettings webSettings = webView.getSettings();
+//                        webSettings.setJavaScriptEnabled(true);
+//                        webSettings.setUseWideViewPort(true);
+//                        webSettings.setLoadWithOverviewMode(true);
+//                        webSettings.setDisplayZoomControls(false);
+//                        webSettings.setDomStorageEnabled(true);
+//                        webSettings.setAllowFileAccess(true);
+//
+//                        if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
+//                            webView.loadUrl(notiResponseObject.getData());
+//                        }
+//                        else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML){
+//                            webView.loadDataWithBaseURL("",
+//                                    notiResponseObject.getData(),
+//                                    HTML_MIME_TYPE,
+//                                    HTML_ENCODING, null);
+//                        }
+//                        webView.requestFocus();
+//
+//                        dialog.setContentView(webView);
 
-                        WebSettings webSettings = webView.getSettings();
-                        webSettings.setJavaScriptEnabled(true);
-                        webSettings.setUseWideViewPort(true);
-                        webSettings.setLoadWithOverviewMode(true);
-                        webSettings.setDisplayZoomControls(false);
-                        webSettings.setDomStorageEnabled(true);
-                        webSettings.setAllowFileAccess(true);
-
-                        if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
-                            webView.loadUrl(notiResponseObject.getData());
-                        }
-                        else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML){
-                            webView.loadDataWithBaseURL("",
-                                    notiResponseObject.getData(),
-                                    HTML_MIME_TYPE,
-                                    HTML_ENCODING, null);
-                        }
-                        webView.requestFocus();
-
-                        dialog.setContentView(webView);
+                        showHtmlPopup(notiResponseObject, des);
                     }
 
                     dialog.show();
@@ -271,18 +340,24 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             mContext = c;
         }
 
+        @SuppressLint("ResourceType")
         @JavascriptInterface
         public void trackClick() {
             if (dest != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")) {
                 Intent desIntent = new Intent(currentActivity, dest);
                 currentActivity.startActivity(desIntent);
             }
-            dialog.dismiss();
+            if(root != null){
+                root.removeView(root.findViewById(20001));
+            }
         }
 
+        @SuppressLint("ResourceType")
         @JavascriptInterface
         public void dismissMessage() {
-            dialog.dismiss();
+            if(root != null){
+                root.removeView(root.findViewById(20001));
+            }
         }
 
     }

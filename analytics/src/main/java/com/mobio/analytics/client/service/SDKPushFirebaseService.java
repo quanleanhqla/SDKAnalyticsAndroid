@@ -133,7 +133,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                         "    Flyers, Postcards and much more...</h4>\n" +
                         "  <div class=\"freedownloads-email-sec\">\n" +
                         "    <input type=\"email\" class=\"freedownloadsemail-input\" data-edit=\"placeholder\"   placeholder=\"Enter your email id\">\n" +
-                        "    <button class=\"freedownloads-input-btn\" type=\"submit\" onclick=\"sdk.trackClick();\">signup</button>\n" +
+                        "    <button class=\"freedownloads-input-btn\" type=\"submit\" onclick=\"sdk.trackClick();\">OK</button>\n" +
                         "  </div>\n" +
                         "  <h6 data-edit=\"text\" >* Terms and Conditions Apply</h6>\n" +
                         "  <button class=\"freedownloads-cls-btn close-btn\" onclick=\"sdk.dismissMessage();\">X</button>\n" +

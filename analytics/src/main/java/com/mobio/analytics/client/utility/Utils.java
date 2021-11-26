@@ -19,6 +19,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
@@ -33,6 +34,7 @@ import com.mobio.analytics.client.models.ProfileBaseObject;
 import com.mobio.analytics.client.models.ProfileInfoObject;
 import com.mobio.analytics.client.models.PropertiesObject;
 import com.mobio.analytics.client.models.TraitsObject;
+import com.mobio.analytics.client.models.ViewDimension;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +59,11 @@ public class Utils {
             return activity.getReferrer();
         }
         return getReferrerCompatible(activity);
+    }
+
+    public static ViewDimension getScreenDimension(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return new ViewDimension(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 
     public static boolean areNotificationsEnabled(Context context) {
