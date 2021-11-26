@@ -6,8 +6,7 @@
     <application>
         <service
             android:name=".client.service.TerminateService"
-            android:stopWithTask="false"
-              />
+            android:stopWithTask="false" />
         <service
             android:name=".client.service.NotificationService"
             android:enabled="true"
