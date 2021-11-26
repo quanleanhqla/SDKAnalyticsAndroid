@@ -221,7 +221,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(Utils.getScreenDimension(currentActivity).width,
                 Utils.getScreenDimension(currentActivity).height);
         containerLayout.setLayoutParams(layoutParams);
-        containerLayout.setBackgroundColor(Color.parseColor("#cc000000"));
         createWebview(containerLayout, assetPath, notiResponseObject, des);
         return containerLayout;
     }
@@ -288,6 +287,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                                 }
                             }
                         });
+                        dialog.show();
                     }
                     else {
 
@@ -320,8 +320,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
                         showHtmlPopup(notiResponseObject, des);
                     }
-
-                    dialog.show();
                 }
             });
         }

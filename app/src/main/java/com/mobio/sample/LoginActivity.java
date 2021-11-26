@@ -61,10 +61,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         NotiResponseObject notiResponseObject = new NotiResponseObject.Builder()
-                .withType(NotiResponseObject.TYPE_NATIVE).withContent("Haha")
+                .withType(NotiResponseObject.TYPE_HTML).withContent("Haha").withData(Utils.HTML_RAW)
                 .build();
 
-        Analytics.getInstance().showGlobalNotification(notiResponseObject);
+        Analytics.getInstance().showGlobalPopup(notiResponseObject);
     }
 
     private void getAddress(double latitude, double longitude) {
