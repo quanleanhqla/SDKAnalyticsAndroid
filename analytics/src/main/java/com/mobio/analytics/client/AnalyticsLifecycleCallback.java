@@ -218,8 +218,8 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private View createPrimaryContainer(Activity activity, String assetPath, NotiResponseObject notiResponseObject, Class des){
         RelativeLayout containerLayout = new RelativeLayout(activity);
         containerLayout.setId(20001);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(Utils.getScreenDimension(currentActivity).width,
-                Utils.getScreenDimension(currentActivity).height);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
         containerLayout.setLayoutParams(layoutParams);
         createWebview(containerLayout, assetPath, notiResponseObject, des);
         return containerLayout;
