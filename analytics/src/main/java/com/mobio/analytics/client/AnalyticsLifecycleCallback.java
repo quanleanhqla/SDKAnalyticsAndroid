@@ -197,7 +197,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
                 webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
                 if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
-                    webView.loadUrl("https://test38.mobio.vn/template/Feedback.html");
+                    webView.loadUrl(notiResponseObject.getContent());
                 }
                 else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML) {
                 webView.loadDataWithBaseURL(assetPath,

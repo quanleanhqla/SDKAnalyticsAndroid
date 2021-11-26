@@ -8,6 +8,7 @@ import com.mobio.analytics.client.Analytics;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
+import com.mobio.analytics.client.utility.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,64 +58,10 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 else if(title.contains("[HTML]")){
                     notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
                     notiResponseObject.setDes_screen("Recharge");
-                    notiResponseObject.setData("<!doctype html>\n" +
-                            "<html lang=\"en\">\n" +
-                            "<head>\n" +
-                            "    <title>Lunar -  Free Bootstrap Modal and Popups  </title>\n" +
-                            "    <!-- Required meta tags -->\n" +
-                            "    <meta charset=\"utf-8\">\n" +
-                            "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=0\">\n" +
-                            "    <!-- Bootstrap CSS -->\n" +
-                            "    <link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/bootstrap/css/bootstrap.min.css\">\n" +
-                            "    <!-- Lunar CSS -->\n" +
-                            "    <link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/css/lunar.css\">\n" +
-                            "    <!--<link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/css/demo.css\">-->\n" +
-                            "    <!-- Fonts -->\n" +
-                            "    <link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/css/animate.min.css\">\n" +
-                            "    <link href=\"https://fonts.googleapis.com/css?family=Work+Sans:600\" rel=\"stylesheet\">\n" +
-                            "    <link href=\"https://fonts.googleapis.com/css?family=Overpass:300,400,600,700,800,900\" rel=\"stylesheet\">\n" +
-                            "    <link rel=\"icon\" type=\"image/x-icon\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/img/lunar.png\"/>\n" +
-                            "    <link rel=\"icon\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/img/lunar.png\" type=\"image/png\" sizes=\"16x16\">\n" +
-                            "</head>\n" +
-                            "<body class=\"modal-open\">\n" +
-                            "    <!-- Modal -->\n" +
-                            "    <div class=\"modal fade modal-bottom-right show\" id=\"demoModal\"  tabindex=\"-1\" role=\"dialog\"\n" +
-                            "         aria-labelledby=\"demoModal\" aria-hidden=\"true\" style=\"display: block;\">\n" +
-                            "\n" +
-                            "        <div class=\"modal-dialog  modal-sm\" role=\"document\">\n" +
-                            "\n" +
-                            "            <div class=\"modal-content\">\n" +
-                            "                <button type=\"button\" class=\"close size-sm light\" data-dismiss=\"modal\"\n" +
-                            "                        aria-label=\"Close\" onclick=\"sdk.dismissMessage();\">\n" +
-                            "                    <span aria-hidden=\"true\">&times;</span>\n" +
-                            "                </button>\n" +
-                            "                <div class=\"modal-body bg-rhino px-sm-3 py-sm-3\" >\n" +
-                            "                    <div class=\"text-center pb-2\"><img src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/img/megaphone.png\" alt=\"\"></div>\n" +
-                            "                    <h3 class=\"text-white text-center \">CTKM</h3>\n" +
-                            "                    <p class=\"text-white-50\">CTKM Thanh toán điện thoại Viettel được tặng 10% chỉ có tại Mobio Bank trong hôm nay!</p>\n" +
-                            "                    <div class=\"pt-2 text-center\">\n" +
-                            "                        <a class=\"btn btn-cstm-light \" data-dismiss=\"modal\" aria-label=\"Close\" onclick=\"sdk.trackClick(); \">Đồng ý</a>\n" +
-                            "                    </div>\n" +
-                            "\n" +
-                            "                </div>\n" +
-                            "\n" +
-                            "\n" +
-                            "            </div>\n" +
-                            "        </div>\n" +
-                            "    </div>\n" +
-                            "    <!-- Modal Ends -->\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "<!--end content here-->\n" +
-                            "<div id=\"image\"></div>\n" +
-                            "<script src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/js/jquery.min.js\"></script>\n" +
-                            "<script src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/js/popper.min.js\"></script>\n" +
-                            "<script src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/bootstrap/js/bootstrap.min.js\"></script>\n" +
-                            "<div class=\"modal-backdrop show\"></div>\n" +
-                            "</body>\n" +
-                            "</html>");
+                    notiResponseObject.setData(Utils.HTML_RAW);
+                }
+                else if(title.contains("[HTML URL]")){
+                    notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
                 }
 
                 if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
@@ -149,64 +96,10 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
             else if(title.contains("[HTML]")){
                 notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
                 notiResponseObject.setDes_screen("Recharge");
-                notiResponseObject.setData("<!doctype html>\n" +
-                        "<html lang=\"en\">\n" +
-                        "<head>\n" +
-                        "    <title>Lunar -  Free Bootstrap Modal and Popups  </title>\n" +
-                        "    <!-- Required meta tags -->\n" +
-                        "    <meta charset=\"utf-8\">\n" +
-                        "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=0\">\n" +
-                        "    <!-- Bootstrap CSS -->\n" +
-                        "    <link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/bootstrap/css/bootstrap.min.css\">\n" +
-                        "    <!-- Lunar CSS -->\n" +
-                        "    <link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/css/lunar.css\">\n" +
-                        "    <!--<link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/css/demo.css\">-->\n" +
-                        "    <!-- Fonts -->\n" +
-                        "    <link rel=\"stylesheet\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/css/animate.min.css\">\n" +
-                        "    <link href=\"https://fonts.googleapis.com/css?family=Work+Sans:600\" rel=\"stylesheet\">\n" +
-                        "    <link href=\"https://fonts.googleapis.com/css?family=Overpass:300,400,600,700,800,900\" rel=\"stylesheet\">\n" +
-                        "    <link rel=\"icon\" type=\"image/x-icon\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/img/lunar.png\"/>\n" +
-                        "    <link rel=\"icon\" href=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/img/lunar.png\" type=\"image/png\" sizes=\"16x16\">\n" +
-                        "</head>\n" +
-                        "<body class=\"modal-open\">\n" +
-                        "    <!-- Modal -->\n" +
-                        "    <div class=\"modal fade modal-bottom-right show\" id=\"demoModal\"  tabindex=\"-1\" role=\"dialog\"\n" +
-                        "         aria-labelledby=\"demoModal\" aria-hidden=\"true\" style=\"display: block;\">\n" +
-                        "\n" +
-                        "        <div class=\"modal-dialog  modal-sm\" role=\"document\">\n" +
-                        "\n" +
-                        "            <div class=\"modal-content\">\n" +
-                        "                <button type=\"button\" class=\"close size-sm light\" data-dismiss=\"modal\"\n" +
-                        "                        aria-label=\"Close\" onclick=\"sdk.dismissMessage();\">\n" +
-                        "                    <span aria-hidden=\"true\">&times;</span>\n" +
-                        "                </button>\n" +
-                        "                <div class=\"modal-body bg-rhino px-sm-3 py-sm-3\" >\n" +
-                        "                    <div class=\"text-center pb-2\"><img src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/img/megaphone.png\" alt=\"\"></div>\n" +
-                        "                    <h3 class=\"text-white text-center \">CTKM</h3>\n" +
-                        "                    <p class=\"text-white-50\">CTKM Thanh toán điện thoại Viettel được tặng 10% chỉ có tại Mobio Bank trong hôm nay!</p>\n" +
-                        "                    <div class=\"pt-2 text-center\">\n" +
-                        "                        <a class=\"btn btn-cstm-light \" data-dismiss=\"modal\" aria-label=\"Close\" onclick=\"sdk.trackClick(); \">Đồng ý</a>\n" +
-                        "                    </div>\n" +
-                        "\n" +
-                        "                </div>\n" +
-                        "\n" +
-                        "\n" +
-                        "            </div>\n" +
-                        "        </div>\n" +
-                        "    </div>\n" +
-                        "    <!-- Modal Ends -->\n" +
-                        "\n" +
-                        "\n" +
-                        "\n" +
-                        "\n" +
-                        "<!--end content here-->\n" +
-                        "<div id=\"image\"></div>\n" +
-                        "<script src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/js/jquery.min.js\"></script>\n" +
-                        "<script src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/js/popper.min.js\"></script>\n" +
-                        "<script src=\"https://campaign-assets-01.moengage.com/inbound/inapp/html_inapp/campaigns/DemoAccount-E-commerce/163606189309_omg365/163723101375_70xwq4/assets/bootstrap/js/bootstrap.min.js\"></script>\n" +
-                        "<div class=\"modal-backdrop show\"></div>\n" +
-                        "</body>\n" +
-                        "</html>");
+                notiResponseObject.setData(Utils.HTML_RAW);
+            }
+            else if(title.contains("[HTML URL]")){
+                notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
             }
 
             if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
