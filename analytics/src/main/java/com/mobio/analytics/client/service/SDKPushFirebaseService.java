@@ -48,11 +48,14 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                         .withData(body).withTitle(title)
                         .build();
                 if (title.contains("[Case Demo 1]")) {
+                    notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
                     notiResponseObject.setDes_screen("Recharge");
                 } else if (title.contains("[Case Demo 2]")) {
+                    notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
                     notiResponseObject.setDes_screen("Saving");
                 }
                 else if(title.contains("[HTML]")){
+                    notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
                     notiResponseObject.setDes_screen("Recharge");
                     notiResponseObject.setData("<!doctype html>\n" +
                             "<html>\n" +
@@ -82,7 +85,6 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 }
 
                 if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                    notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
                     Analytics.getInstance().showGlobalPopup(notiResponseObject);
                 }
                 else {
@@ -111,9 +113,37 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
             } else if (title.contains("[Case Demo 2]")) {
                 notiResponseObject.setDes_screen("Saving");
             }
+            else if(title.contains("[HTML]")){
+                notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
+                notiResponseObject.setDes_screen("Recharge");
+                notiResponseObject.setData("<!doctype html>\n" +
+                        "<html>\n" +
+                        "<head>\n" +
+                        "<meta charset=\"utf-8\">\n" +
+                        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0\"/>\n" +
+                        "<link href=\"https://fonts.googleapis.com/css?family=Roboto+Slab\" rel=\"stylesheet\">\n" +
+                        "<title>freedownloads</title>\n" +
+                        "</head>\n" +
+                        "\n" +
+                        "<body>\n" +
+                        "<section class=\"popup-graybox\">\n" +
+                        "<div class=\"freedownloads-popup-sec\" style=\"background: #8e8e41 url(images/freedownloads.jpg) no-repeat center center;background-size: cover;\" >\n" +
+                        "  <h2 data-edit=\"text\" >CTKM</h2>\n" +
+                        "  <h4 data-edit=\"text\" >Unlimited Free Downloads Of Brochures<br>\n" +
+                        "    Flyers, Postcards and much more...</h4>\n" +
+                        "  <div class=\"freedownloads-email-sec\">\n" +
+                        "    <input type=\"email\" class=\"freedownloadsemail-input\" data-edit=\"placeholder\"   placeholder=\"Enter your email id\">\n" +
+                        "    <button class=\"freedownloads-input-btn\" type=\"submit\" onclick=\"sdk.trackClick();\">signup</button>\n" +
+                        "  </div>\n" +
+                        "  <h6 data-edit=\"text\" >* Terms and Conditions Apply</h6>\n" +
+                        "  <button class=\"freedownloads-cls-btn close-btn\" onclick=\"sdk.dismissMessage();\">X</button>\n" +
+                        "</div>\n" +
+                        "</section>\n" +
+                        "</body>\n" +
+                        "</html>\n");
+            }
 
             if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
                 Analytics.getInstance().showGlobalPopup(notiResponseObject);
             }
             else {
