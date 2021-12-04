@@ -44,12 +44,12 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 String body = (String) json2.get("body");
                 String content_type = (String) json2.get("content_type");
                 String url_target = (String) json2.get("url_target");
-                String body_html = (String) json2.get("body_html");
                 //String background_image = (String) json2.get("background_image");
 
                 NotiResponseObject notiResponseObject = null;
 
                 if(content_type.equals("html")){
+                    String body_html = (String) json2.get("body_html");
                     notiResponseObject = new NotiResponseObject.Builder().withContent(body_html)
                             .withData(body_html).withTitle(title)
                             .build();
