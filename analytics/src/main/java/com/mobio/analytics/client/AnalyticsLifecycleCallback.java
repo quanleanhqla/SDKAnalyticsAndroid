@@ -152,14 +152,11 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                             break;
                         }
                     }
-
-                    if(dialog == null) {
+                    if(notiResponseObject.getType()==NotiResponseObject.TYPE_NATIVE) {
                         dialog = new Dialog(currentActivity);
                         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dialog.setCancelable(false);
-                    }
-                    if(notiResponseObject.getType()==NotiResponseObject.TYPE_NATIVE) {
                         dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
 
                         Button btnAction = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_action);
