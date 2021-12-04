@@ -42,32 +42,45 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 JSONObject json2 = json.getJSONObject("alert");
                 String title = (String) json2.get("title");
                 String body = (String) json2.get("body");
+                String content_type = (String) json2.get("content_type");
+                String url_target = (String) json2.get("url_target");
+                String body_html = (String) json2.get("body_html");
+                //String background_image = (String) json2.get("background_image");
 
-                LogMobio.logD("SDKPushFirebaseService", "title: " + title);
-                LogMobio.logD("SDKPushFirebaseService", "body: " + body);
-                NotiResponseObject notiResponseObject = new NotiResponseObject.Builder().withContent(body)
-                        .withData(body).withTitle(title)
-                        .build();
-                if (title.contains("[Case Demo 1]")) {
-                    notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
-                    notiResponseObject.setDes_screen("Recharge");
-                } else if (title.contains("[Case Demo 2]")) {
-                    notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
-                    notiResponseObject.setDes_screen("Saving");
-                }
-                else if(title.contains("[HTML]")){
+                NotiResponseObject notiResponseObject = null;
+
+                if(content_type.equals("html")){
+                    notiResponseObject = new NotiResponseObject.Builder().withContent(body_html)
+                            .withData(body_html).withTitle(title)
+                            .build();
                     notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
-                    notiResponseObject.setDes_screen("Recharge");
-                    notiResponseObject.setData(Utils.HTML_RAW);
-                }
-                else if(title.contains("[HTML URL]")){
-                    notiResponseObject.setType(NotiResponseObject.TYPE_HTML_URL);
-                }
-
-                if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                    Analytics.getInstance().showGlobalPopup(notiResponseObject);
                 }
                 else {
+                    LogMobio.logD("SDKPushFirebaseService", "title: " + title);
+                    LogMobio.logD("SDKPushFirebaseService", "body: " + body);
+                    notiResponseObject = new NotiResponseObject.Builder().withContent(body)
+                            .withData(body).withTitle(title)
+                            .build();
+                    if (title.contains("[Case Demo 1]")) {
+                        notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
+                        notiResponseObject.setDes_screen("Recharge");
+                    } else if (title.contains("[Case Demo 2]")) {
+                        notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
+                        notiResponseObject.setDes_screen("Saving");
+                    } else if (title.contains("[HTML]")) {
+                        notiResponseObject.setType(NotiResponseObject.TYPE_HTML);
+                        notiResponseObject.setDes_screen("Recharge");
+                        notiResponseObject.setData(Utils.HTML_RAW);
+                    } else if (title.contains("[HTML URL]")) {
+                        notiResponseObject.setType(NotiResponseObject.TYPE_HTML_URL);
+                    }
+                    else {
+                        notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
+                    }
+                }
+                if (SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
+                    Analytics.getInstance().showGlobalPopup(notiResponseObject);
+                } else {
                     Analytics.getInstance().showGlobalNotification(notiResponseObject);
                 }
             } catch (JSONException e) {

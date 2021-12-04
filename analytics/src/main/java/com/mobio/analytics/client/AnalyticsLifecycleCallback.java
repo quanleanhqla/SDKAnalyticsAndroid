@@ -53,6 +53,7 @@ import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
+import com.mobio.analytics.client.view.HtmlController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,11 +79,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private HashMap<String, ScreenConfigObject> screenConfigObjectHashMap;
     private Activity currentActivity;
     private Dialog dialog;
-    private final String FILE_URI_SCHEME_PREFIX = "file://";
-    private final String FILE_PATH_SEPARATOR = "/";
-    private final String HTML_MIME_TYPE = "text/html";
-    private final String HTML_ENCODING = "utf-8";
-    private FrameLayout root;
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
@@ -140,89 +136,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             intent.setData(Uri.parse("package:" + application.getPackageName()));
         }
         currentActivity.startActivity(intent);
-    }
-
-    private boolean isHtml(String content){
-        // adapted from post by Phil Haack and modified to match better
-        String tagStart=
-                "\\<\\w+((\\s+\\w+(\\s*\\=\\s*(?:\".*?\"|'.*?'|[^'\"\\>\\s]+))?)+\\s*|\\s*)\\>";
-        String tagEnd=
-                "\\</\\w+\\>";
-        String tagSelfClosing=
-                "\\<\\w+((\\s+\\w+(\\s*\\=\\s*(?:\".*?\"|'.*?'|[^'\"\\>\\s]+))?)+\\s*|\\s*)/\\>";
-        String htmlEntity=
-                "&[a-zA-Z][a-zA-Z0-9]+;";
-        Pattern htmlPattern=Pattern.compile(
-                "("+tagStart+".*"+tagEnd+")|("+tagSelfClosing+")|("+htmlEntity+")",
-                Pattern.DOTALL
-        );
-
-        boolean ret = false;
-        if(content != null){
-            ret = htmlPattern.matcher(content).find();
-        }
-        return ret;
-    }
-
-    public void showHtmlPopup(NotiResponseObject notiResponseObject, Class des){
-        root = getWindowRoot(currentActivity);
-        root.addView(createPrimaryContainer(currentActivity,
-                "", notiResponseObject, des));
-    }
-
-    private FrameLayout getWindowRoot(Activity activity) {
-        return (FrameLayout) activity.getWindow()
-                .getDecorView()
-                .findViewById(android.R.id.content)
-                .getRootView();
-    }
-
-    private void createWebview(ViewGroup container,String assetPath,  NotiResponseObject notiResponseObject, Class des){
-        currentActivity.runOnUiThread(new Runnable() {
-            @SuppressLint("SetJavaScriptEnabled")
-            @Override
-            public void run() {
-                WebView webView = new WebView(currentActivity);
-                webView.setId(ViewCompat.generateViewId());
-                webView.setFocusableInTouchMode(true);
-                webView.requestFocus();
-
-                WebSettings webSettings = webView.getSettings();
-                webSettings.setJavaScriptEnabled(true);
-                webSettings.setUseWideViewPort(true);
-                webSettings.setLoadWithOverviewMode(true);
-                webSettings.setDisplayZoomControls(false);
-                webSettings.setDomStorageEnabled(true);
-                webSettings.setAllowFileAccess(true);
-
-                webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
-                if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
-                    webView.loadUrl(notiResponseObject.getContent());
-                }
-                else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML) {
-                webView.loadDataWithBaseURL(assetPath,
-                        notiResponseObject.getData(),
-                        HTML_MIME_TYPE,
-                        HTML_ENCODING, null);
-                }
-
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT);
-                webView.setLayoutParams(layoutParams);
-                container.addView(webView);
-            }
-        });
-    }
-
-    @SuppressLint("ResourceType")
-    private View createPrimaryContainer(Activity activity, String assetPath, NotiResponseObject notiResponseObject, Class des){
-        RelativeLayout containerLayout = new RelativeLayout(activity);
-        containerLayout.setId(20001);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        containerLayout.setLayoutParams(layoutParams);
-        createWebview(containerLayout, assetPath, notiResponseObject, des);
-        return containerLayout;
     }
 
     public void showPopup(NotiResponseObject notiResponseObject){
@@ -290,74 +203,11 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         dialog.show();
                     }
                     else {
-
-                        //dialog.setContentView(R.layout.custom_html_popup);
-
-//                        WebView webView = new WebView(currentActivity);
-//                        webView.addJavascriptInterface(new JS_INTERFACE(currentActivity, des), "sdk");
-//                        webView.setWebViewClient(new WebViewClient());
-//
-//                        WebSettings webSettings = webView.getSettings();
-//                        webSettings.setJavaScriptEnabled(true);
-//                        webSettings.setUseWideViewPort(true);
-//                        webSettings.setLoadWithOverviewMode(true);
-//                        webSettings.setDisplayZoomControls(false);
-//                        webSettings.setDomStorageEnabled(true);
-//                        webSettings.setAllowFileAccess(true);
-//
-//                        if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
-//                            webView.loadUrl(notiResponseObject.getData());
-//                        }
-//                        else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML){
-//                            webView.loadDataWithBaseURL("",
-//                                    notiResponseObject.getData(),
-//                                    HTML_MIME_TYPE,
-//                                    HTML_ENCODING, null);
-//                        }
-//                        webView.requestFocus();
-//
-//                        dialog.setContentView(webView);
-
-                        showHtmlPopup(notiResponseObject, des);
+                        new HtmlController(currentActivity, notiResponseObject, "", des).showHtmlView();
                     }
                 }
             });
         }
-    }
-
-    public class JS_INTERFACE {
-
-        Context mContext;
-        Class dest;
-
-        /**
-         * Instantiate the interface and set the context
-         */
-        JS_INTERFACE(Context c, Class des) {
-            dest = des;
-            mContext = c;
-        }
-
-        @SuppressLint("ResourceType")
-        @JavascriptInterface
-        public void trackClick() {
-            if (dest != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")) {
-                Intent desIntent = new Intent(currentActivity, dest);
-                currentActivity.startActivity(desIntent);
-            }
-            if(root != null){
-                root.removeView(root.findViewById(20001));
-            }
-        }
-
-        @SuppressLint("ResourceType")
-        @JavascriptInterface
-        public void dismissMessage() {
-            if(root != null){
-                root.removeView(root.findViewById(20001));
-            }
-        }
-
     }
 
     public String getNameOfActivity(Activity activity) {

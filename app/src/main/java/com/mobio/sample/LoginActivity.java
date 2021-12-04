@@ -60,11 +60,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        NotiResponseObject notiResponseObject = new NotiResponseObject.Builder()
-                .withType(NotiResponseObject.TYPE_HTML).withContent("Haha").withData(Utils.HTML_RAW)
-                .build();
-
-        Analytics.getInstance().showGlobalPopup(notiResponseObject);
     }
 
     private void getAddress(double latitude, double longitude) {

@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 public class Utils {
     /** Returns the referrer who started the Activity. */
@@ -59,6 +60,28 @@ public class Utils {
             return activity.getReferrer();
         }
         return getReferrerCompatible(activity);
+    }
+
+    public static boolean isHtml(String content){
+        // adapted from post by Phil Haack and modified to match better
+        String tagStart=
+                "\\<\\w+((\\s+\\w+(\\s*\\=\\s*(?:\".*?\"|'.*?'|[^'\"\\>\\s]+))?)+\\s*|\\s*)\\>";
+        String tagEnd=
+                "\\</\\w+\\>";
+        String tagSelfClosing=
+                "\\<\\w+((\\s+\\w+(\\s*\\=\\s*(?:\".*?\"|'.*?'|[^'\"\\>\\s]+))?)+\\s*|\\s*)/\\>";
+        String htmlEntity=
+                "&[a-zA-Z][a-zA-Z0-9]+;";
+        Pattern htmlPattern=Pattern.compile(
+                "("+tagStart+".*"+tagEnd+")|("+tagSelfClosing+")|("+htmlEntity+")",
+                Pattern.DOTALL
+        );
+
+        boolean ret = false;
+        if(content != null){
+            ret = htmlPattern.matcher(content).find();
+        }
+        return ret;
     }
 
     public static final String HTML_RAW = "<!doctype html>\n" +

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nice_html">
+        <![CDATA[
+        <!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+</head>
+<style>
+    html {height: 100%;}body {min-height: 100%;position:relative;}#m_modal{width: 100%;position: absolute;transform: translate(-50%, -50%);top: 50%;left: 50%;right: auto;bottom: auto;text-align: center;}
+</style>
+<body>
+<div id="m_modal">
+</div>
+</body>
+</html>
+]]>
+    </string>
+</resources>
