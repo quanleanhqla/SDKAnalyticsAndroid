@@ -316,7 +316,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "          \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
                     "          \"enable\": true,\n" +
                     "          \"noti_response\": {\n" +
-                    "            \"type\": 2,\n" +
+                    "            \"type\": 0,\n" +
                     "            \"source_screen\": \"Home\",\n" +
                     "            \"des_screen\": \"Recharge\",\n" +
                     "            \"title\": \"CTKM\",\n" +
@@ -342,7 +342,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "                  \"node_id\": \"36ef469f-3b32-43f5-b285-64bc1aff0f0a\",\n" +
                     "                  \"node_name\": \"Nhập thông tin thanh toán điện thoại\",\n" +
                     "                  \"noti_response\": {\n" +
-                    "                    \"type\": 2,\n" +
+                    "                    \"type\": 0,\n" +
                     "                    \"source_screen\": \"Recharge\",\n" +
                     "                    \"title\": \"Nhap thong tin\",\n" +
                     "                    \"content\": \"Nhap thong tin nap the di\",\n" +
@@ -367,7 +367,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "                          \"node_name\": \"Popup Xác nhận thanh toán điện thoại\",\n" +
                     "                          \"enable\": false,\n" +
                     "                          \"noti_response\": {\n" +
-                    "                            \"type\": 2,\n" +
+                    "                            \"type\": 0,\n" +
                     "                            \"source_screen\": \"Recharge\",\n" +
                     "                            \"title\": \"Xac nhan thanh toan\",\n" +
                     "                            \"content\": \"Nhan nut xac nhan di\",\n" +
