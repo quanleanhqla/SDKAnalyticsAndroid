@@ -463,6 +463,7 @@ public class Analytics {
                             LogMobio.logD("TestJb", "eventStr1 "+eventStr);
                             if(compareTwoJson(edStr, eventStr)){
                                 LogMobio.logD("TestJb", "eventData1 equal");
+                                pendingNode = pendingNode.getData().get(0);
                                 if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
                                     NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
                                     if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
