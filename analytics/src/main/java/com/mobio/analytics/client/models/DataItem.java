@@ -8,6 +8,8 @@ public class DataItem {
 	public static final String NODE_CODE_EVENT = "EVENT";
 	public static final String NODE_CODE_PUSH_IN_APP = "PUSH_IN_APP";
 	public static final String NODE_CODE_CONDITION = "CONDITION";
+	public static final String NODE_CODE_EMAIL = "EMAIL";
+	public static final String NODE_CODE_ADD_TAGS = "ADD_TAGS";
 
 	@SerializedName("data")
 	private List<DataItem> data;

@@ -100,6 +100,10 @@ public class Analytics {
     private DataItem pendingNode;
     private JourneyObject currentJb;
 
+    private ValueMap currentJsonNode;
+    private int currentJsonJbId;
+    private ArrayList<ValueMap> currentJsonJbList;
+
     private final ExecutorService analyticsExecutor;
     private final ScheduledExecutorService sendSyncScheduler;
 
@@ -220,6 +224,10 @@ public class Analytics {
         currentJbList = journeyList;
     }
 
+    public void setJourneyJsonList(ArrayList<ValueMap> journeyList){
+        currentJsonJbList = journeyList;
+    }
+
     public void addJourney(JourneyObject journeyObject){
         if(currentJbList == null){
             currentJbList = new ArrayList<>();
@@ -227,7 +235,7 @@ public class Analytics {
         currentJbList.add(journeyObject);
     }
 
-    private ValueMap toMap(JSONObject object) throws JSONException {
+    public ValueMap toMap(JSONObject object) throws JSONException {
         ValueMap map = new ValueMap();
 
         Iterator<String> keysItr = object.keys();
@@ -377,6 +385,102 @@ public class Analytics {
         return properlyJB;
     }
 
+    private ValueMap getRunningJsonJb(){
+        ValueMap jb = null;
+        for(int i = 0; i<currentJsonJbList.size(); i++){
+            if(currentJsonJbList.get(i) != null && currentJsonJbList.get(i).get("type_todo") != null) {
+                if ((int) currentJsonJbList.get(i).get("type_todo") == JourneyObject.TYPE_TODO_RUNNING) {
+                    jb = currentJsonJbList.get(i);
+                    break;
+                }
+            }
+        }
+        return jb;
+    }
+
+    private void processEventAfterSync(String eventKey, ValueMap eventData, String actionTime){
+        if(getRunningJsonJb() == null){
+            for(int i = 0; i < currentJsonJbList.size(); i++){
+                ValueMap temp = currentJsonJbList.get(i);
+                if(temp != null && temp.get("type_todo") != null) {
+                    if ((int) temp.get("type_todo") == JourneyObject.TYPE_TODO_ACTIVE) {
+                        if(temp.get("data") != null) {
+                            List<ValueMap> list = (List<ValueMap>) temp.get("data");
+                            if(processEvent(temp, list.get(0), eventKey, eventData, actionTime)){
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if(currentJsonNode != null) {
+                processEvent(getRunningJsonJb(), currentJsonNode, eventKey, eventData, actionTime);
+            }
+        }
+    }
+
+    private boolean processEvent(ValueMap root, ValueMap node, String eventKey, ValueMap eventData, String actionTime){
+        if(node.get("node_code") != null){
+            if(((String)node.get("node_code")).equals(DataItem.NODE_CODE_EVENT)
+                    ||((String) node.get("node_code")).equals(DataItem.NODE_CODE_CONDITION)){
+                if(node.get("event_key") != null && ((String) node.get("event_key")).equals(eventKey)){
+                    ValueMap eventBody =(ValueMap) node.get("event_data");
+                    eventBody.put("action_time", actionTime);
+                    try {
+                        String edStr = new Gson().toJson(eventBody);
+                        String eventStr = new Gson().toJson(eventData);
+                        if(compareTwoJson(edStr, eventStr)){
+                            currentJsonNode = node;
+                            root.put("type_todo", JourneyObject.TYPE_TODO_RUNNING);
+                            if(node.get("data") != null){
+                                List<ValueMap> list = (List<ValueMap>) node.get("data");
+                                if(list.get(0) != null && ((String) list.get(0).get("node_code")).equals(DataItem.NODE_CODE_PUSH_IN_APP)){
+                                    ValueMap noti = (ValueMap) list.get(0).get("noti_response");
+                                    String notiStr = new Gson().toJson(noti);
+                                    NotiResponseObject  notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
+                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
+                                        showGlobalPopup(notiResponseObject);
+                                    }
+                                    else {
+                                        showGlobalNotification(notiResponseObject);
+                                    }
+                                }
+                                currentJsonNode =(ValueMap) ((List<ValueMap>) list.get(0).get("data")).get(0);
+                                if(currentJsonNode == null){
+                                    exitJb(root);
+                                }
+                            }
+                            else {
+                                exitJb(root);
+                            }
+                            return true;
+                        }
+
+                    }
+                    catch (Exception e){
+                        LogMobio.logD(TAG, "exception "+e);
+                        return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void exitJb(ValueMap root){
+        for(int i = 0; i<currentJsonJbList.size(); i++){
+            ValueMap temp = currentJsonJbList.get(i);
+            if(temp != null && root != null){
+                if((int) root.get("id") == (int) temp.get("id")){
+                    currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_DISACTIVE);
+                    break;
+                }
+            }
+        }
+    }
+
     private JourneyObject startJbIfPossible(String eventKey, ValueMap eventData, String actionTime){
         JourneyObject properlyJB = null;
         for(int i = 0; i< currentJbList.size(); i++){
@@ -495,8 +599,8 @@ public class Analytics {
 
 
     private void sendSync(ValueMap dataObject) {
-        processLocalJb((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
-
+        //processLocalJb((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
+        processEventAfterSync((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
         String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
         String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
         try {

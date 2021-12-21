@@ -57,6 +57,9 @@ import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 import com.mobio.analytics.client.view.HtmlController;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -293,6 +296,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "  \"type_repeat\": 1,\n" +
                     "  \"concrete_time\": \"16h\",\n" +
                     "  \"type_todo\":0,\n" +
+                    "  \"id\": 1,\n" +
                     "  \"data\": [\n" +
                     "    {\n" +
                     "      \"node_code\": \"EVENT\",\n" +
@@ -312,7 +316,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "          \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
                     "          \"enable\": true,\n" +
                     "          \"noti_response\": {\n" +
-                    "            \"type\": 0,\n" +
+                    "            \"type\": 2,\n" +
                     "            \"source_screen\": \"Home\",\n" +
                     "            \"des_screen\": \"Recharge\",\n" +
                     "            \"title\": \"CTKM\",\n" +
@@ -338,9 +342,8 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "                  \"node_id\": \"36ef469f-3b32-43f5-b285-64bc1aff0f0a\",\n" +
                     "                  \"node_name\": \"Nhập thông tin thanh toán điện thoại\",\n" +
                     "                  \"noti_response\": {\n" +
-                    "                    \"type\": 0,\n" +
+                    "                    \"type\": 2,\n" +
                     "                    \"source_screen\": \"Recharge\",\n" +
-                    "                    \"des_screen\": \"\",\n" +
                     "                    \"title\": \"Nhap thong tin\",\n" +
                     "                    \"content\": \"Nhap thong tin nap the di\",\n" +
                     "                    \"data\": \"Nhap thong tin nap the di\"\n" +
@@ -359,13 +362,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "                      },\n" +
                     "                      \"data\": [\n" +
                     "                        {\n" +
-                    "                          \"node_code\": \"ADD_TAGS\",\n" +
-                    "                          \"enable\": false,\n" +
-                    "                          \"node_id\": \"b8ed0a91-cbe3-44b5-a8a9-7fe34712eb91\",\n" +
-                    "                          \"node_name\": \"Không thanh toán điện thoại\",\n" +
-                    "                          \"data\": []\n" +
-                    "                        },\n" +
-                    "                        {\n" +
                     "                          \"node_code\": \"PUSH_IN_APP\",\n" +
                     "                          \"node_id\": \"fd1758c6-2014-43a8-a819-202a94222579\",\n" +
                     "                          \"node_name\": \"Popup Xác nhận thanh toán điện thoại\",\n" +
@@ -373,7 +369,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "                          \"noti_response\": {\n" +
                     "                            \"type\": 2,\n" +
                     "                            \"source_screen\": \"Recharge\",\n" +
-                    "                            \"des_screen\": \"\",\n" +
                     "                            \"title\": \"Xac nhan thanh toan\",\n" +
                     "                            \"content\": \"Nhan nut xac nhan di\",\n" +
                     "                            \"data\": \"Nhan nut xac nhan di\"\n" +
@@ -401,6 +396,13 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "                              ]\n" +
                     "                            }\n" +
                     "                          ]\n" +
+                    "                        },\n" +
+                    "                        {\n" +
+                    "                          \"node_code\": \"ADD_TAGS\",\n" +
+                    "                          \"enable\": false,\n" +
+                    "                          \"node_id\": \"b8ed0a91-cbe3-44b5-a8a9-7fe34712eb91\",\n" +
+                    "                          \"node_name\": \"Không thanh toán điện thoại\",\n" +
+                    "                          \"data\": []\n" +
                     "                        }\n" +
                     "                      ]\n" +
                     "                    }\n" +
@@ -427,10 +429,16 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     "  ]\n" +
                     "}";
 
-            JourneyObject journeyObject = new Gson().fromJson(tempJb, JourneyObject.class);
-            ArrayList<JourneyObject> listJb = new ArrayList<>();
-            listJb.add(journeyObject);
-            analytics.setJourneyList(listJb);
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = new JSONObject(tempJb);
+                ValueMap vm = analytics.toMap(jsonObject);
+                ArrayList<ValueMap> listJb = new ArrayList<>();
+                listJb.add(vm);
+                analytics.setJourneyJsonList(listJb);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         numStarted++;
 
