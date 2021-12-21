@@ -22,7 +22,7 @@ public class MobioApplication extends Application {
         HashMap<String, ScreenConfigObject> screenConfigObjectHashMap = new HashMap<>();
         screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {5, 10, 15}, LoginActivity.class, true));
         screenConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home", "HomeActivity", new int[] {10}, HomeActivity.class, false));
-        screenConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer screen", "SendMoneyInActivity", new int[] {5, 10, 15}, SendMoneyInActivity.class, false));
+        screenConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer", "SendMoneyInActivity", new int[] {10}, SendMoneyInActivity.class, false));
 
         Analytics.Builder builder = new Analytics.Builder()
                 .withApplication(this)

@@ -397,6 +397,7 @@ public class Analytics {
                             String eventStr = new Gson().toJson(eventData);
                             LogMobio.logD("TestJb", "eventStr "+eventStr);
                             if(compareTwoJson(edStr, eventStr)){
+                                LogMobio.logD("TestJb", "eventData equal");
                                 properlyJB = currentJbList.get(i);
                                 currentJbList.get(i).setTypeTodo(JourneyObject.TYPE_TODO_RUNNING);
                                 pendingNode = rootData.getData().get(0);
@@ -461,6 +462,7 @@ public class Analytics {
                             String eventStr = new Gson().toJson(eventData);
                             LogMobio.logD("TestJb", "eventStr1 "+eventStr);
                             if(compareTwoJson(edStr, eventStr)){
+                                LogMobio.logD("TestJb", "eventData1 equal");
                                 if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
                                     NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
                                     if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
