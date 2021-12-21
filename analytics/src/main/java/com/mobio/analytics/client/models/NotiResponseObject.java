@@ -1,11 +1,24 @@
 package com.mobio.analytics.client.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class NotiResponseObject {
+    @SerializedName("type")
     private int type;
+
+    @SerializedName("source_screen")
     private String source_screen;
+
+    @SerializedName("des_screen")
     private String des_screen;
+
+    @SerializedName("title")
     private String title;
+
+    @SerializedName("content")
     private String content;
+
+    @SerializedName("data")
     private String data;//1: html content, 2:native, 3:url
     private int width;
     private int height;

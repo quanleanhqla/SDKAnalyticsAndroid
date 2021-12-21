@@ -17,7 +17,7 @@ public class ValueMap extends HashMap<String, Object> {
         return this;
     }
 
-    public ValueMap get(String key){
-        return (ValueMap) super.get(key);
-    }
+//    public ValueMap get(String key){
+//        return (ValueMap) super.get(key);
+//    }
 }

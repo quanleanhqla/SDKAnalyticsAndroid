@@ -16,8 +16,11 @@ import android.os.Build;
 import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.AppObject;
+import com.mobio.analytics.client.models.DataItem;
 import com.mobio.analytics.client.models.DataObject;
 import com.mobio.analytics.client.models.DeviceObject;
+import com.mobio.analytics.client.models.EventData;
+import com.mobio.analytics.client.models.JourneyObject;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.OsObject;
 import com.mobio.analytics.client.models.PropertiesObject;
@@ -93,6 +96,9 @@ public class Analytics {
     private HashMap<String, ScreenConfigObject> configActivityMap;
     private ValueMap cacheValueMap;
     private NotificationManager notificationManager;
+    private ArrayList<JourneyObject> currentJbList;
+    private DataItem pendingNode;
+    private JourneyObject currentJb;
 
     private final ExecutorService analyticsExecutor;
     private final ScheduledExecutorService sendSyncScheduler;
@@ -203,11 +209,22 @@ public class Analytics {
         this.deviceToken = deviceToken;
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
         this.cacheDataObject.setProfileInfo(Utils.getProfileCreateDeviceObject(application));
-        ValueMap pushIdVM = cacheValueMap.get("profile_info").get("push_id");
+        ValueMap pushIdVM =(ValueMap) ((ValueMap) cacheValueMap.get("profile_info")).get("push_id");
         if (pushIdVM != null) {
             pushIdVM.put("push_id", deviceToken);
-            cacheValueMap.get("profile_info").put("push_id", pushIdVM);
+            ((ValueMap) cacheValueMap.get("profile_info")).put("push_id", pushIdVM);
         }
+    }
+
+    public void setJourneyList(ArrayList<JourneyObject> journeyList){
+        currentJbList = journeyList;
+    }
+
+    public void addJourney(JourneyObject journeyObject){
+        if(currentJbList == null){
+            currentJbList = new ArrayList<>();
+        }
+        currentJbList.add(journeyObject);
     }
 
     private ValueMap toMap(JSONObject object) throws JSONException {
@@ -349,7 +366,101 @@ public class Analytics {
         return map;
     }
 
-    public void sendSync(ValueMap dataObject) {
+    private JourneyObject getRunningJB(){
+        JourneyObject properlyJB = null;
+        for(int i = 0; i< currentJbList.size(); i++){
+            if(currentJbList.get(i).getTypeTodo() == JourneyObject.TYPE_TODO_RUNNING){
+                properlyJB = currentJbList.get(i);
+                break;
+            }
+        }
+        return properlyJB;
+    }
+
+    private JourneyObject startJbIfPossible(String eventKey, ValueMap eventData){
+        JourneyObject properlyJB = null;
+        for(int i = 0; i< currentJbList.size(); i++){
+            JourneyObject tempJB = currentJbList.get(i);
+            if(tempJB.getTypeTodo() == JourneyObject.TYPE_TODO_ACTIVE){
+                DataItem rootData = tempJB.getData().get(0);
+                if(rootData.getNodeCode().equals(DataItem.NODE_CODE_EVENT)){
+                    if(rootData.getEventKey().equals(eventKey)){
+                        EventData ed = rootData.getEventData();
+                        String cacheStr = new Gson().toJson(ed);
+                        try {
+                            JSONObject jsonObject = new JSONObject(cacheStr);
+                            ValueMap cacheED = toMap(jsonObject);
+                            if(new Gson().toJson(cacheED).equals(new Gson().toJson(eventData))){
+                                properlyJB = currentJbList.get(i);
+                                currentJbList.get(i).setTypeTodo(JourneyObject.TYPE_TODO_RUNNING);
+                                pendingNode = rootData.getData().get(0);
+                                if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
+                                    NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
+                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
+                                        showGlobalPopup(notiResponseObject);
+                                    }
+                                    else {
+                                        showGlobalNotification(notiResponseObject);
+                                    }
+                                    pendingNode = pendingNode.getData().get(0);
+                                }
+                                break;
+                            }
+                        }
+                        catch (Exception e){
+                            LogMobio.logD(TAG, "exception "+e);
+                        }
+                    }
+                }
+            }
+        }
+        return properlyJB;
+    }
+
+    private void processLocalJb(String eventKey, ValueMap eventData) {
+        if(getRunningJB() != null){
+            if(pendingNode != null) {
+                if (pendingNode.getNodeCode().equals(DataItem.NODE_CODE_CONDITION)) {
+                    if(pendingNode.getEventKey().equals(eventKey)){
+                        EventData ed = pendingNode.getEventData();
+                        String cacheStr = new Gson().toJson(ed);
+                        try {
+                            JSONObject jsonObject = new JSONObject(cacheStr);
+                            ValueMap cacheED = toMap(jsonObject);
+                            if(new Gson().toJson(cacheED).equals(new Gson().toJson(eventData))){
+                                if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
+                                    NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
+                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
+                                        showGlobalPopup(notiResponseObject);
+                                    }
+                                    else {
+                                        showGlobalNotification(notiResponseObject);
+                                    }
+                                    pendingNode = pendingNode.getData().get(0);
+                                }
+                            }
+                        }
+                        catch (Exception e){
+                            LogMobio.logD(TAG, "exception "+e);
+                        }
+                    }
+                }
+            }
+            else {
+                currentJb.setTypeTodo(JourneyObject.TYPE_TODO_DISACTIVE);
+                currentJb = null;
+            }
+        }
+        else {
+            currentJb = startJbIfPossible(eventKey, eventData);
+        }
+    }
+
+
+
+    private void sendSync(ValueMap dataObject) {
+        processLocalJb((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"));
+
         String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
         String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
         try {
@@ -382,15 +493,15 @@ public class Analytics {
 
                     cacheValueMap.put("type", "identify");
                     cacheValueMap.put("event_key", SDK_Mobile_Test_Identify_App);
-                    ValueMap profileVM = (ValueMap) cacheValueMap.get("profile_info").remove("source").clone();
+                    ValueMap profileVM = (ValueMap) ((ValueMap) cacheValueMap.get("profile_info")).remove("source").clone();
                     cacheValueMap.put("profile_info", profile);
 
 
                     cacheValueMap.put("event_data", profileParam);
-                    cacheValueMap.get("profile_info").put("customer_id", Build.ID);
-                    cacheValueMap.get("profile_info").put("source", "APP");
-                    cacheValueMap.get("profile_info").put("device_id", Build.ID);
-                    cacheValueMap.get("profile_info").put("push_id", profileVM.get("push_id"));
+                    ((ValueMap) cacheValueMap.get("profile_info")).put("customer_id", Build.ID);
+                    ((ValueMap) cacheValueMap.get("profile_info")).put("source", "APP");
+                    ((ValueMap) cacheValueMap.get("profile_info")).put("device_id", Build.ID);
+                    ((ValueMap) cacheValueMap.get("profile_info")).put("push_id", profileVM.get("push_id"));
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
                     sendSync(cacheValueMap);
                     //listDataWaitToSend.add(cacheDataObject);

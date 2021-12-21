@@ -13,11 +13,14 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.core.view.ViewCompat;
 
 import com.mobio.analytics.R;
+import com.mobio.analytics.client.Analytics;
 import com.mobio.analytics.client.models.NotiResponseObject;
+import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
 
 import java.util.regex.Matcher;
@@ -147,6 +150,7 @@ public class HtmlController {
                 else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML) {
                     webView.loadDataWithBaseURL(assetPath,
                             genDynamicHtml(notiResponseObject.getData()),
+                            //notiResponseObject.getData(),
                             HTML_MIME_TYPE,
                             HTML_ENCODING, null);
                 }
@@ -180,17 +184,24 @@ public class HtmlController {
                 Intent desIntent = new Intent(activity, dest);
                 activity.startActivity(desIntent);
             }
-            if(root != null){
-                root.removeView(root.findViewById(20001));
-            }
+        }
+
+        @JavascriptInterface
+        public void identifyUser(String name, String email){
+            Analytics.getInstance().identify(new ValueMap().put("name", name).put("email", email));
         }
 
         @SuppressLint("ResourceType")
         @JavascriptInterface
         public void dismissMessage() {
-            if(root != null){
-                root.removeView(root.findViewById(20001));
-            }
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(root != null){
+                        root.removeView(root.findViewById(20001));
+                    }
+                }
+            });
         }
 
         @SuppressLint("ResourceType")
@@ -199,6 +210,39 @@ public class HtmlController {
             if (value != null) {
                 LogMobio.logD ("HtmlController", "Result from javascript:" + Integer.parseInt (value));
             }
+        }
+
+        @JavascriptInterface
+        public String getDataFromNative(){
+            return "Demo data native";
+        }
+
+        // Show a toast from the web page
+        @JavascriptInterface
+        public void showToast(String toast) {
+            Toast.makeText(activity, toast, Toast.LENGTH_SHORT).show();
+        }
+
+        @JavascriptInterface
+        public int getAndroidVersion() {
+            return android.os.Build.VERSION.SDK_INT;
+        }
+
+        @SuppressLint("ResourceType")
+        @JavascriptInterface
+        public void navigateToHome() {
+            if(activity.getClass().getSimpleName().equals("LoginActivity")){
+                if (dest != null) {
+                    Intent desIntent = new Intent(activity, dest);
+                    activity.startActivity(desIntent);
+                    activity.finish();
+                }
+            }
+        }
+
+        @JavascriptInterface
+        public void showAndroidVersion(String versionName) {
+            Toast.makeText(activity, versionName, Toast.LENGTH_SHORT).show();
         }
     }
 
