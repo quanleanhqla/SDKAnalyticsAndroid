@@ -12,7 +12,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-
 import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.AppObject;
@@ -44,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -377,7 +377,7 @@ public class Analytics {
         return properlyJB;
     }
 
-    private JourneyObject startJbIfPossible(String eventKey, ValueMap eventData){
+    private JourneyObject startJbIfPossible(String eventKey, ValueMap eventData, String actionTime){
         JourneyObject properlyJB = null;
         for(int i = 0; i< currentJbList.size(); i++){
             JourneyObject tempJB = currentJbList.get(i);
@@ -385,12 +385,18 @@ public class Analytics {
                 DataItem rootData = tempJB.getData().get(0);
                 if(rootData.getNodeCode().equals(DataItem.NODE_CODE_EVENT)){
                     if(rootData.getEventKey().equals(eventKey)){
+                        LogMobio.logD("TestJb", "eventKey equal");
                         EventData ed = rootData.getEventData();
+                        ed.setActionTime(actionTime);
                         String cacheStr = new Gson().toJson(ed);
                         try {
                             JSONObject jsonObject = new JSONObject(cacheStr);
                             ValueMap cacheED = toMap(jsonObject);
-                            if(new Gson().toJson(cacheED).equals(new Gson().toJson(eventData))){
+                            String edStr = new Gson().toJson(cacheED);
+                            LogMobio.logD("TestJb", "edStr "+edStr);
+                            String eventStr = new Gson().toJson(eventData);
+                            LogMobio.logD("TestJb", "eventStr "+eventStr);
+                            if(compareTwoJson(edStr, eventStr)){
                                 properlyJB = currentJbList.get(i);
                                 currentJbList.get(i).setTypeTodo(JourneyObject.TYPE_TODO_RUNNING);
                                 pendingNode = rootData.getData().get(0);
@@ -417,17 +423,44 @@ public class Analytics {
         return properlyJB;
     }
 
-    private void processLocalJb(String eventKey, ValueMap eventData) {
+    private boolean compareTwoJson(String first, String second){
+        try {
+            JSONObject jsonObject = new JSONObject(first);
+            JSONObject jsonObject1 = new JSONObject(second);
+            Iterator<String> s = jsonObject.keys();
+            for (Iterator<String> it = s; it.hasNext(); ) {
+                String str = it.next();
+                System.out.println("key:" + str + " : value1:" + jsonObject.get(str) + ":value2:" + jsonObject1.get(str));
+                //compare value of json1 with json2
+                if(!jsonObject.get(str).equals(jsonObject1.get(str))){
+                    return false;
+                }
+            }
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void processLocalJb(String eventKey, ValueMap eventData, String actionTime) {
         if(getRunningJB() != null){
             if(pendingNode != null) {
                 if (pendingNode.getNodeCode().equals(DataItem.NODE_CODE_CONDITION)) {
                     if(pendingNode.getEventKey().equals(eventKey)){
+                        LogMobio.logD("TestJb", "eventKey equal 1");
                         EventData ed = pendingNode.getEventData();
+                        ed.setActionTime(actionTime);
                         String cacheStr = new Gson().toJson(ed);
                         try {
                             JSONObject jsonObject = new JSONObject(cacheStr);
                             ValueMap cacheED = toMap(jsonObject);
-                            if(new Gson().toJson(cacheED).equals(new Gson().toJson(eventData))){
+                            String edStr = new Gson().toJson(cacheED);
+                            LogMobio.logD("TestJb", "edStr1 "+edStr);
+                            String eventStr = new Gson().toJson(eventData);
+                            LogMobio.logD("TestJb", "eventStr1 "+eventStr);
+                            if(compareTwoJson(edStr, eventStr)){
                                 if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
                                     NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
                                     if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
@@ -452,14 +485,14 @@ public class Analytics {
             }
         }
         else {
-            currentJb = startJbIfPossible(eventKey, eventData);
+            currentJb = startJbIfPossible(eventKey, eventData, actionTime);
         }
     }
 
 
 
     private void sendSync(ValueMap dataObject) {
-        processLocalJb((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"));
+        processLocalJb((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
 
         String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
         String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
