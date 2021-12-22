@@ -442,19 +442,25 @@ public class Analytics {
                             root.put("type_todo", JourneyObject.TYPE_TODO_RUNNING);
                             if(node.get("data") != null){
                                 List<ValueMap> list = (List<ValueMap>) node.get("data");
-                                if(list.get(0) != null && ((String) list.get(0).get("node_code")).equals(DataItem.NODE_CODE_PUSH_IN_APP)){
-                                    ValueMap noti = (ValueMap) list.get(0).get("noti_response");
-                                    String notiStr = new Gson().toJson(noti);
-                                    NotiResponseObject  notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
-                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
-                                        showGlobalPopup(notiResponseObject);
+                                if(list.size() > 0 && list.get(0) != null){
+                                    if(((String) list.get(0).get("node_code")).equals(DataItem.NODE_CODE_PUSH_IN_APP)) {
+                                        ValueMap noti = (ValueMap) list.get(0).get("noti_response");
+                                        String notiStr = new Gson().toJson(noti);
+                                        NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
+                                        if (SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
+                                            showGlobalPopup(notiResponseObject);
+                                        } else {
+                                            showGlobalNotification(notiResponseObject);
+                                        }
+                                    }
+                                    if(list.get(0).get("data") != null && ((List<ValueMap>) list.get(0).get("data")).size() > 0){
+                                        currentJsonNode =(ValueMap) ((List<ValueMap>) list.get(0).get("data")).get(0);
                                     }
                                     else {
-                                        showGlobalNotification(notiResponseObject);
+                                        exitJb(root);
                                     }
                                 }
-                                currentJsonNode =(ValueMap) ((List<ValueMap>) list.get(0).get("data")).get(0);
-                                if(currentJsonNode == null){
+                                else {
                                     exitJb(root);
                                 }
                             }
@@ -467,6 +473,7 @@ public class Analytics {
                     }
                     catch (Exception e){
                         LogMobio.logD(TAG, "exception "+e);
+                        exitJb(root);
                         return false;
                     }
                 }
@@ -485,6 +492,7 @@ public class Analytics {
                 }
             }
         }
+        currentJsonNode = null;
     }
 
 //    private JourneyObject startJbIfPossible(String eventKey, ValueMap eventData, String actionTime){

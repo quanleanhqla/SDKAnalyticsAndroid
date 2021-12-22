@@ -9,6 +9,9 @@ public class JourneyObject{
 	public static final int TYPE_TODO_ACTIVE = 0;
 	public static final int TYPE_TODO_DISACTIVE = 1;
 
+	public static final int TYPE_FLOW = 0;
+	public static final int TYPE_JB = 1;
+
 	@SerializedName("data")
 	private List<DataItem> data;
 	@SerializedName("repeat")
@@ -19,6 +22,10 @@ public class JourneyObject{
 	private String concreteTime;
 	@SerializedName("type_todo")
 	private int typeTodo;
+	@SerializedName("id")
+	private int id;
+	@SerializedName("type")
+	private int type;
 
 	public void setData(List<DataItem> data){
 		this.data = data;
