@@ -12,6 +12,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.CountDownTimer;
+
 import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.AppObject;
@@ -43,7 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -100,8 +101,9 @@ public class Analytics {
     private DataItem pendingNode;
     private JourneyObject currentJb;
 
+    private CountDownTimer countDownTimer;
+
     private ValueMap currentJsonNode;
-    private int currentJsonJbId;
     private ArrayList<ValueMap> currentJsonJbList;
 
     private final ExecutorService analyticsExecutor;
@@ -228,7 +230,7 @@ public class Analytics {
         currentJsonJbList = journeyList;
     }
 
-    public void addJourney(JourneyObject journeyObject){
+    public void addJourney(JourneyObject journeyObject) {
         if(currentJbList == null){
             currentJbList = new ArrayList<>();
         }
@@ -374,24 +376,26 @@ public class Analytics {
         return map;
     }
 
-    private JourneyObject getRunningJB(){
-        JourneyObject properlyJB = null;
-        for(int i = 0; i< currentJbList.size(); i++){
-            if(currentJbList.get(i).getTypeTodo() == JourneyObject.TYPE_TODO_RUNNING){
-                properlyJB = currentJbList.get(i);
-                break;
-            }
-        }
-        return properlyJB;
-    }
+//    private JourneyObject getRunningJB(){
+//        JourneyObject properlyJB = null;
+//        for(int i = 0; i< currentJbList.size(); i++){
+//            if(currentJbList.get(i).getTypeTodo() == JourneyObject.TYPE_TODO_RUNNING){
+//                properlyJB = currentJbList.get(i);
+//                break;
+//            }
+//        }
+//        return properlyJB;
+//    }
 
     private ValueMap getRunningJsonJb(){
         ValueMap jb = null;
-        for(int i = 0; i<currentJsonJbList.size(); i++){
-            if(currentJsonJbList.get(i) != null && currentJsonJbList.get(i).get("type_todo") != null) {
-                if ((int) currentJsonJbList.get(i).get("type_todo") == JourneyObject.TYPE_TODO_RUNNING) {
-                    jb = currentJsonJbList.get(i);
-                    break;
+        if(currentJsonJbList != null) {
+            for (int i = 0; i < currentJsonJbList.size(); i++) {
+                if (currentJsonJbList.get(i) != null && currentJsonJbList.get(i).get("type_todo") != null) {
+                    if ((int) currentJsonJbList.get(i).get("type_todo") == JourneyObject.TYPE_TODO_RUNNING) {
+                        jb = currentJsonJbList.get(i);
+                        break;
+                    }
                 }
             }
         }
@@ -400,14 +404,16 @@ public class Analytics {
 
     private void processEventAfterSync(String eventKey, ValueMap eventData, String actionTime){
         if(getRunningJsonJb() == null){
-            for(int i = 0; i < currentJsonJbList.size(); i++){
-                ValueMap temp = currentJsonJbList.get(i);
-                if(temp != null && temp.get("type_todo") != null) {
-                    if ((int) temp.get("type_todo") == JourneyObject.TYPE_TODO_ACTIVE) {
-                        if(temp.get("data") != null) {
-                            List<ValueMap> list = (List<ValueMap>) temp.get("data");
-                            if(processEvent(temp, list.get(0), eventKey, eventData, actionTime)){
-                                break;
+            if(currentJsonJbList != null) {
+                for (int i = 0; i < currentJsonJbList.size(); i++) {
+                    ValueMap temp = currentJsonJbList.get(i);
+                    if (temp != null && temp.get("type_todo") != null) {
+                        if ((int) temp.get("type_todo") == JourneyObject.TYPE_TODO_ACTIVE) {
+                            if (temp.get("data") != null) {
+                                List<ValueMap> list = (List<ValueMap>) temp.get("data");
+                                if (processEvent(temp, list.get(0), eventKey, eventData, actionTime)) {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -481,52 +487,52 @@ public class Analytics {
         }
     }
 
-    private JourneyObject startJbIfPossible(String eventKey, ValueMap eventData, String actionTime){
-        JourneyObject properlyJB = null;
-        for(int i = 0; i< currentJbList.size(); i++){
-            JourneyObject tempJB = currentJbList.get(i);
-            if(tempJB.getTypeTodo() == JourneyObject.TYPE_TODO_ACTIVE){
-                DataItem rootData = tempJB.getData().get(0);
-                if(rootData.getNodeCode().equals(DataItem.NODE_CODE_EVENT)){
-                    if(rootData.getEventKey().equals(eventKey)){
-                        LogMobio.logD("TestJb", "eventKey equal");
-                        EventData ed = rootData.getEventData();
-                        ed.setActionTime(actionTime);
-                        String cacheStr = new Gson().toJson(ed);
-                        try {
-                            JSONObject jsonObject = new JSONObject(cacheStr);
-                            ValueMap cacheED = toMap(jsonObject);
-                            String edStr = new Gson().toJson(cacheED);
-                            LogMobio.logD("TestJb", "edStr "+edStr);
-                            String eventStr = new Gson().toJson(eventData);
-                            LogMobio.logD("TestJb", "eventStr "+eventStr);
-                            if(compareTwoJson(edStr, eventStr)){
-                                LogMobio.logD("TestJb", "eventData equal");
-                                properlyJB = currentJbList.get(i);
-                                currentJbList.get(i).setTypeTodo(JourneyObject.TYPE_TODO_RUNNING);
-                                pendingNode = rootData.getData().get(0);
-                                if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
-                                    NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
-                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
-                                        showGlobalPopup(notiResponseObject);
-                                    }
-                                    else {
-                                        showGlobalNotification(notiResponseObject);
-                                    }
-                                    pendingNode = pendingNode.getData().get(0);
-                                }
-                                break;
-                            }
-                        }
-                        catch (Exception e){
-                            LogMobio.logD(TAG, "exception "+e);
-                        }
-                    }
-                }
-            }
-        }
-        return properlyJB;
-    }
+//    private JourneyObject startJbIfPossible(String eventKey, ValueMap eventData, String actionTime){
+//        JourneyObject properlyJB = null;
+//        for(int i = 0; i< currentJbList.size(); i++){
+//            JourneyObject tempJB = currentJbList.get(i);
+//            if(tempJB.getTypeTodo() == JourneyObject.TYPE_TODO_ACTIVE){
+//                DataItem rootData = tempJB.getData().get(0);
+//                if(rootData.getNodeCode().equals(DataItem.NODE_CODE_EVENT)){
+//                    if(rootData.getEventKey().equals(eventKey)){
+//                        LogMobio.logD("TestJb", "eventKey equal");
+//                        EventData ed = rootData.getEventData();
+//                        ed.setActionTime(actionTime);
+//                        String cacheStr = new Gson().toJson(ed);
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(cacheStr);
+//                            ValueMap cacheED = toMap(jsonObject);
+//                            String edStr = new Gson().toJson(cacheED);
+//                            LogMobio.logD("TestJb", "edStr "+edStr);
+//                            String eventStr = new Gson().toJson(eventData);
+//                            LogMobio.logD("TestJb", "eventStr "+eventStr);
+//                            if(compareTwoJson(edStr, eventStr)){
+//                                LogMobio.logD("TestJb", "eventData equal");
+//                                properlyJB = currentJbList.get(i);
+//                                currentJbList.get(i).setTypeTodo(JourneyObject.TYPE_TODO_RUNNING);
+//                                pendingNode = rootData.getData().get(0);
+//                                if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
+//                                    NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
+//                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
+//                                        showGlobalPopup(notiResponseObject);
+//                                    }
+//                                    else {
+//                                        showGlobalNotification(notiResponseObject);
+//                                    }
+//                                    pendingNode = pendingNode.getData().get(0);
+//                                }
+//                                break;
+//                            }
+//                        }
+//                        catch (Exception e){
+//                            LogMobio.logD(TAG, "exception "+e);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return properlyJB;
+//    }
 
     private boolean compareTwoJson(String first, String second){
         try {
@@ -549,52 +555,52 @@ public class Analytics {
         }
     }
 
-    private void processLocalJb(String eventKey, ValueMap eventData, String actionTime) {
-        if(getRunningJB() != null){
-            if(pendingNode != null) {
-                if (pendingNode.getNodeCode().equals(DataItem.NODE_CODE_CONDITION)) {
-                    if(pendingNode.getEventKey().equals(eventKey)){
-                        LogMobio.logD("TestJb", "eventKey equal 1");
-                        EventData ed = pendingNode.getEventData();
-                        ed.setActionTime(actionTime);
-                        String cacheStr = new Gson().toJson(ed);
-                        try {
-                            JSONObject jsonObject = new JSONObject(cacheStr);
-                            ValueMap cacheED = toMap(jsonObject);
-                            String edStr = new Gson().toJson(cacheED);
-                            LogMobio.logD("TestJb", "edStr1 "+edStr);
-                            String eventStr = new Gson().toJson(eventData);
-                            LogMobio.logD("TestJb", "eventStr1 "+eventStr);
-                            if(compareTwoJson(edStr, eventStr)){
-                                LogMobio.logD("TestJb", "eventData1 equal");
-                                pendingNode = pendingNode.getData().get(0);
-                                if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
-                                    NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
-                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
-                                        showGlobalPopup(notiResponseObject);
-                                    }
-                                    else {
-                                        showGlobalNotification(notiResponseObject);
-                                    }
-                                    pendingNode = pendingNode.getData().get(0);
-                                }
-                            }
-                        }
-                        catch (Exception e){
-                            LogMobio.logD(TAG, "exception "+e);
-                        }
-                    }
-                }
-            }
-            else {
-                currentJb.setTypeTodo(JourneyObject.TYPE_TODO_DISACTIVE);
-                currentJb = null;
-            }
-        }
-        else {
-            currentJb = startJbIfPossible(eventKey, eventData, actionTime);
-        }
-    }
+//    private void processLocalJb(String eventKey, ValueMap eventData, String actionTime) {
+//        if(getRunningJB() != null){
+//            if(pendingNode != null) {
+//                if (pendingNode.getNodeCode().equals(DataItem.NODE_CODE_CONDITION)) {
+//                    if(pendingNode.getEventKey().equals(eventKey)){
+//                        LogMobio.logD("TestJb", "eventKey equal 1");
+//                        EventData ed = pendingNode.getEventData();
+//                        ed.setActionTime(actionTime);
+//                        String cacheStr = new Gson().toJson(ed);
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(cacheStr);
+//                            ValueMap cacheED = toMap(jsonObject);
+//                            String edStr = new Gson().toJson(cacheED);
+//                            LogMobio.logD("TestJb", "edStr1 "+edStr);
+//                            String eventStr = new Gson().toJson(eventData);
+//                            LogMobio.logD("TestJb", "eventStr1 "+eventStr);
+//                            if(compareTwoJson(edStr, eventStr)){
+//                                LogMobio.logD("TestJb", "eventData1 equal");
+//                                pendingNode = pendingNode.getData().get(0);
+//                                if(pendingNode != null && pendingNode.getNodeCode().equals(DataItem.NODE_CODE_PUSH_IN_APP)){
+//                                    NotiResponseObject notiResponseObject = pendingNode.getNotiResponse();
+//                                    if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)){
+//                                        showGlobalPopup(notiResponseObject);
+//                                    }
+//                                    else {
+//                                        showGlobalNotification(notiResponseObject);
+//                                    }
+//                                    pendingNode = pendingNode.getData().get(0);
+//                                }
+//                            }
+//                        }
+//                        catch (Exception e){
+//                            LogMobio.logD(TAG, "exception "+e);
+//                        }
+//                    }
+//                }
+//            }
+//            else {
+//                currentJb.setTypeTodo(JourneyObject.TYPE_TODO_DISACTIVE);
+//                currentJb = null;
+//            }
+//        }
+//        else {
+//            currentJb = startJbIfPossible(eventKey, eventData, actionTime);
+//        }
+//    }
 
 
 
