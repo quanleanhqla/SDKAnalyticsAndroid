@@ -491,6 +491,7 @@ public class Analytics {
                         currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_ACTIVE);
                         currentJsonJbList.add(currentJsonJbList.get(i));
                         currentJsonJbList.remove(i);
+                        LogMobio.logD(TAG, "size "+currentJsonJbList.size());
                     }
                     else {
                         currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_DISACTIVE);
