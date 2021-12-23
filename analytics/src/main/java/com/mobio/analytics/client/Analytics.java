@@ -487,7 +487,14 @@ public class Analytics {
             ValueMap temp = currentJsonJbList.get(i);
             if(temp != null && root != null){
                 if((int) root.get("id") == (int) temp.get("id")){
-                    currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_DISACTIVE);
+                    if((boolean) root.get("repeat")){
+                        currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_ACTIVE);
+                        currentJsonJbList.add(currentJsonJbList.get(i));
+                        currentJsonJbList.remove(i);
+                    }
+                    else {
+                        currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_DISACTIVE);
+                    }
                     break;
                 }
             }
