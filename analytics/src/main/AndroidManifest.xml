@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mobio.analytics">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+
     <application>
         <service
             android:name=".client.service.TerminateService"
@@ -15,6 +18,8 @@
         <receiver
             android:name=".client.receiver.NotificationDismissedReceiver"
             android:exported="false" />
+        <receiver android:name=".client.receiver.AlarmReceiver"
+            android:enabled="true"/>
     </application>
 
 </manifest>
