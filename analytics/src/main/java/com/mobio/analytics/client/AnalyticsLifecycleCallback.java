@@ -339,7 +339,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
     public void trackScrollEvent(Activity activity) {
         for (View view : getAllViewCanScrollOrEdittext(activity.getWindow().getDecorView())) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (view instanceof ScrollView) {
                     int[] scrollRange = {0};
                     final ViewTreeObserver vto = view.getViewTreeObserver();
@@ -365,13 +364,15 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     }
 
                     int[] percentScroll = {0};
-                    view.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-                        @Override
-                        public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-                            percentScroll[0] = (int) (((float) i1 / scrollRange[0]) * 100);
-                            LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
-                        }
-                    });
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        view.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+                            @Override
+                            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                                percentScroll[0] = (int) (((float) i1 / scrollRange[0]) * 100);
+                                LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
+                            }
+                        });
+                    }
                 } else if (view instanceof EditText) {
                     ((EditText) view).addTextChangedListener(new TextWatcher() {
                         @Override
@@ -390,7 +391,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         }
                     });
                 }
-            }
+
         }
     }
 
@@ -443,9 +444,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         .put("time", Utils.getTimeUTC()));
 
                 if (shouldRecordScreenViews) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
-                    }
+                    analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
                 }
 
             }
