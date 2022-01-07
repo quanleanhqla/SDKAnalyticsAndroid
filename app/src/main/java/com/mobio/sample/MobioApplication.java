@@ -211,7 +211,7 @@ public class MobioApplication extends Application {
         String campaign4 = "{\n" +
                 "  \"jb_id\":\"abc\",\n" +
                 "  \"type_repeat\":\"daily\",\n" +
-                "  \"time\":\"9:00\",\n" +
+                "  \"time\":\"9:30\",\n" +
                 "  \"data_event\": //data event\n" +
                 "    {\n" +
                 "      \"node_code\": \"EVENT\",\n" +

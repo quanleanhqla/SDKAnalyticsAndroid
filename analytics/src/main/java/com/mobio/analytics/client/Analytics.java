@@ -167,7 +167,10 @@ public class Analytics {
                 shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application, configActivityMap);
 
         application.registerActivityLifecycleCallbacks(analyticsLifecycleCallback);
-        alarmManager = (AlarmManager)application.getSystemService(Context.ALARM_SERVICE);
+
+        if(application.getApplicationContext() != null) {
+            alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        }
 
         AppObject appObject = Utils.getAppObject(application);
         DeviceObject deviceObject = Utils.getDeviceObject();
