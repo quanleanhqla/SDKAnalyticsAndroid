@@ -679,7 +679,7 @@ public class Analytics {
                                         calendar.set(Calendar.MINUTE, Integer.parseInt(minute));
                                         calendar.set(Calendar.SECOND, 0);
 
-                                        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),
                                                 AlarmManager.INTERVAL_DAY, alarmIntent);
 
                                         LogMobio.logD("QuanLA", "set time done");
