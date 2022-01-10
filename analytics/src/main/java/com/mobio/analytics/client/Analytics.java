@@ -672,7 +672,7 @@ public class Analytics {
                                         intent.setAction("ACTION_LAUNCH_NOTI");
                                         intent.putExtra("NOTI_OBJECT", notiStr);
 
-                                        PendingIntent alarmIntent = PendingIntent.getBroadcast(application, i, intent, 0);
+                                        PendingIntent alarmIntent = PendingIntent.getBroadcast(application, i, intent, PendingIntent.FLAG_IMMUTABLE);
                                         Calendar calendar = Calendar.getInstance();
                                         calendar.setTimeInMillis(System.currentTimeMillis());
                                         calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour));
