@@ -83,7 +83,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private HashMap<String, Integer> mapScreenAndCountTime;
     private HashMap<String, ScreenConfigObject> screenConfigObjectHashMap;
     private Activity currentActivity;
-    private Dialog dialog;
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
@@ -158,7 +157,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         }
                     }
                     if(notiResponseObject.getType()==NotiResponseObject.TYPE_NATIVE) {
-                        dialog = new Dialog(currentActivity);
+                        Dialog dialog = new Dialog(currentActivity);
                         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dialog.setCancelable(false);

@@ -35,6 +35,7 @@ import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 import com.mobio.analytics.network.RetrofitClient;
+
 import androidx.core.app.NotificationCompat;
 
 import org.json.JSONArray;
@@ -168,7 +169,7 @@ public class Analytics {
 
         application.registerActivityLifecycleCallbacks(analyticsLifecycleCallback);
 
-        if(application.getApplicationContext() != null) {
+        if (application.getApplicationContext() != null) {
             alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         }
 
@@ -218,8 +219,7 @@ public class Analytics {
                         .put("properties", new ValueMap().put("build", propertiesObject.getBuild())
                                 .put("version", propertiesObject.getVersion()))
                         .put("event_data", new ValueMap().put("action_time", Utils.getTimeUTC()));
-            }
-            catch (Exception exception){
+            } catch (Exception exception) {
                 exception.printStackTrace();
             }
         }
@@ -230,33 +230,63 @@ public class Analytics {
         this.deviceToken = deviceToken;
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
         this.cacheDataObject.setProfileInfo(Utils.getProfileCreateDeviceObject(application));
-        ValueMap pushIdVM =(ValueMap) ((ValueMap) cacheValueMap.get("profile_info")).get("push_id");
+        ValueMap pushIdVM = (ValueMap) ((ValueMap) cacheValueMap.get("profile_info")).get("push_id");
         if (pushIdVM != null) {
             pushIdVM.put("push_id", deviceToken);
             ((ValueMap) cacheValueMap.get("profile_info")).put("push_id", pushIdVM);
         }
     }
 
-    public void setJourneyList(ArrayList<JourneyObject> journeyList){
+    public void setJourneyList(ArrayList<JourneyObject> journeyList) {
         currentJbList = journeyList;
     }
 
-    public void setJourneyJsonList(ArrayList<ValueMap> journeyList){
+    public void setJourneyJsonList(ArrayList<ValueMap> journeyList) {
         currentJsonJbList = journeyList;
     }
 
-    public void setBothEventAndPushList(ArrayList<ValueMap> events, ArrayList<ValueMap> pushes){
+    public void setBothEventAndPushList(ArrayList<ValueMap> events, ArrayList<ValueMap> pushes) {
         currentJsonEvent = events;
         currentJsonPush = pushes;
+
+        for (int i = 0; i < currentJsonEvent.size(); i++) {
+            ValueMap tempEvent = currentJsonEvent.get(i);
+            if (tempEvent != null) {
+                List<ValueMap> childrens = (List<ValueMap>) tempEvent.get("children_node");
+                if (childrens != null && childrens.size() > 0) {
+                    ArrayList<ValueMap> immediates = new ArrayList<>();
+                    ArrayList<ValueMap> normals = new ArrayList<>();
+                    for (int j = 0; j < childrens.size(); j++) {
+                        ValueMap children = childrens.get(j);
+                        if (children != null) {
+                            String priority = (String) children.get("priority");
+                            if (priority != null) {
+                                if (priority.equals("immediate")) {
+                                    immediates.add(children);
+                                } else {
+                                    normals.add(children);
+                                }
+                            }
+                        }
+                    }
+                    immediates.addAll(normals);
+                    childrens = immediates;
+                    tempEvent.put("children_node", childrens);
+
+                    LogMobio.logD("QuanHere", "set "+tempEvent);
+                    currentJsonEvent.set(i, tempEvent);
+                }
+            }
+        }
     }
 
-    public void setCampaignJsonList(ArrayList<ValueMap> campaigns){
+    public void setCampaignJsonList(ArrayList<ValueMap> campaigns) {
         currentJsonCampaign = campaigns;
         processRepeatPush();
     }
 
     public void addJourney(JourneyObject journeyObject) {
-        if(currentJbList == null){
+        if (currentJbList == null) {
             currentJbList = new ArrayList<>();
         }
         currentJbList.add(journeyObject);
@@ -280,13 +310,13 @@ public class Analytics {
         return map;
     }
 
-    public void showGlobalPopup(NotiResponseObject notiResponseObject){
-        if(analyticsLifecycleCallback != null){
+    public void showGlobalPopup(NotiResponseObject notiResponseObject) {
+        if (analyticsLifecycleCallback != null) {
             analyticsLifecycleCallback.showPopup(notiResponseObject);
         }
     }
 
-    public void showGlobalNotification(NotiResponseObject notiResponseObject){
+    public void showGlobalNotification(NotiResponseObject notiResponseObject) {
         Class classDes = null;
         Class classInitial = null;
         Intent intent = null;
@@ -296,11 +326,11 @@ public class Analytics {
                 classDes = screenConfigObject.getClassName();
                 break;
             }
-            if(screenConfigObject.isInitialScreen()){
+            if (screenConfigObject.isInitialScreen()) {
                 classInitial = screenConfigObject.getClassName();
             }
         }
-        if(classDes == null) {
+        if (classDes == null) {
             classDes = classInitial;
         }
         intent = new Intent(application.getApplicationContext(), classDes);
@@ -357,7 +387,7 @@ public class Analytics {
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                if(traits != null && cacheValueMap != null) {
+                if (traits != null && cacheValueMap != null) {
                     traits.put("action_time", Utils.getTimeUTC());
                     cacheValueMap.put("event_data", traits);
                     cacheValueMap.put("event_key", eventKey);
@@ -369,12 +399,12 @@ public class Analytics {
 
     }
 
-    public String getVersionCode(){
+    public String getVersionCode() {
         PackageInfo packageInfo = getPackageInfo(application);
         return String.valueOf(packageInfo.versionCode);
     }
 
-    public String getVersionBuild(){
+    public String getVersionBuild() {
         PackageInfo packageInfo = getPackageInfo(application);
         return packageInfo.versionName;
     }
@@ -412,9 +442,9 @@ public class Analytics {
 //        return properlyJB;
 //    }
 
-    private ValueMap getRunningJsonJb(){
+    private ValueMap getRunningJsonJb() {
         ValueMap jb = null;
-        if(currentJsonJbList != null) {
+        if (currentJsonJbList != null) {
             for (int i = 0; i < currentJsonJbList.size(); i++) {
                 if (currentJsonJbList.get(i) != null && currentJsonJbList.get(i).get("type_todo") != null) {
                     if ((int) currentJsonJbList.get(i).get("type_todo") == JourneyObject.TYPE_TODO_RUNNING) {
@@ -427,9 +457,9 @@ public class Analytics {
         return jb;
     }
 
-    private void processEventAfterSync(String eventKey, ValueMap eventData, String actionTime){
-        if(getRunningJsonJb() == null){
-            if(currentJsonJbList != null) {
+    private void processEventAfterSync(String eventKey, ValueMap eventData, String actionTime) {
+        if (getRunningJsonJb() == null) {
+            if (currentJsonJbList != null) {
                 for (int i = 0; i < currentJsonJbList.size(); i++) {
                     ValueMap temp = currentJsonJbList.get(i);
                     if (temp != null && temp.get("type_todo") != null) {
@@ -444,31 +474,30 @@ public class Analytics {
                     }
                 }
             }
-        }
-        else {
-            if(currentJsonNode != null) {
+        } else {
+            if (currentJsonNode != null) {
                 processEvent(getRunningJsonJb(), currentJsonNode, eventKey, eventData, actionTime);
             }
         }
     }
 
-    private boolean processEvent(ValueMap root, ValueMap node, String eventKey, ValueMap eventData, String actionTime){
-        if(node.get("node_code") != null){
-            if(((String)node.get("node_code")).equals(DataItem.NODE_CODE_EVENT)
-                    ||((String) node.get("node_code")).equals(DataItem.NODE_CODE_CONDITION)){
-                if(node.get("event_key") != null && ((String) node.get("event_key")).equals(eventKey)){
-                    ValueMap eventBody =(ValueMap) node.get("event_data");
+    private boolean processEvent(ValueMap root, ValueMap node, String eventKey, ValueMap eventData, String actionTime) {
+        if (node.get("node_code") != null) {
+            if (((String) node.get("node_code")).equals(DataItem.NODE_CODE_EVENT)
+                    || ((String) node.get("node_code")).equals(DataItem.NODE_CODE_CONDITION)) {
+                if (node.get("event_key") != null && ((String) node.get("event_key")).equals(eventKey)) {
+                    ValueMap eventBody = (ValueMap) node.get("event_data");
                     eventBody.put("action_time", actionTime);
                     try {
                         String edStr = new Gson().toJson(eventBody);
                         String eventStr = new Gson().toJson(eventData);
-                        if(compareTwoJson(edStr, eventStr)){
+                        if (compareTwoJson(edStr, eventStr)) {
                             currentJsonNode = node;
                             root.put("type_todo", JourneyObject.TYPE_TODO_RUNNING);
-                            if(node.get("data") != null){
+                            if (node.get("data") != null) {
                                 List<ValueMap> list = (List<ValueMap>) node.get("data");
-                                if(list.size() > 0 && list.get(0) != null){
-                                    if(((String) list.get(0).get("node_code")).equals(DataItem.NODE_CODE_PUSH_IN_APP)) {
+                                if (list.size() > 0 && list.get(0) != null) {
+                                    if (((String) list.get(0).get("node_code")).equals(DataItem.NODE_CODE_PUSH_IN_APP)) {
                                         ValueMap noti = (ValueMap) list.get(0).get("noti_response");
                                         String notiStr = new Gson().toJson(noti);
                                         NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
@@ -478,26 +507,22 @@ public class Analytics {
                                             showGlobalNotification(notiResponseObject);
                                         }
                                     }
-                                    if(list.get(0).get("data") != null && ((List<ValueMap>) list.get(0).get("data")).size() > 0){
-                                        currentJsonNode =(ValueMap) ((List<ValueMap>) list.get(0).get("data")).get(0);
-                                    }
-                                    else {
+                                    if (list.get(0).get("data") != null && ((List<ValueMap>) list.get(0).get("data")).size() > 0) {
+                                        currentJsonNode = (ValueMap) ((List<ValueMap>) list.get(0).get("data")).get(0);
+                                    } else {
                                         exitJb(root);
                                     }
-                                }
-                                else {
+                                } else {
                                     exitJb(root);
                                 }
-                            }
-                            else {
+                            } else {
                                 exitJb(root);
                             }
                             return true;
                         }
 
-                    }
-                    catch (Exception e){
-                        LogMobio.logD(TAG, "exception "+e);
+                    } catch (Exception e) {
+                        LogMobio.logD(TAG, "exception " + e);
                         exitJb(root);
                         return false;
                     }
@@ -507,18 +532,17 @@ public class Analytics {
         return false;
     }
 
-    private void exitJb(ValueMap root){
-        for(int i = 0; i<currentJsonJbList.size(); i++){
+    private void exitJb(ValueMap root) {
+        for (int i = 0; i < currentJsonJbList.size(); i++) {
             ValueMap temp = currentJsonJbList.get(i);
-            if(temp != null && root != null){
-                if((int) root.get("id") == (int) temp.get("id")){
-                    if((boolean) root.get("repeat")){
+            if (temp != null && root != null) {
+                if ((int) root.get("id") == (int) temp.get("id")) {
+                    if ((boolean) root.get("repeat")) {
                         currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_ACTIVE);
                         currentJsonJbList.add(currentJsonJbList.get(i));
                         currentJsonJbList.remove(i);
-                        LogMobio.logD(TAG, "size "+currentJsonJbList.size());
-                    }
-                    else {
+                        LogMobio.logD(TAG, "size " + currentJsonJbList.size());
+                    } else {
                         currentJsonJbList.get(i).put("type_todo", JourneyObject.TYPE_TODO_DISACTIVE);
                     }
                     break;
@@ -575,7 +599,7 @@ public class Analytics {
 //        return properlyJB;
 //    }
 
-    private boolean compareTwoJson(String first, String second){
+    private boolean compareTwoJson(String first, String second) {
         try {
             JSONObject jsonObject = new JSONObject(first);
             JSONObject jsonObject1 = new JSONObject(second);
@@ -584,7 +608,7 @@ public class Analytics {
                 String str = it.next();
                 System.out.println("key:" + str + " : value1:" + jsonObject.get(str) + ":value2:" + jsonObject1.get(str));
                 //compare value of json1 with json2
-                if(!jsonObject.get(str).equals(jsonObject1.get(str))){
+                if (!jsonObject.get(str).equals(jsonObject1.get(str))) {
                     return false;
                 }
             }
@@ -643,8 +667,8 @@ public class Analytics {
 //        }
 //    }
 
-    private void processRepeatPush(){
-        if(currentJsonCampaign != null && currentJsonCampaign.size() > 0) {
+    private void processRepeatPush() {
+        if (currentJsonCampaign != null && currentJsonCampaign.size() > 0) {
             for (int i = 0; i < currentJsonCampaign.size(); i++) {
                 ValueMap tempCampaign = currentJsonCampaign.get(i);
                 if (tempCampaign != null) {
@@ -666,13 +690,13 @@ public class Analytics {
                                         String hour = time.substring(0, time.indexOf(":"));
                                         String minute = time.substring(time.indexOf(":") + 1);
 
-                                        LogMobio.logD("QuanLA", "time "+hour+":"+minute);
+                                        LogMobio.logD("QuanLA", "time " + hour + ":" + minute);
 
                                         Intent intent = new Intent(application, AlarmReceiver.class);
                                         intent.setAction("ACTION_LAUNCH_NOTI");
                                         intent.putExtra("NOTI_OBJECT", notiStr);
 
-                                        PendingIntent alarmIntent = PendingIntent.getBroadcast(application, i, intent, PendingIntent.FLAG_IMMUTABLE);
+                                        PendingIntent alarmIntent = PendingIntent.getBroadcast(application, i, intent, 0);
                                         Calendar calendar = Calendar.getInstance();
                                         calendar.setTimeInMillis(System.currentTimeMillis());
                                         calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour));
@@ -693,19 +717,19 @@ public class Analytics {
         }
     }
 
-    private void processEventAfterSync1(ValueMap dataObject){
+    private void processEventAfterSync1(ValueMap dataObject) {
         String eventKey = (String) dataObject.get("event_key");
         ValueMap eventData = (ValueMap) dataObject.get("event_data");
         String actionTime = null;
-        if(eventData != null) {
+        if (eventData != null) {
             actionTime = (String) ((ValueMap) dataObject.get("event_data")).get("action_time");
         }
 
-        if(eventKey != null && actionTime != null){
-            if(currentJsonCampaign != null && currentJsonCampaign.size() > 0){
-                for(int i = 0; i < currentJsonCampaign.size(); i++){
+        if (eventKey != null && actionTime != null) {
+            if (currentJsonCampaign != null && currentJsonCampaign.size() > 0) {
+                for (int i = 0; i < currentJsonCampaign.size(); i++) {
                     ValueMap tempCampaign = currentJsonCampaign.get(i);
-                    if(tempCampaign != null){
+                    if (tempCampaign != null) {
                         String type = (String) tempCampaign.get("type_repeat");
                         if (type != null && type.equals("event_push")) {
                             ValueMap tempEvent = (ValueMap) tempCampaign.get("data_event");
@@ -744,50 +768,69 @@ public class Analytics {
         }
     }
 
-    private void processEventAfterSync(ValueMap dataObject){
+    private void processEventAfterSync(ValueMap dataObject) {
         String eventKey = (String) dataObject.get("event_key");
         ValueMap eventData = (ValueMap) dataObject.get("event_data");
         String actionTime = null;
-        if(eventData != null) {
+        if (eventData != null) {
             actionTime = (String) ((ValueMap) dataObject.get("event_data")).get("action_time");
         }
 
-        if(eventKey != null && actionTime != null){
-            if(currentJsonEvent != null && currentJsonEvent.size() > 0){
-                outerloop:
-                for(int i = 0; i < currentJsonEvent.size(); i++){
+        if (eventKey != null && actionTime != null) {
+            if (currentJsonEvent != null && currentJsonEvent.size() > 0) {
+                LogMobio.logD("QuanHere", "0");
+                for (int i = 0; i < currentJsonEvent.size(); i++) {
                     ValueMap tempEvent = currentJsonEvent.get(i);
-                    if(tempEvent != null) {
+                    LogMobio.logD("QuanHere", "0.5 " + tempEvent.toString());
+                    if (tempEvent != null) {
                         String tpEventKey = (String) tempEvent.get("event_key");
-                        if(tpEventKey != null && tpEventKey.equals(eventKey)){
+                        LogMobio.logD("QuanHere", "0.6 " + tpEventKey);
+                        if (tpEventKey != null && tpEventKey.equals(eventKey)) {
+                            LogMobio.logD("QuanHere", "0.7");
                             ValueMap tpEventData = (ValueMap) tempEvent.get("event_data");
-                            if(tpEventData != null){
+                            if (tpEventData != null) {
                                 String edStr = new Gson().toJson(tpEventData);
                                 String eventStr = new Gson().toJson(eventData);
-                                if(compareTwoJson(edStr, eventStr)){
-                                    String rootId = (String) tempEvent.get("node_id");
-                                    if(rootId != null){
-                                        for(int j = 0; j < currentJsonPush.size(); j++){
-                                            ValueMap tempPush = currentJsonPush.get(j);
-                                            if(tempPush != null) {
-                                                String tempRootId = (String) tempPush.get("root_node_id");
-                                                if (tempRootId != null && tempRootId.equals(rootId)) {
-                                                    ValueMap noti = (ValueMap) tempPush.get("noti_response");
-                                                    String notiStr = new Gson().toJson(noti);
-                                                    NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
-                                                    if (SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                                                        showGlobalPopup(notiResponseObject);
-                                                    } else {
-                                                        showGlobalNotification(notiResponseObject);
+                                if (compareTwoJson(edStr, eventStr)) {
+                                    LogMobio.logD("QuanHere", "1");
+                                    List<ValueMap> childrens = (List<ValueMap>) tempEvent.get("children_node");
+                                    ArrayList<Integer> listIndexNormal = new ArrayList<>();
+                                    if (childrens != null && childrens.size() > 0) {
+                                        for (int j = 0; j < childrens.size(); j++) {
+                                            ValueMap tempChildren = childrens.get(j);
+                                            if (tempChildren != null) {
+                                                boolean complete = (boolean) tempChildren.get("complete");
+                                                if (!complete) {
+                                                    LogMobio.logD("QuanHere", "2");
+                                                    String childrenId = (String) tempChildren.get("id");
+                                                    for (int k = 0; k < currentJsonPush.size(); k++) {
+                                                        ValueMap tempPush = currentJsonPush.get(k);
+                                                        if (tempPush != null) {
+                                                            String pushId = (String) tempPush.get("node_id");
+                                                            if (pushId != null && pushId.equals(childrenId)) {
+                                                                LogMobio.logD("QuanHere", "3");
+                                                                ValueMap noti = (ValueMap) tempPush.get("noti_response");
+                                                                String notiStr = new Gson().toJson(noti);
+                                                                NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
+                                                                if (SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
+                                                                    showGlobalPopup(notiResponseObject);
+                                                                } else {
+                                                                    showGlobalNotification(notiResponseObject);
+                                                                }
+                                                                tempChildren.put("complete", true);
+                                                                childrens.set(j, tempChildren);
+                                                                tempEvent.put("children_node", childrens);
+                                                                currentJsonEvent.set(i, tempEvent);
+                                                                LogMobio.logD("QuanHere", "4");
+                                                            }
+                                                        }
                                                     }
 
-                                                    currentJsonEvent.add(tempEvent);
-                                                    currentJsonEvent.remove(i);
-                                                    break outerloop;
                                                 }
                                             }
                                         }
                                     }
+                                    break;
                                 }
                             }
                         }
@@ -800,8 +843,8 @@ public class Analytics {
     private void sendSync(ValueMap dataObject) {
         //processLocalJb((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
         //processEventAfterSync((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
-        //processEventAfterSync(dataObject);
-        processEventAfterSync1(dataObject);
+        processEventAfterSync(dataObject); // 2 list json
+        //processEventAfterSync1(dataObject); // 1 list json
         String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
         String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
         try {
@@ -980,7 +1023,7 @@ public class Analytics {
             return this;
         }
 
-        public Builder withEndPoint(String endPoint){
+        public Builder withEndPoint(String endPoint) {
             mEndPoint = endPoint;
             return this;
         }

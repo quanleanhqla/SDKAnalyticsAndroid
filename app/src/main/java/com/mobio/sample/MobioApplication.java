@@ -48,8 +48,9 @@ public class MobioApplication extends Application {
 
 
         String event1 = "{\n" +
-                "      \"jb_id\":\"abc\",\n" +
                 "      \"node_code\": \"EVENT\",\n" +
+                "      \"children_node\": [{\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
+                "      \"priority\":\"immediate\", \"complete\":false}, {\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\", \"priority\":\"normal\", \"complete\":false}],\n" +
                 "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
                 "      \"node_name\": \"Phát sinh Event\",\n" +
                 "      \"length\": 5,\n" +
@@ -61,23 +62,26 @@ public class MobioApplication extends Application {
                 "    }";
 
         String event2 = "{\n" +
-                "      \"jb_id\":\"abc\",\n" +
+                "  \"data_event\": //data event\n" +
+                "    {\n" +
                 "      \"node_code\": \"EVENT\",\n" +
-                "      \"node_id\": \"22319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
+                "      \"children_node\": [{\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
+                "      \"priority\":\"immediate\", \"complete\":false}, {\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\", \"priority\":\"normal\", \"complete\":false}],\n" +
+                "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
                 "      \"node_name\": \"Phát sinh Event\",\n" +
                 "      \"length\": 5,\n" +
                 "      \"event_key\":\"sdk_mobile_test_time_visit_app\",\n" +
                 "      \"event_data\": {\n" +
                 "        \"time_visit\": 10,\n" +
-                "        \"screen_name\": \"Home\"\n" +
+                "        \"screen_name\": \"Saving\"\n" +
                 "      }\n" +
-                "    }";
+                "    }\n" +
+                "}";
 
         String push1 = "{\n" +
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"root_node_id\":\"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
                 "      \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
@@ -85,8 +89,8 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Recharge\",\n" +
-                "        \"title\": \"Home 1\",\n" +
-                "        \"content\": \"Hello home 1\",\n" +
+                "        \"title\": \"CTKM 1\",\n" +
+                "        \"content\": \"Thanh Toán Điện Thoại Viettel\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
                 "    }";
@@ -95,183 +99,41 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"root_node_id\":\"22319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
-                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "      \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
+                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\",\n" +
+                "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
                 "      \"noti_response\": {\n" +
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
-                "        \"des_screen\": \"Recharge\",\n" +
-                "        \"title\": \"Home 2\",\n" +
-                "        \"content\": \"Hello home 2\",\n" +
+                "        \"des_screen\": \"Saving\",\n" +
+                "        \"title\": \"CTKM 2\",\n" +
+                "        \"content\": \"Gửi tiết kiệm\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
                 "    }";
 
-        String campaign1 = "{\n" +
-                "  \"jb_id\":\"abc\",\n" +
-                "  \"type_repeat\":\"event_push\",\n" +
-                "  \"time\":\"14:20\",\n" +
-                "  \"data_event\": //data event\n" +
-                "    {\n" +
-                "      \"node_code\": \"EVENT\",\n" +
-                "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_name\": \"Phát sinh Event\",\n" +
-                "      \"length\": 5,\n" +
-                "      \"event_key\":\"sdk_mobile_test_time_visit_app\",\n" +
-                "      \"event_data\": {\n" +
-                "        \"time_visit\": 10,\n" +
-                "        \"screen_name\": \"Home\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "  \"data_push\": //data push in app\n" +
-                "    {\n" +
-                "      \"root_node_id\":\"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_code\": \"PUSH_IN_APP\",\n" +
-                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "      \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
-                "      \"noti_response\": {\n" +
-                "        \"type\": 0,\n" +
-                "        \"source_screen\": \"Home\",\n" +
-                "        \"des_screen\": \"Recharge\",\n" +
-                "        \"title\": \"Home 1\",\n" +
-                "        \"content\": \"Hello home 1\",\n" +
-                "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
-                "    }\n" +
-                "}";
 
-        String campaign2 = "{\n" +
-                "  \"jb_id\":\"abc\",\n" +
-                "  \"type_repeat\":\"event_push\",\n" +
-                "  \"time\":\"14:20\",\n" +
-                "  \"data_event\": //data event\n" +
-                "    {\n" +
-                "      \"node_code\": \"EVENT\",\n" +
-                "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_name\": \"Phát sinh Event\",\n" +
-                "      \"length\": 5,\n" +
-                "      \"event_key\":\"sdk_mobile_test_time_visit_app\",\n" +
-                "      \"event_data\": {\n" +
-                "        \"time_visit\": 10,\n" +
-                "        \"screen_name\": \"Home\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "  \"data_push\": //data push in app\n" +
-                "    {\n" +
-                "      \"root_node_id\":\"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_code\": \"PUSH_IN_APP\",\n" +
-                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "      \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
-                "      \"noti_response\": {\n" +
-                "        \"type\": 0,\n" +
-                "        \"source_screen\": \"Home\",\n" +
-                "        \"des_screen\": \"Recharge\",\n" +
-                "        \"title\": \"Home 2\",\n" +
-                "        \"content\": \"Hello home 2\",\n" +
-                "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
-                "    }\n" +
-                "}";
-
-        String campaign3 = "{\n" +
-                "  \"jb_id\":\"abc\",\n" +
-                "  \"type_repeat\":\"event_push\",\n" +
-                "  \"time\":\"14:20\",\n" +
-                "  \"data_event\": //data event\n" +
-                "    {\n" +
-                "      \"node_code\": \"EVENT\",\n" +
-                "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_name\": \"Phát sinh Event\",\n" +
-                "      \"length\": 5,\n" +
-                "      \"event_key\":\"sdk_mobile_test_time_visit_app\",\n" +
-                "      \"event_data\": {\n" +
-                "        \"time_visit\": 10,\n" +
-                "        \"screen_name\": \"Home\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "  \"data_push\": //data push in app\n" +
-                "    {\n" +
-                "      \"root_node_id\":\"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_code\": \"PUSH_IN_APP\",\n" +
-                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "      \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
-                "      \"noti_response\": {\n" +
-                "        \"type\": 0,\n" +
-                "        \"source_screen\": \"Home\",\n" +
-                "        \"des_screen\": \"Recharge\",\n" +
-                "        \"title\": \"Home 3\",\n" +
-                "        \"content\": \"Hello home 3\",\n" +
-                "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
-                "    }\n" +
-                "}";
-
-        String campaign4 = "{\n" +
-                "  \"jb_id\":\"abc\",\n" +
-                "  \"type_repeat\":\"daily\",\n" +
-                "  \"time\":\"9:30\",\n" +
-                "  \"data_event\": //data event\n" +
-                "    {\n" +
-                "      \"node_code\": \"EVENT\",\n" +
-                "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_name\": \"Phát sinh Event\",\n" +
-                "      \"length\": 5,\n" +
-                "      \"event_key\":\"sdk_mobile_test_time_visit_app\",\n" +
-                "      \"event_data\": {\n" +
-                "        \"time_visit\": 10,\n" +
-                "        \"screen_name\": \"Home\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "  \"data_push\": //data push in app\n" +
-                "    {\n" +
-                "      \"root_node_id\":\"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_code\": \"PUSH_IN_APP\",\n" +
-                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "      \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
-                "      \"noti_response\": {\n" +
-                "        \"type\": 0,\n" +
-                "        \"source_screen\": \"Home\",\n" +
-                "        \"des_screen\": \"Recharge\",\n" +
-                "        \"title\": \"Home daily\",\n" +
-                "        \"content\": \"Hello home daily\",\n" +
-                "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
-                "    }\n" +
-                "}\n";
         JSONObject jsonObject = null;
         try {
-            jsonObject = new JSONObject(campaign1);
+            jsonObject = new JSONObject(event1);
             ValueMap vm = Analytics.getInstance().toMap(jsonObject);
-            ArrayList<ValueMap> campaigns = new ArrayList<>();
-            campaigns.add(vm);
+            ArrayList<ValueMap> events = new ArrayList<>();
+            events.add(vm);
 
-            jsonObject = new JSONObject(campaign2);
+            jsonObject = new JSONObject(event2);
             vm = Analytics.getInstance().toMap(jsonObject);
-            campaigns.add(vm);
+            events.add(vm);
 
-            jsonObject = new JSONObject(campaign3);
+            jsonObject = new JSONObject(push1);
             vm = Analytics.getInstance().toMap(jsonObject);
-            campaigns.add(vm);
+            ArrayList<ValueMap> pushes = new ArrayList<>();
+            pushes.add(vm);
 
-            jsonObject = new JSONObject(campaign4);
+            jsonObject = new JSONObject(push2);
             vm = Analytics.getInstance().toMap(jsonObject);
-            campaigns.add(vm);
+            pushes.add(vm);
 
-//            jsonObject = new JSONObject(campaign2);
-//            vm = Analytics.getInstance().toMap(jsonObject);
-//            campaigns.add(vm);
-//
-//            jsonObject = new JSONObject(campaign3);
-//            vm = Analytics.getInstance().toMap(jsonObject);
-//            campaigns.add(vm);
-//
-//            jsonObject = new JSONObject(campaign1);
-//            vm = Analytics.getInstance().toMap(jsonObject);
-//            campaigns.add(vm);
-
-            Analytics.getInstance().setCampaignJsonList(campaigns);
+            Analytics.getInstance().setBothEventAndPushList(events, pushes);
         } catch (JSONException e) {
             e.printStackTrace();
         }
