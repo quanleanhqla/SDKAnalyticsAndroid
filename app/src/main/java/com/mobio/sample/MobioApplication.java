@@ -46,39 +46,54 @@ public class MobioApplication extends Application {
 
         Analytics.setSingletonInstance(builder.build());
 
-
-        String event1 = "{\n" +
-                "      \"node_code\": \"EVENT\",\n" +
-                "      \"children_node\": [{\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "      \"priority\":\"immediate\", \"complete\":false}, {\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\", \"priority\":\"normal\", \"complete\":false}],\n" +
-                "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_name\": \"Phát sinh Event\",\n" +
-                "      \"length\": 5,\n" +
-                "      \"event_key\":\"sdk_mobile_test_time_visit_app\",\n" +
-                "      \"event_data\": {\n" +
-                "        \"time_visit\": 10,\n" +
-                "        \"screen_name\": \"Home\"\n" +
+        String strEvent = "{\n" +
+                "  \"events\": [{\n" +
+                "    \"node_code\": \"EVENT\",\n" +
+                "    \"children_node\": [\n" +
+                "      {\n" +
+                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
+                "        \"priority\": \"normal\",\n" +
+                "        \"complete\": false\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\",\n" +
+                "        \"priority\": \"immediate\",\n" +
+                "        \"complete\": false\n" +
                 "      }\n" +
-                "    }";
-
-        String event2 = "{\n" +
-                "  \"data_event\": //data event\n" +
-                "    {\n" +
-                "      \"node_code\": \"EVENT\",\n" +
-                "      \"children_node\": [{\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "      \"priority\":\"immediate\", \"complete\":false}, {\"id\":\"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\", \"priority\":\"normal\", \"complete\":false}],\n" +
-                "      \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
-                "      \"node_name\": \"Phát sinh Event\",\n" +
-                "      \"length\": 5,\n" +
-                "      \"event_key\":\"sdk_mobile_test_time_visit_app\",\n" +
-                "      \"event_data\": {\n" +
-                "        \"time_visit\": 10,\n" +
-                "        \"screen_name\": \"Saving\"\n" +
-                "      }\n" +
+                "    ],\n" +
+                "    \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
+                "    \"node_name\": \"Phát sinh Event\",\n" +
+                "    \"length\": 5,\n" +
+                "    \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "    \"event_data\": {\n" +
+                "      \"time_visit\": 10,\n" +
+                "      \"screen_name\": \"Home\"\n" +
                 "    }\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"node_code\": \"EVENT\",\n" +
+                "    \"children_node\": [\n" +
+                "      {\n" +
+                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d6\",\n" +
+                "        \"priority\": \"immediate\",\n" +
+                "        \"complete\": false\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
+                "    \"node_name\": \"Phát sinh Event\",\n" +
+                "    \"length\": 5,\n" +
+                "    \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "    \"event_data\": {\n" +
+                "      \"time_visit\": 10,\n" +
+                "      \"screen_name\": \"Saving\"\n" +
+                "    }\n" +
+                "  }\n" +
+                " ]\n" +
                 "}";
 
-        String push1 = "{\n" +
+        String strPush = "{\n" +
+                "  \"pushes\": //data push in app\n" +
+                "    [{\n" +
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
@@ -93,9 +108,8 @@ public class MobioApplication extends Application {
                 "        \"content\": \"Thanh Toán Điện Thoại Viettel\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
-                "    }";
-
-        String push2 = "{\n" +
+                "    },\n" +
+                "    {\n" +
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
@@ -110,33 +124,27 @@ public class MobioApplication extends Application {
                 "        \"content\": \"Gửi tiết kiệm\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
-                "    }";
+                "    },\n" +
+                "    {\n" +
+                "      \"type\":\"daily\",\n" +
+                "      \"time\":\"8h\",\n" +
+                "      \"jb_id\":\"abc\",\n" +
+                "      \"node_code\": \"PUSH_IN_APP\",\n" +
+                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d6\",\n" +
+                "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
+                "      \"noti_response\": {\n" +
+                "        \"type\": 0,\n" +
+                "        \"source_screen\": \"Home\",\n" +
+                "        \"des_screen\": \"Saving\",\n" +
+                "        \"title\": \"CTKM 3\",\n" +
+                "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
+                "        \"data\": \"Hello home\" \n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
 
-
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(event1);
-            ValueMap vm = Analytics.getInstance().toMap(jsonObject);
-            ArrayList<ValueMap> events = new ArrayList<>();
-            events.add(vm);
-
-            jsonObject = new JSONObject(event2);
-            vm = Analytics.getInstance().toMap(jsonObject);
-            events.add(vm);
-
-            jsonObject = new JSONObject(push1);
-            vm = Analytics.getInstance().toMap(jsonObject);
-            ArrayList<ValueMap> pushes = new ArrayList<>();
-            pushes.add(vm);
-
-            jsonObject = new JSONObject(push2);
-            vm = Analytics.getInstance().toMap(jsonObject);
-            pushes.add(vm);
-
-            Analytics.getInstance().setBothEventAndPushList(events, pushes);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        Analytics.getInstance().setBothEventAndPushJson(strEvent, strPush);
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {

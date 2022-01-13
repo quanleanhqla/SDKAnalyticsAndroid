@@ -61,7 +61,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<Campaign> getAllStudents() {
+    public List<Campaign> getAllCampaign() {
         List<Campaign>  studentList = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_NAME;
 
