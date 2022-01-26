@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.mobio.analytics" >
+    package="com.mobio.analytics">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application>
+        <activity
+            android:name=".client.activities.TransparentDeeplinkHandleActivity"
+            android:exported="true" />
+
         <service
             android:name=".client.service.ClickNotificationService"
-            android:exported="false" >
-        </service>
+            android:exported="false"></service>
         <service
             android:name=".client.service.TerminateService"
             android:stopWithTask="false" />

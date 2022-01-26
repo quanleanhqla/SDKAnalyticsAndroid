@@ -7,6 +7,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -19,6 +20,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.R;
+import com.mobio.analytics.client.activities.TransparentDeeplinkHandleActivity;
 import com.mobio.analytics.client.models.AppObject;
 import com.mobio.analytics.client.models.DataItem;
 import com.mobio.analytics.client.models.DataObject;
@@ -391,8 +393,9 @@ public class Analytics {
         if (classDes == null) {
             classDes = classInitial;
         }
-        intent = new Intent(application.getApplicationContext(), ClickNotificationService.class);
+        intent = new Intent();
         //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setComponent(new ComponentName(application.getApplicationContext(), ClickNotificationService.class));
         intent.setAction(ClickNotificationService.ACTION_FOO);
         intent.putExtra(ClickNotificationService.EXTRA_PARAM1, classDes);
 
@@ -408,6 +411,10 @@ public class Analytics {
                 .setContentIntent(PendingIntent.getService(application.getApplicationContext(), id, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT))
                 .setGroup("Analytics")
                 .setAutoCancel(true);
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.R){
+            intent.setComponent(new ComponentName(application.getApplicationContext(), TransparentDeeplinkHandleActivity.class));
+            notificationBuilder.setContentIntent(classDes != null ? PendingIntent.getActivity(application.getApplicationContext(), id, intent, PendingIntent.FLAG_IMMUTABLE) : null);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Channel Name";// The user-visible name of the channel.
             int importance = NotificationManager.IMPORTANCE_HIGH;
