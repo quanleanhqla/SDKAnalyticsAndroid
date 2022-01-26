@@ -199,6 +199,11 @@ public class Utils {
         return null;
     }
 
+    public static long getTimeInterval(long max, long min, int size){
+        long diff = max - min;
+        return diff / size + min;
+    }
+
     public static DeviceObject getDeviceObject(){
         LogMobio.logD("Utils", "Name "+Build.DEVICE+
                 "\nType "+Build.BRAND+

@@ -3,6 +3,9 @@ package com.mobio.analytics.client.utility;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public class SharedPreferencesUtils {
     private static final String KEY_SP = "keysp";
     public static final String KEY_FIRST_START_APP = "keyfirststartapp";
@@ -17,6 +20,9 @@ public class SharedPreferencesUtils {
     public static final String KEY_DEVICE_TOKEN = "key_device_token";
     public static final String KEY_BASE_URL = "key_base_url";
     public static final String KEY_ENDPOINT = "key_endpoint";
+    public static final String KEY_EVENT = "key_event";
+    public static final String KEY_PUSH = "key_push";
+    public static final String KEY_PENDING_PUSH = "key_pending_push";
 
     private static SharedPreferences getSharedPreferences(Context context){
         return context.getSharedPreferences(KEY_SP, Context.MODE_PRIVATE);

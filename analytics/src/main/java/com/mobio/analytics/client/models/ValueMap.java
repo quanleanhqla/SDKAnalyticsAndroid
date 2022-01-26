@@ -1,5 +1,6 @@
 package com.mobio.analytics.client.models;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 public class ValueMap extends HashMap<String, Object> {

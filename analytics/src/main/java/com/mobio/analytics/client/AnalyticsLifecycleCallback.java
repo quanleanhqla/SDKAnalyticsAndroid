@@ -1,11 +1,15 @@
 package com.mobio.analytics.client;
 
+import static android.content.Context.ALARM_SERVICE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Application;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -43,14 +47,18 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.R;
+import com.mobio.analytics.client.adapters.AdsAdapter;
 import com.mobio.analytics.client.models.JourneyObject;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.models.ValueMap;
+import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
@@ -83,6 +91,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     private HashMap<String, Integer> mapScreenAndCountTime;
     private HashMap<String, ScreenConfigObject> screenConfigObjectHashMap;
     private Activity currentActivity;
+    private AlarmManager alarmManager;
 
     public AnalyticsLifecycleCallback(Analytics analytics, boolean shouldTrackApplicationLifecycleEvents, boolean shouldTrackScreenLifecycleEvents,
                                       boolean trackDeepLinks, boolean shouldRecordScreenViews,
@@ -100,6 +109,8 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         this.lifeCycleHandler = new Handler();
         this.mapScreenAndCountTime = new HashMap<>();
         this.screenConfigObjectHashMap = screenConfigObjectHashMap;
+
+        alarmManager = (AlarmManager) application.getSystemService(ALARM_SERVICE);
     }
 
     @Override
@@ -125,7 +136,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         activity.startService(new Intent(activity, TerminateService.class));
     }
 
-    private void addPermissionNoti(){
+    private void addPermissionNoti() {
         Intent intent = new Intent();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
@@ -142,7 +153,59 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         currentActivity.startActivity(intent);
     }
 
-    public void showPopup(NotiResponseObject notiResponseObject){
+    public void showPopup(ArrayList<NotiResponseObject> notiResponseObjectArrayList){
+        if(currentActivity != null){
+            currentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Dialog dialog = new Dialog(currentActivity);
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    dialog.setCancelable(false);
+                    dialog.setContentView(R.layout.custom_list_ads);
+
+                    ImageView imvClose = (ImageView) dialog.findViewById(com.mobio.analytics.R.id.imv_close);
+                    RecyclerView recyclerView = (RecyclerView) dialog.findViewById(R.id.rv_ads);
+
+                    AdsAdapter adsAdapter = new AdsAdapter(notiResponseObjectArrayList, new AdsAdapter.OnItemClick() {
+                        @Override
+                        public void onClick(NotiResponseObject notiResponseObject) {
+                            dialog.dismiss();
+                            Class des = null;
+                            for(int i = 0; i < screenConfigObjectHashMap.values().size(); i++){
+                                ScreenConfigObject screenConfigObject = (ScreenConfigObject) screenConfigObjectHashMap.values().toArray()[i];
+                                if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
+                                    des = screenConfigObject.getClassName();
+                                    LogMobio.logD("ABCDE", screenConfigObject.getActivityName());
+                                    break;
+                                }
+                            }
+                            if(des != null){
+                                Intent desIntent = new Intent(currentActivity, des);
+                                currentActivity.startActivity(desIntent);
+                            }
+                        }
+                    });
+                    recyclerView.setLayoutManager(new LinearLayoutManager(currentActivity));
+                    recyclerView.setAdapter(adsAdapter);
+
+                    imvClose.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                            //todo
+                            //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
+
+                        }
+                    });
+
+                    dialog.show();
+                }
+            });
+        }
+    }
+
+    public void showPopup(NotiResponseObject notiResponseObject) {
         if(currentActivity != null) {
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -358,6 +421,8 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                                 } else {
                                     view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                                 }
+
+
                             }
                         });
                     }
@@ -422,20 +487,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     public void onActivityStopped(@NonNull Activity activity) {
         LogMobio.logD(TAG, "onstop");
         numStarted--;
-        if (numStarted == 0) {
-            currentActivity = null;
-            LogMobio.logD(TAG, "app went to background");
-            SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, false);
-            if (lifeCycleHandler != null) {
-                lifeCycleHandler.removeCallbacksAndMessages(null);
-            }
-
-            if (shouldTrackApplicationLifecycleEvents) {
-//                analytics.track("", new ValueMap().put("version", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
-//                        .put("build", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
-            }
-        }
-
         if (shouldTrackScreenLifecycleEvents && screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0) {
             ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
             if (screenConfigObject != null) {
@@ -448,6 +499,23 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
 
             }
         }
+
+        if (numStarted == 0) {
+            currentActivity = null;
+            LogMobio.logD(TAG, "app went to background");
+            SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, false);
+            if (lifeCycleHandler != null) {
+                lifeCycleHandler.removeCallbacksAndMessages(null);
+            }
+            analytics.processPendingJson();
+//            ArrayList<ValueMap> pendingPushes = new Gson().fromJson(strPendingPush, new TypeToken<ArrayList<ValueMap>>() {
+//            }.getType());
+            if (shouldTrackApplicationLifecycleEvents) {
+//                analytics.track("", new ValueMap().put("version", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
+//                        .put("build", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
+            }
+        }
+
     }
 
     @Override

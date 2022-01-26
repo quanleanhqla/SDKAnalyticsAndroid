@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white"
+    android:id="@+id/cv_ads"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="4pt"
+    android:layout_margin="2pt"
+    app:cardPreventCornerOverlap="false">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:scaleType="fitXY"
+            android:src="@mipmap/voucher"
+            android:id="@+id/imv_ad"
+            android:layout_width="match_parent"
+            android:layout_height="60pt"/>
+
+        <TextView
+            android:text="CTKM Viettel 100%"
+            android:textColor="#333333"
+            android:textSize="8pt"
+            android:textStyle="bold"
+            android:layout_marginLeft="4pt"
+            android:layout_marginRight="4pt"
+            android:layout_marginTop="4pt"
+            android:layout_below="@id/imv_ad"
+            android:id="@+id/tv_ad_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_below="@id/tv_ad_title"
+            android:layout_marginLeft="4pt"
+            android:layout_marginRight="4pt"
+            android:layout_marginTop="4pt"
+            android:layout_marginBottom="4pt"
+            android:id="@+id/tv_ad_expire"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Expiration date: 22-02-2022"
+            android:textColor="#80333333"
+            android:textSize="6.5pt" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

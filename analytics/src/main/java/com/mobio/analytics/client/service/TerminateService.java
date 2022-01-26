@@ -1,19 +1,33 @@
 package com.mobio.analytics.client.service;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 
+import com.google.gson.Gson;
 import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.models.NotiResponseObject;
+import com.mobio.analytics.client.models.ValueMap;
+import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.Utils;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class TerminateService extends Service {
+    private AlarmManager alarmManager;
+
     public TerminateService() {
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         LogMobio.logD("TerminateService", "onCreate");
     }
 
@@ -26,7 +40,29 @@ public class TerminateService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         LogMobio.logD("TerminateService", "onTaskRemoved");
-        //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_APP_LIFECYCLE, "Application terminated");
+        try {
+            ArrayList<ValueMap> pendingJsonPush = Analytics.getInstance().getPendingJsonPush();
+            if (pendingJsonPush.size() > 0) {
+                int countNoti = pendingJsonPush.size();
+                long maxInterval = 60 * 1000;
+                long minInterval = 2 * 1000;
+                long intervel = Utils.getTimeInterval(maxInterval, minInterval, countNoti);
+                long now = System.currentTimeMillis();
+
+                for (int i = 0; i < countNoti; i++) {
+                    Intent intent = new Intent(this, AlarmReceiver.class);
+                    intent.setAction("ACTION_LAUNCH_NOTI");
+
+                    PendingIntent alarmIntent = PendingIntent.getBroadcast(this, i, intent, PendingIntent.FLAG_IMMUTABLE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        alarmManager.setExact(AlarmManager.RTC,  now + intervel * (i+1), alarmIntent);
+                    }
+                }
+                LogMobio.logD("QuanLA", "Done");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         stopSelf();
     }
 }
