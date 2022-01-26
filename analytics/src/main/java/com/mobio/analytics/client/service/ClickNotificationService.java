@@ -49,6 +49,7 @@ public class ClickNotificationService extends IntentService {
      */
     private void handleActionFoo(Class param1, String param2) {
         // TODO: Handle action Foo
+        LogMobio.logD("QuanLA","Noti service");
         Intent i = new Intent(this, param1);
         i.setFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
