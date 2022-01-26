@@ -405,7 +405,7 @@ public class Analytics {
                 .setContentText(notiResponseObject.getContent())
                 .setDeleteIntent(createOnDismissedIntent(application.getApplicationContext(), id, false))
                 //.setContentIntent(classDes != null ? PendingIntent.getActivity(application.getApplicationContext(), REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE) : null)
-                .setContentIntent(PendingIntent.getService(application.getApplicationContext(), id, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setContentIntent(PendingIntent.getService(application.getApplicationContext(), id, intent, PendingIntent.FLAG_IMMUTABLE))
                 .setGroup("Analytics")
                 .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
