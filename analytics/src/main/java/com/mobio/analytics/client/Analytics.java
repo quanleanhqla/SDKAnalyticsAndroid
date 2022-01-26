@@ -240,14 +240,6 @@ public class Analytics {
         }
     }
 
-    public void setJourneyList(ArrayList<JourneyObject> journeyList) {
-        currentJbList = journeyList;
-    }
-
-    public void setJourneyJsonList(ArrayList<ValueMap> journeyList) {
-        currentJsonJbList = journeyList;
-    }
-
     public void setBothEventAndPushJson(String event, String push) {
         JSONObject jsonObject = null;
         try {
@@ -303,47 +295,6 @@ public class Analytics {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setBothEventAndPushList(ArrayList<ValueMap> events, ArrayList<ValueMap> pushes) {
-        currentJsonEvent = events;
-        currentJsonPush = pushes;
-
-        for (int i = 0; i < currentJsonEvent.size(); i++) {
-            ValueMap tempEvent = currentJsonEvent.get(i);
-            if (tempEvent != null) {
-                List<ValueMap> childrens = (List<ValueMap>) tempEvent.get("children_node");
-                if (childrens != null && childrens.size() > 0) {
-                    ArrayList<ValueMap> immediates = new ArrayList<>();
-                    ArrayList<ValueMap> normals = new ArrayList<>();
-                    for (int j = 0; j < childrens.size(); j++) {
-                        ValueMap children = childrens.get(j);
-                        if (children != null) {
-                            String priority = (String) children.get("priority");
-                            if (priority != null) {
-                                if (priority.equals("immediate")) {
-                                    immediates.add(children);
-                                } else {
-                                    normals.add(children);
-                                }
-                            }
-                        }
-                    }
-                    immediates.addAll(normals);
-                    childrens = immediates;
-                    tempEvent.put("children_node", childrens);
-
-                    currentJsonEvent.set(i, tempEvent);
-                }
-            }
-        }
-    }
-
-    public void addJourney(JourneyObject journeyObject) {
-        if (currentJbList == null) {
-            currentJbList = new ArrayList<>();
-        }
-        currentJbList.add(journeyObject);
     }
 
     public ValueMap toMap(JSONObject object) throws JSONException {
@@ -699,9 +650,9 @@ public class Analytics {
                                     if (pendingJsonPush.size() == 0) {
                                         pendingJsonPush.add(tempPush);
                                     } else {
-                                        if ((long) tempPush.get("expire") < (long) pendingJsonPush.get(0).get("expire")) {
+                                        if ((long) tempPush.get("expire") <= (long) pendingJsonPush.get(0).get("expire")) {
                                             pendingJsonPush.add(0, tempPush);
-                                        } else if ((long) tempPush.get("expire") > (long) pendingJsonPush.get(pendingJsonPush.size() - 1).get("expire")) {
+                                        } else if ((long) tempPush.get("expire") >= (long) pendingJsonPush.get(pendingJsonPush.size() - 1).get("expire")) {
                                             pendingJsonPush.add(pendingJsonPush.size() - 1, tempPush);
                                         } else {
                                             for (int l = 0; l < pendingJsonPush.size(); l++) {
