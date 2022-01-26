@@ -285,6 +285,8 @@ public class Analytics {
                 }
             }
 
+            LogMobio.logD("QuanLA", "abc "+currentJsonEvent.toString());
+
             String jsonEvent = new Gson().toJson(currentJsonEvent, new TypeToken<ArrayList<ValueMap>>() {
             }.getType());
             SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_EVENT, jsonEvent);
@@ -535,6 +537,7 @@ public class Analytics {
         ValueMap vm = new ValueMap().put("key_pending_push", pendingJsonPush);
         String jsonEvent = new Gson().toJson(vm, new TypeToken<ValueMap>() {
         }.getType());
+        LogMobio.logD("QuanLA","vm "+jsonEvent);
         SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
     }
 
@@ -653,11 +656,11 @@ public class Analytics {
                                         if ((long) tempPush.get("expire") <= (long) pendingJsonPush.get(0).get("expire")) {
                                             pendingJsonPush.add(0, tempPush);
                                         } else if ((long) tempPush.get("expire") >= (long) pendingJsonPush.get(pendingJsonPush.size() - 1).get("expire")) {
-                                            pendingJsonPush.add(pendingJsonPush.size() - 1, tempPush);
+                                            pendingJsonPush.add(tempPush);
                                         } else {
                                             for (int l = 0; l < pendingJsonPush.size(); l++) {
-                                                if ((long) tempPush.get("expire") > (long) pendingJsonPush.get(l).get("expire")
-                                                        && (long) tempPush.get("expire") < (long) pendingJsonPush.get(l + 1).get("expire")) {
+                                                if ((long) tempPush.get("expire") >= (long) pendingJsonPush.get(l).get("expire")
+                                                        && (long) tempPush.get("expire") <= (long) pendingJsonPush.get(l + 1).get("expire")) {
                                                     pendingJsonPush.add(l + 1, tempPush);
                                                     break;
                                                 }
