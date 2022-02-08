@@ -706,12 +706,9 @@ public class Analytics {
     }
 
     private void sendSync(ValueMap dataObject) {
-        //processLocalJb((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
-        //processEventAfterSync((String) dataObject.get("event_key"),(ValueMap) dataObject.get("event_data"), (String) ((ValueMap) dataObject.get("event_data")).get("action_time"));
-        if(isAppropriateTimeToShow()){
+//        if(isAppropriateTimeToShow()){
             processEventAfterSync(dataObject); // 2 list json
-        }
-        //processEventAfterSync1(dataObject); // 1 list json
+//        }
         String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
         String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
         try {
