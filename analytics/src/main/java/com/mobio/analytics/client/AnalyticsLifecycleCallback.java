@@ -495,6 +495,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             if (lifeCycleHandler != null) {
                 lifeCycleHandler.removeCallbacksAndMessages(null);
             }
+
             analytics.processPendingJson();
         }
 
