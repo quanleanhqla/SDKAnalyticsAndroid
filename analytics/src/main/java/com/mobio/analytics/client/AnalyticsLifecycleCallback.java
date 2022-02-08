@@ -505,9 +505,9 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                 analytics.track(Analytics.SDK_Mobile_Test_Screen_End_In_App, new ValueMap().put("screen_name", screenConfigObject.getTitle())
                         .put("time", Utils.getTimeUTC()));
 
-                if (shouldRecordScreenViews) {
-                    analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
-                }
+//                if (shouldRecordScreenViews) {
+//                    analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
+//                }
 
             }
         }
