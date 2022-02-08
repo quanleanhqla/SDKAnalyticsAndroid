@@ -487,6 +487,17 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
     public void onActivityStopped(@NonNull Activity activity) {
         LogMobio.logD(TAG, "onstop");
         numStarted--;
+
+        if (numStarted == 0) {
+            currentActivity = null;
+            LogMobio.logD(TAG, "app went to background");
+            SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, false);
+            if (lifeCycleHandler != null) {
+                lifeCycleHandler.removeCallbacksAndMessages(null);
+            }
+            analytics.processPendingJson();
+        }
+
         if (shouldTrackScreenLifecycleEvents && screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0) {
             ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
             if (screenConfigObject != null) {
@@ -497,22 +508,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
                 }
 
-            }
-        }
-
-        if (numStarted == 0) {
-            currentActivity = null;
-            LogMobio.logD(TAG, "app went to background");
-            SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, false);
-            if (lifeCycleHandler != null) {
-                lifeCycleHandler.removeCallbacksAndMessages(null);
-            }
-            analytics.processPendingJson();
-//            ArrayList<ValueMap> pendingPushes = new Gson().fromJson(strPendingPush, new TypeToken<ArrayList<ValueMap>>() {
-//            }.getType());
-            if (shouldTrackApplicationLifecycleEvents) {
-//                analytics.track("", new ValueMap().put("version", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
-//                        .put("build", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
             }
         }
 
