@@ -11,6 +11,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -223,7 +224,7 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                         Dialog dialog = new Dialog(currentActivity);
                         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog.setCancelable(false);
+                        dialog.setCancelable(true);
                         dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
 
                         Button btnAction = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_action);
@@ -252,6 +253,13 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                             }
                         });
 
+                        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                LogMobio.logD("QuanLA", "close popup "+notiResponseObject.getPushId());
+                            }
+                        });
+
                         Class finalDes = des;
                         btnAction.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -269,6 +277,12 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
                     else {
                         new HtmlController(currentActivity, notiResponseObject, "", des).showHtmlView();
                     }
+
+//                    analytics.track(Analytics.SDK_Mobile_Test_Open_Popup_App,
+//                            new ValueMap().put("action_time", Utils.getTimeUTC())
+//                    .put("push_id", notiResponseObject.getPushId())
+//                    .put("device", "Android"));
+                    LogMobio.logD("QuanLA", "show popup "+notiResponseObject.getPushId());
                 }
             });
         }

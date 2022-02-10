@@ -58,7 +58,6 @@ public class TerminateService extends Service {
                         alarmManager.setExact(AlarmManager.RTC,  now + intervel * (i+1), alarmIntent);
                     }
                 }
-                LogMobio.logD("QuanLA", "Done");
             }
         } catch (Exception e) {
             e.printStackTrace();

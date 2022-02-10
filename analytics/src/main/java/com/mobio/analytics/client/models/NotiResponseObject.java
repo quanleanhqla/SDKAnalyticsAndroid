@@ -22,6 +22,7 @@ public class NotiResponseObject {
     private String data;//1: html content, 2:native, 3:url
     private int width;
     private int height;
+    private String pushId;
 
     public static final int TYPE_NATIVE = 0;
     public static final int TYPE_HTML = 1;
@@ -36,6 +37,7 @@ public class NotiResponseObject {
         data = builder.mData;
         width = builder.mWidth;
         height = builder.mHeight;
+        pushId = builder.mPushId;
     }
 
     public int getType() {
@@ -102,6 +104,14 @@ public class NotiResponseObject {
         this.height = height;
     }
 
+    public String getPushId() {
+        return pushId;
+    }
+
+    public void setPushId(String pushId) {
+        this.pushId = pushId;
+    }
+
     public static class Builder{
         private int mType;
         private String mSource_screen;
@@ -111,6 +121,7 @@ public class NotiResponseObject {
         private String mData;//1: html content, 2:native, 3:url
         private int mWidth;
         private int mHeight;
+        private String mPushId;
 
         public Builder(){
         }
@@ -152,6 +163,11 @@ public class NotiResponseObject {
 
         public Builder withHeight(int height){
             mHeight = height;
+            return this;
+        }
+
+        public Builder withPushId(String pushId){
+            mPushId = pushId;
             return this;
         }
 

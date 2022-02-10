@@ -25,7 +25,7 @@ public class MobioApplication extends Application {
         super.onCreate();
 
         HashMap<String, ScreenConfigObject> screenConfigObjectHashMap = new HashMap<>();
-        screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {5, 10, 15}, LoginActivity.class, true));
+        screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {10}, LoginActivity.class, true));
         screenConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home", "HomeActivity", new int[] {10}, HomeActivity.class, false));
         screenConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer", "SendMoneyInActivity", new int[] {10}, SendMoneyInActivity.class, false));
 
@@ -51,36 +51,35 @@ public class MobioApplication extends Application {
                 "    \"node_code\": \"EVENT\",\n" +
                 "    \"children_node\": [\n" +
                 "      {\n" +
+                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d5\",\n" +
+                "        \"expire\": 1675914503005,\n" +
+                "        \"complete\": false,\n" +
+                "        \"type\": \"action\"\n" +
+                "      },\n" +
+                "      {\n" +
                 "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d1\",\n" +
-                "        \"expire\": 1111111111110,\n" +
+                "        \"expire\": 1675914503001,\n" +
+                "        \"complete\": false,\n" +
+                "        \"type\": \"action\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d4\",\n" +
+                "        \"expire\": 1675914503004,\n" +
+                "        \"complete\": false,\n" +
+                "        \"type\": \"action\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d3\",\n" +
+                "        \"expire\": 1675914503003,\n" +
                 "        \"complete\": false,\n" +
                 "        \"type\": \"action\"\n" +
                 "      },\n" +
                 "      {\n" +
                 "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d2\",\n" +
-                "        \"expire\": 1111111111111,\n" +
+                "        \"expire\": 1675914503002,\n" +
                 "        \"complete\": false,\n" +
                 "        \"type\": \"action\"\n" +
                 "      }\n" +
-                ",\n" +
-                "      {\n" +
-                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d9\",\n" +
-                "        \"expire\": 1111111111119,\n" +
-                "        \"complete\": false,\n" +
-                "        \"type\": \"action\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d10\",\n" +
-                "        \"expire\": 11111111111110,\n" +
-                "        \"complete\": false,\n" +
-                "        \"type\": \"action\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d11\",\n" +
-                "        \"expire\": 11111111111111,\n" +
-                "        \"complete\": false,\n" +
-                "        \"type\": \"action\"\n" +
-                "      }" +
                 "    ],\n" +
                 "    \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
                 "    \"node_name\": \"Phát sinh Event\",\n" +
@@ -95,32 +94,32 @@ public class MobioApplication extends Application {
                 "    \"node_code\": \"EVENT\",\n" +
                 "    \"children_node\": [\n" +
                 "      {\n" +
-                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d5\",\n" +
-                "        \"expire\": 1111111111115,\n" +
+                "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d10\",\n" +
+                "        \"expire\": 1675914503010,\n" +
                 "        \"complete\": false,\n" +
                 "        \"type\": \"action\"\n" +
                 "      },\n" +
                 "      {\n" +
                 "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d6\",\n" +
-                "        \"expire\": 1111111111116,\n" +
+                "        \"expire\": 1675914503006,\n" +
                 "        \"complete\": false,\n" +
                 "        \"type\": \"action\"\n" +
                 "      },\n" +
                 "      {\n" +
                 "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\",\n" +
-                "        \"expire\": 1111111111117,\n" +
+                "        \"expire\": 1675914503007,\n" +
                 "        \"complete\": false,\n" +
                 "        \"type\": \"action\"\n" +
                 "      },\n" +
                 "      {\n" +
                 "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
-                "        \"expire\": 1111111111118,\n" +
+                "        \"expire\": 1675914503008,\n" +
                 "        \"complete\": false,\n" +
                 "        \"type\": \"action\"\n" +
                 "      },\n" +
                 "      {\n" +
                 "        \"id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d9\",\n" +
-                "        \"expire\": 1111111111119,\n" +
+                "        \"expire\": 1675914503009,\n" +
                 "        \"complete\": false,\n" +
                 "        \"type\": \"action\"\n" +
                 "      }\n" +
@@ -128,10 +127,9 @@ public class MobioApplication extends Application {
                 "    \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de98\",\n" +
                 "    \"node_name\": \"Phát sinh Event\",\n" +
                 "    \"length\": 5,\n" +
-                "    \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "    \"event_key\": \"sdk_mobile_test_screen_end_in_app\",\n" +
                 "    \"event_data\": {\n" +
-                "      \"time_visit\": 10,\n" +
-                "      \"screen_name\": \"Saving\"\n" +
+                "      \"screen_name\": \"Home\"\n" +
                 "    }\n" +
                 "  }\n" +
                 " ]\n" +
@@ -143,7 +141,7 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\":8,\n" +
+                "      \"expire\":1675914503008,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d8\",\n" +
                 "      \"node_name\": \"CTKM Thanh Toán Điện Thoại Viettel\",\n" +
@@ -151,7 +149,7 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Recharge\",\n" +
-                "        \"title\": \"CTKM 8\",\n" +
+                "        \"title\": \"CTKM 8 event2\",\n" +
                 "        \"content\": \"Thanh Toán Điện Thoại Viettel\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -160,7 +158,7 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642728666000,\n" +
+                "      \"expire\": 1675914503007,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d7\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
@@ -168,7 +166,7 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 3\",\n" +
+                "        \"title\": \"CTKM 7 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -177,7 +175,7 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642653066000,\n" +
+                "      \"expire\": 1675914503006,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d6\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
@@ -185,7 +183,7 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 6\",\n" +
+                "        \"title\": \"CTKM 6 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -194,7 +192,7 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642718666000,\n" +
+                "      \"expire\": 1675914503005,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d5\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
@@ -202,7 +200,7 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 5\",\n" +
+                "        \"title\": \"CTKM 5 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -211,7 +209,7 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642798666000,\n" +
+                "      \"expire\": 1675914503001,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d1\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
@@ -219,7 +217,7 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 1\",\n" +
+                "        \"title\": \"CTKM 1 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -228,7 +226,24 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642748666000,\n" +
+                "      \"expire\": 1675914503002,\n" +
+                "      \"node_code\": \"PUSH_IN_APP\",\n" +
+                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d2\",\n" +
+                "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
+                "      \"noti_response\": {\n" +
+                "        \"type\": 0,\n" +
+                "        \"source_screen\": \"Home\",\n" +
+                "        \"des_screen\": \"Transfer\",\n" +
+                "        \"title\": \"CTKM 2 event1\",\n" +
+                "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
+                "        \"data\": \"Hello home\" \n" +
+                "      }\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"type\":\"daily\",\n" +
+                "      \"time\":\"8h\",\n" +
+                "      \"jb_id\":\"abc\",\n" +
+                "      \"expire\": 1675914503009,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d9\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
@@ -236,7 +251,7 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 9\",\n" +
+                "        \"title\": \"CTKM 9 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -245,15 +260,15 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642748666000,\n" +
+                "      \"expire\": 1675914503004,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
-                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d2\",\n" +
+                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d4\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
                 "      \"noti_response\": {\n" +
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 2\",\n" +
+                "        \"title\": \"CTKM 4 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -262,7 +277,7 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642748666000,\n" +
+                "      \"expire\": 1675914503010,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
                 "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d10\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
@@ -270,7 +285,7 @@ public class MobioApplication extends Application {
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 10\",\n" +
+                "        \"title\": \"CTKM 10 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +
@@ -279,15 +294,15 @@ public class MobioApplication extends Application {
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
                 "      \"jb_id\":\"abc\",\n" +
-                "      \"expire\": 1642748666000,\n" +
+                "      \"expire\": 1675914503003,\n" +
                 "      \"node_code\": \"PUSH_IN_APP\",\n" +
-                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d11\",\n" +
+                "      \"node_id\": \"92fe3c7f-b40e-4b7e-b9fb-a94f398bf6d3\",\n" +
                 "      \"node_name\": \"CTKM Gửi tiết kiệm\",\n" +
                 "      \"noti_response\": {\n" +
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
                 "        \"des_screen\": \"Saving\",\n" +
-                "        \"title\": \"CTKM 11\",\n" +
+                "        \"title\": \"CTKM 3 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
                 "      }\n" +

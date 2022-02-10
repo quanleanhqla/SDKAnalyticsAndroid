@@ -6,6 +6,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.mobio.analytics.client.Analytics;
 import com.mobio.analytics.client.models.NotiResponseObject;
+import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
@@ -78,6 +79,11 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                         notiResponseObject.setType(NotiResponseObject.TYPE_NATIVE);
                     }
                 }
+
+                Analytics.getInstance().track(Analytics.SDK_Mobile_Test_Receive_Push_In_App, new ValueMap().put("push_id", "abc")
+                        .put("device", "Android")
+                        .put("action_time", Utils.getTimeUTC()));
+
                 if (SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
                     Analytics.getInstance().showGlobalPopup(notiResponseObject);
                 } else {

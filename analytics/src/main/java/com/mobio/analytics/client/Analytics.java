@@ -76,6 +76,11 @@ public class Analytics {
     public static final String SDK_Mobile_Test_Open_App = "sdk_mobile_test_open_app";
     public static final String SDK_Mobile_Test_Open_Update_App = "sdk_mobile_test_open_update_app";
     public static final String SDK_Mobile_Test_Open_First_App = "sdk_mobile_test_open_first_app";
+    public static final String SDK_Mobile_Test_Open_Notification_App = "sdk_mobile_test_open_notification_app";
+    public static final String SDK_Mobile_Test_Close_Notification_App = "sdk_mobile_test_close_notification_app";
+    public static final String SDK_Mobile_Test_Open_Popup_App = "sdk_mobile_test_open_popup_app";
+    public static final String SDK_Mobile_Test_Close_Popup_App = "sdk_mobile_test_close_popup_app";
+    public static final String SDK_Mobile_Test_Receive_Push_In_App = "sdk_mobile_test_receive_push_in_app";
 
     public static final int TYPE_LOGIN_SUCCESS = 1;
     public static final int TYPE_TRANSFER_SUCCESS = 2;
@@ -285,8 +290,6 @@ public class Analytics {
                 }
             }
 
-            LogMobio.logD("QuanLA", "abc "+currentJsonEvent.toString());
-
             String jsonEvent = new Gson().toJson(currentJsonEvent, new TypeToken<ArrayList<ValueMap>>() {
             }.getType());
             SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_EVENT, jsonEvent);
@@ -351,8 +354,10 @@ public class Analytics {
         intent.setComponent(new ComponentName(application.getApplicationContext(), ClickNotificationService.class));
         intent.setAction(ClickNotificationService.ACTION_FOO);
         intent.putExtra(ClickNotificationService.EXTRA_PARAM1, classDes);
+        intent.putExtra(ClickNotificationService.EXTRA_PARAM2, notiResponseObject.getPushId());
+        intent.putExtra(ClickNotificationService.EXTRA_PARAM3, id);
 
-        String CHANNEL_ID = "" + id;// The id of the channel.
+        String CHANNEL_ID = "Channel Analytics";// The id of the channel.
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(application.getApplicationContext(), CHANNEL_ID)
                 .setSmallIcon(R.mipmap.icon)
                 .setLargeIcon(BitmapFactory.decodeResource(application.getResources(),
@@ -377,6 +382,13 @@ public class Analytics {
         Notification notification = notificationBuilder.build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(id, notification); // 0 is the request code, it should be unique id
+
+//        track(SDK_Mobile_Test_Open_Notification_App,
+//                new ValueMap().put("action_time", Utils.getTimeUTC())
+//        .put("push_id", notiResponseObject.getPushId())
+//        .put("device", "Android"));
+
+        LogMobio.logD("QuanLA", "show noti "+notiResponseObject.getPushId()+"\nid "+id);
     }
 
     public void showGlobalNotification(NotiResponseObject notiResponseObject) {
@@ -537,7 +549,6 @@ public class Analytics {
         ValueMap vm = new ValueMap().put("key_pending_push", pendingJsonPush);
         String jsonEvent = new Gson().toJson(vm, new TypeToken<ValueMap>() {
         }.getType());
-        LogMobio.logD("QuanLA","vm "+jsonEvent);
         SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
     }
 
@@ -590,23 +601,15 @@ public class Analytics {
             return;
         }
 
-        boolean checkEvent = false;
+        boolean checkEvent = false; //check case nếu các jsonpush complete hết rồi thì show pendingpush
+        boolean eventKeyEqual = false; //check case tất cả eventkey không thoả mãn thì show pendingpush
 
         for (int i = 0; i < currentJsonEvent.size(); i++) {
             ValueMap tempEvent = currentJsonEvent.get(i);
             String tpEventKey = (String) tempEvent.get("event_key");
 
             if (tpEventKey == null || !tpEventKey.equals(eventKey) || tpEventKey.equals("")) {
-                if (pendingJsonPush.size() > 0) {
-                    ValueMap tempPush = pendingJsonPush.get(0);
-                    ValueMap noti = (ValueMap) tempPush.get("noti_response");
-                    String notiStr = new Gson().toJson(noti);
-                    NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
-                    showPushInApp(notiResponseObject);
-                    pendingJsonPush.remove(0);
-                    updatePendingJsonPush(pendingJsonPush);
-                }
-                return;
+                continue;
             }
             ValueMap tpEventData = (ValueMap) tempEvent.get("event_data");
             if (tpEventData == null) {
@@ -615,6 +618,7 @@ public class Analytics {
             String edStr = new Gson().toJson(tpEventData);
             String eventStr = new Gson().toJson(eventData);
             if (compareTwoJson(edStr, eventStr)) {
+                eventKeyEqual = true;
                 List<ValueMap> childrens = (List<ValueMap>) tempEvent.get("children_node");
 
                 if (childrens == null || childrens.size() <= 0) {
@@ -648,6 +652,7 @@ public class Analytics {
                                     ValueMap noti = (ValueMap) tempPush.get("noti_response");
                                     String notiStr = new Gson().toJson(noti);
                                     NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
+                                    notiResponseObject.setPushId(pushId);
                                     showPushInApp(notiResponseObject);
                                 } else {
                                     if (pendingJsonPush.size() == 0) {
@@ -682,12 +687,13 @@ public class Analytics {
             }
         }
 
-
-        if (!checkEvent && pendingJsonPush.size() > 0) {
+        if((!eventKeyEqual || !checkEvent) && pendingJsonPush.size() > 0){
             ValueMap tempPush = pendingJsonPush.get(0);
             ValueMap noti = (ValueMap) tempPush.get("noti_response");
+            String pushId = (String) tempPush.get("node_id");
             String notiStr = new Gson().toJson(noti);
             NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
+            notiResponseObject.setPushId(pushId);
             showPushInApp(notiResponseObject);
             pendingJsonPush.remove(0);
             updatePendingJsonPush(pendingJsonPush);
@@ -695,12 +701,10 @@ public class Analytics {
     }
 
     private void showPushInApp(NotiResponseObject notiResponseObject){
-        LogMobio.logD("QuanLA","show push");
         if (SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
             showGlobalPopup(notiResponseObject);
         } else {
             int randomId = (int) (Math.random()*10000);
-            LogMobio.logD("QuanLA", ""+randomId);
             showGlobalNotification(notiResponseObject, randomId);
         }
     }

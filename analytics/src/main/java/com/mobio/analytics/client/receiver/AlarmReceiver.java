@@ -38,7 +38,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                         ValueMap notiVm = (ValueMap) vm.get("noti_response");
                         if(notiVm == null) return;
                         String notiStr = new Gson().toJson(notiVm);
+                        String pushId = (String) vm.get("node_id");
                         NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
+                        notiResponseObject.setPushId(pushId);
                         if (SharedPreferencesUtils.getBool(context, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
                             Analytics.getInstance().showGlobalPopup(notiResponseObject);
                         } else {
@@ -48,7 +50,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                         ValueMap pendingPush = new ValueMap().put("key_pending_push", listPendingNoti);
                         String jsonEvent = new Gson().toJson(pendingPush, new TypeToken<ValueMap>() {
                         }.getType());
-                        LogMobio.logD("QuanLA", "pending "+jsonEvent);
                         SharedPreferencesUtils.editString(context, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
                     }
                 }
