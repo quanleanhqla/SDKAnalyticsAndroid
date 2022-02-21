@@ -24,6 +24,7 @@ import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.GpsTracker;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.NetworkUtil;
 import com.mobio.analytics.client.utility.Utils;
 
 import java.io.IOException;
@@ -54,6 +55,9 @@ public class LoginActivity extends AppCompatActivity {
         String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
         LogMobio.logD("LoginActivity", "imei " + Utils.getIMEIDeviceId(this));
+
+        int status = NetworkUtil.getConnectivityStatusString(this);
+        LogMobio.logD("QuanLA", status+"");
 
     }
 

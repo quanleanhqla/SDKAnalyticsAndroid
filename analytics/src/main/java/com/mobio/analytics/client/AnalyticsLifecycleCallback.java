@@ -2,16 +2,10 @@ package com.mobio.analytics.client;
 
 import static android.content.Context.ALARM_SERVICE;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Application;
 import android.app.Dialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -29,51 +23,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.adapters.AdsAdapter;
-import com.mobio.analytics.client.models.JourneyObject;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.models.ValueMap;
-import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
+import com.mobio.analytics.client.view.CustomDialog;
 import com.mobio.analytics.client.view.HtmlController;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AnalyticsLifecycleCallback implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = AnalyticsLifecycleCallback.class.getName();
@@ -206,76 +184,30 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
         }
     }
 
+
+    private Class findDes(NotiResponseObject notiResponseObject){
+        Class des = null;
+        for(int i = 0; i < screenConfigObjectHashMap.values().size(); i++){
+            ScreenConfigObject screenConfigObject = (ScreenConfigObject) screenConfigObjectHashMap.values().toArray()[i];
+            if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
+                des = screenConfigObject.getClassName();
+                break;
+            }
+        }
+        return des;
+    }
+
     public void showPopup(NotiResponseObject notiResponseObject) {
         if(currentActivity != null) {
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Class des = null;
-                    for(int i = 0; i < screenConfigObjectHashMap.values().size(); i++){
-                        ScreenConfigObject screenConfigObject = (ScreenConfigObject) screenConfigObjectHashMap.values().toArray()[i];
-                        if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
-                            des = screenConfigObject.getClassName();
-                            LogMobio.logD("ABC", screenConfigObject.getActivityName());
-                            break;
-                        }
-                    }
+
                     if(notiResponseObject.getType()==NotiResponseObject.TYPE_NATIVE) {
-                        Dialog dialog = new Dialog(currentActivity);
-                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog.setCancelable(true);
-                        dialog.setContentView(com.mobio.analytics.R.layout.custom_popup);
-
-                        Button btnAction = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_action);
-                        ImageView imvClose = (ImageView) dialog.findViewById(com.mobio.analytics.R.id.imv_close);
-                        TextView tvTitle = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_title);
-                        TextView tvDetail = (TextView) dialog.findViewById(com.mobio.analytics.R.id.tv_detail);
-                        Button btnCancel = (Button) dialog.findViewById(com.mobio.analytics.R.id.btn_cancel);
-
-                        tvTitle.setText(notiResponseObject.getTitle());
-                        tvDetail.setText(notiResponseObject.getContent());
-
-                        imvClose.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dialog.dismiss();
-                                //todo
-                                //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
-
-                            }
-                        });
-
-                        btnCancel.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                LogMobio.logD("QuanLA", "close popup "+notiResponseObject.getPushId());
-                            }
-                        });
-
-                        Class finalDes = des;
-                        btnAction.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                                //todo
-                                if (finalDes != null && !currentActivity.getClass().getSimpleName().equals("LoginActivity")) {
-                                    Intent desIntent = new Intent(currentActivity, finalDes);
-                                    currentActivity.startActivity(desIntent);
-                                }
-                            }
-                        });
-                        dialog.show();
+                        new CustomDialog(currentActivity, notiResponseObject, findDes(notiResponseObject)).showDialog();
                     }
                     else {
-                        new HtmlController(currentActivity, notiResponseObject, "", des).showHtmlView();
+                        new HtmlController(currentActivity, notiResponseObject, "", findDes(notiResponseObject)).showHtmlView();
                     }
 
 //                    analytics.track(Analytics.SDK_Mobile_Test_Open_Popup_App,
@@ -509,8 +441,6 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             if (lifeCycleHandler != null) {
                 lifeCycleHandler.removeCallbacksAndMessages(null);
             }
-
-            analytics.processPendingJson();
         }
 
         if (shouldTrackScreenLifecycleEvents && screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0) {
@@ -526,16 +456,18 @@ public class AnalyticsLifecycleCallback implements Application.ActivityLifecycle
             }
         }
 
+        //todo duplicate if
+        if(numStarted == 0){
+            analytics.processPendingJson();
+        }
     }
 
     @Override
     public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-
     }
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        //analytics.track("Activity "+getNameOfActivity(activity)+" destroyed");
     }
 
     private void trackDeepLink(Activity activity) {

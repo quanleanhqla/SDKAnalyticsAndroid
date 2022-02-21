@@ -12,6 +12,7 @@ import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
+import com.mobio.analytics.client.utility.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +31,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 JSONObject jsonObject = null;
                 try {
                     jsonObject = new JSONObject(strPendingPush);
-                    ValueMap vm = Analytics.getInstance().toMap(jsonObject);
+                    ValueMap vm = Utils.toMap(jsonObject);
                     if (vm.get("key_pending_push") != null) {
                         List<ValueMap> listPendingNoti = (List<ValueMap>) vm.get("key_pending_push");
                         if(listPendingNoti == null || listPendingNoti.size() == 0) return;
@@ -44,7 +45,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                         if (SharedPreferencesUtils.getBool(context, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
                             Analytics.getInstance().showGlobalPopup(notiResponseObject);
                         } else {
-                            Analytics.getInstance().showGlobalNotification(notiResponseObject, ((int) (Math.random() * 10000)));
+                            Analytics.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
                         }
                         listPendingNoti.remove(0);
                         ValueMap pendingPush = new ValueMap().put("key_pending_push", listPendingNoti);

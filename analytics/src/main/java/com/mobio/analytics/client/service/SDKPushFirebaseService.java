@@ -87,7 +87,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 if (SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
                     Analytics.getInstance().showGlobalPopup(notiResponseObject);
                 } else {
-                    Analytics.getInstance().showGlobalNotification(notiResponseObject);
+                    Analytics.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -125,7 +125,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 Analytics.getInstance().showGlobalPopup(notiResponseObject);
             }
             else {
-                Analytics.getInstance().showGlobalNotification(notiResponseObject);
+                Analytics.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
             }
         }
 

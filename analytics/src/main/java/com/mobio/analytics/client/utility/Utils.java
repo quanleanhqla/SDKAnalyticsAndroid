@@ -14,6 +14,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -34,8 +36,10 @@ import com.mobio.analytics.client.models.ProfileBaseObject;
 import com.mobio.analytics.client.models.ProfileInfoObject;
 import com.mobio.analytics.client.models.PropertiesObject;
 import com.mobio.analytics.client.models.TraitsObject;
+import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.models.ViewDimension;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,8 +49,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -175,6 +181,59 @@ public class Utils {
         } else {
             return NotificationManagerCompat.from(context).areNotificationsEnabled();
         }
+    }
+
+    private static List<Object> toList(JSONArray array) throws JSONException {
+        List<Object> list = new ArrayList<Object>();
+        for (int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            if (value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            } else if (value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            list.add(value);
+        }
+        return list;
+    }
+
+    public static boolean compareTwoJson(String first, String second) {
+        try {
+            JSONObject jsonObject = new JSONObject(first);
+            JSONObject jsonObject1 = new JSONObject(second);
+            Iterator<String> s = jsonObject.keys();
+            for (Iterator<String> it = s; it.hasNext(); ) {
+                String str = it.next();
+                System.out.println("key:" + str + " : value1:" + jsonObject.get(str) + ":value2:" + jsonObject1.get(str));
+                //compare value of json1 with json2
+                if (!jsonObject.get(str).equals(jsonObject1.get(str))) {
+                    return false;
+                }
+            }
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static ValueMap toMap(JSONObject object) throws JSONException {
+        ValueMap map = new ValueMap();
+
+        Iterator<String> keysItr = object.keys();
+        while (keysItr.hasNext()) {
+            String key = keysItr.next();
+            Object value = object.get(key);
+
+            if (value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            } else if (value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            map.put(key, value);
+        }
+        return map;
     }
 
     /** Returns the referrer on devices running SDK versions lower than 22. */
@@ -381,5 +440,10 @@ public class Utils {
         return header;
     }
 
-
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        //should check null because in airplane mode it will be null
+        return (netInfo != null && netInfo.isConnected());
+    }
 }

@@ -10,22 +10,24 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.CountDownTimer;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.activities.TransparentDeeplinkHandleActivity;
 import com.mobio.analytics.client.models.AppObject;
-import com.mobio.analytics.client.models.DataItem;
 import com.mobio.analytics.client.models.DataObject;
 import com.mobio.analytics.client.models.DeviceObject;
-import com.mobio.analytics.client.models.EventData;
 import com.mobio.analytics.client.models.JourneyObject;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.OsObject;
@@ -33,13 +35,16 @@ import com.mobio.analytics.client.models.PropertiesObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.receiver.AlarmReceiver;
+import com.mobio.analytics.client.receiver.NetworkChangeReceiver;
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.service.ClickNotificationService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
+import com.mobio.analytics.client.view.GlobalNotification;
 import com.mobio.analytics.network.RetrofitClient;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import org.json.JSONArray;
@@ -48,11 +53,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -108,21 +110,15 @@ public class Analytics {
     private String merchantId;
     private int intervalSecond;
     private String deviceToken;
-    private ArrayList<DataObject> listDataWaitToSend;
+    private ArrayList<ValueMap> listDataWaitToSend;
     private String domainURL;
     private String endPoint;
     private HashMap<String, ScreenConfigObject> configActivityMap;
     private ValueMap cacheValueMap;
-    private NotificationManager notificationManager;
-    private ArrayList<JourneyObject> currentJbList;
-
-    private ArrayList<ValueMap> currentJsonJbList;
 
     private ArrayList<ValueMap> currentJsonEvent;
     private ArrayList<ValueMap> currentJsonPush;
     private ArrayList<ValueMap> pendingJsonPush;
-
-    private ArrayList<ValueMap> currentJsonCampaign;
 
     private AlarmManager alarmManager;
 
@@ -152,7 +148,6 @@ public class Analytics {
         domainURL = builder.mDomainURL;
         endPoint = builder.mEndPoint;
         configActivityMap = builder.mActivityMap;
-        notificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
 
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
@@ -169,8 +164,6 @@ public class Analytics {
 //
 //            }
 //        }, intervalSecond, intervalSecond, TimeUnit.SECONDS);
-
-        listDataWaitToSend = new ArrayList<DataObject>();
 
         analyticsLifecycleCallback = new AnalyticsLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
                 shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application, configActivityMap);
@@ -197,7 +190,7 @@ public class Analytics {
         String cacheStr = new Gson().toJson(cacheDataObject);
         try {
             JSONObject jsonObject = new JSONObject(cacheStr);
-            cacheValueMap = toMap(jsonObject);
+            cacheValueMap = Utils.toMap(jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
             try {
@@ -232,6 +225,10 @@ public class Analytics {
             }
         }
 
+        NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        application.registerReceiver(networkChangeReceiver, intentFilter);
     }
 
     public void setDeviceToken(String deviceToken) {
@@ -249,7 +246,7 @@ public class Analytics {
         JSONObject jsonObject = null;
         try {
             jsonObject = new JSONObject(event);
-            ValueMap vm = Analytics.getInstance().toMap(jsonObject);
+            ValueMap vm = Utils.toMap(jsonObject);
             if (vm.get("events") == null) {
                 return;
             }
@@ -260,7 +257,7 @@ public class Analytics {
             }
 
             jsonObject = new JSONObject(push);
-            vm = Analytics.getInstance().toMap(jsonObject);
+            vm = Utils.toMap(jsonObject);
             if (vm.get("pushes") == null) {
                 return;
             }
@@ -302,24 +299,6 @@ public class Analytics {
         }
     }
 
-    public ValueMap toMap(JSONObject object) throws JSONException {
-        ValueMap map = new ValueMap();
-
-        Iterator<String> keysItr = object.keys();
-        while (keysItr.hasNext()) {
-            String key = keysItr.next();
-            Object value = object.get(key);
-
-            if (value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            } else if (value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            map.put(key, value);
-        }
-        return map;
-    }
-
     public void showGlobalPopup(NotiResponseObject notiResponseObject) {
         if (analyticsLifecycleCallback != null) {
             analyticsLifecycleCallback.showPopup(notiResponseObject);
@@ -332,130 +311,8 @@ public class Analytics {
         }
     }
 
-    public void showGlobalNotification(NotiResponseObject notiResponseObject, int id) {
-        Class classDes = null;
-        Class classInitial = null;
-        Intent intent = null;
-        for (int i = 0; i < configActivityMap.values().size(); i++) {
-            ScreenConfigObject screenConfigObject = (ScreenConfigObject) configActivityMap.values().toArray()[i];
-            if (screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())) {
-                classDes = screenConfigObject.getClassName();
-                break;
-            }
-            if (screenConfigObject.isInitialScreen()) {
-                classInitial = screenConfigObject.getClassName();
-            }
-        }
-        if (classDes == null) {
-            classDes = classInitial;
-        }
-        intent = new Intent();
-        //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setComponent(new ComponentName(application.getApplicationContext(), ClickNotificationService.class));
-        intent.setAction(ClickNotificationService.ACTION_FOO);
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM1, classDes);
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM2, notiResponseObject.getPushId());
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM3, id);
-
-        String CHANNEL_ID = "Channel Analytics";// The id of the channel.
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(application.getApplicationContext(), CHANNEL_ID)
-                .setSmallIcon(R.mipmap.icon)
-                .setLargeIcon(BitmapFactory.decodeResource(application.getResources(),
-                        R.mipmap.icon))
-                .setContentTitle(notiResponseObject.getTitle())
-                .setContentText(notiResponseObject.getContent())
-                .setDeleteIntent(createOnDismissedIntent(application.getApplicationContext(), id, false))
-                //.setContentIntent(classDes != null ? PendingIntent.getActivity(application.getApplicationContext(), REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE) : null)
-                .setContentIntent(PendingIntent.getService(application.getApplicationContext(), id, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT))
-                .setGroup("Analytics")
-                .setAutoCancel(true);
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.R){
-            intent.setComponent(new ComponentName(application.getApplicationContext(), TransparentDeeplinkHandleActivity.class));
-            notificationBuilder.setContentIntent(classDes != null ? PendingIntent.getActivity(application.getApplicationContext(), id, intent, PendingIntent.FLAG_IMMUTABLE) : null);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Channel Name";// The user-visible name of the channel.
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-            notificationManager.createNotificationChannel(mChannel);
-        }
-        Notification notification = notificationBuilder.build();
-        notification.flags = Notification.FLAG_AUTO_CANCEL;
-        notificationManager.notify(id, notification); // 0 is the request code, it should be unique id
-
-//        track(SDK_Mobile_Test_Open_Notification_App,
-//                new ValueMap().put("action_time", Utils.getTimeUTC())
-//        .put("push_id", notiResponseObject.getPushId())
-//        .put("device", "Android"));
-
-        LogMobio.logD("QuanLA", "show noti "+notiResponseObject.getPushId()+"\nid "+id);
-    }
-
-    public void showGlobalNotification(NotiResponseObject notiResponseObject) {
-        Class classDes = null;
-        Class classInitial = null;
-        Intent intent = null;
-        for (int i = 0; i < configActivityMap.values().size(); i++) {
-            ScreenConfigObject screenConfigObject = (ScreenConfigObject) configActivityMap.values().toArray()[i];
-            if (screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())) {
-                classDes = screenConfigObject.getClassName();
-                break;
-            }
-            if (screenConfigObject.isInitialScreen()) {
-                classInitial = screenConfigObject.getClassName();
-            }
-        }
-        if (classDes == null) {
-            classDes = classInitial;
-        }
-        intent = new Intent(application.getApplicationContext(), classDes);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("OPEN_FROM_NOTI", 1);
-
-        String CHANNEL_ID = "channel_name";// The id of the channel.
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(application.getApplicationContext(), CHANNEL_ID)
-                .setSmallIcon(R.mipmap.icon)
-                .setLargeIcon(BitmapFactory.decodeResource(application.getResources(),
-                        R.mipmap.icon))
-                .setContentTitle(notiResponseObject.getTitle())
-                .setContentText(notiResponseObject.getContent())
-                .setDeleteIntent(createOnDismissedIntent(application.getApplicationContext(), REQUEST_CODE, false))
-                .setContentIntent(classDes != null ? PendingIntent.getActivity(application.getApplicationContext(), REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE) : null)
-                .setAutoCancel(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Channel Name";// The user-visible name of the channel.
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-            notificationManager.createNotificationChannel(mChannel);
-        }
-        Notification notification = notificationBuilder.build();
-        notification.flags = Notification.FLAG_AUTO_CANCEL;
-        notificationManager.notify(REQUEST_CODE, notification); // 0 is the request code, it should be unique id
-    }
-
-    private PendingIntent createOnDismissedIntent(Context context, int notificationId, boolean isDelete) {
-        Intent intent = new Intent(context, NotificationDismissedReceiver.class);
-        intent.putExtra("notificationId", notificationId);
-        intent.putExtra("type_delete", isDelete);
-
-        PendingIntent pendingIntent =
-                PendingIntent.getBroadcast(context.getApplicationContext(),
-                        notificationId, intent, PendingIntent.FLAG_IMMUTABLE);
-        return pendingIntent;
-    }
-
-    private List<Object> toList(JSONArray array) throws JSONException {
-        List<Object> list = new ArrayList<Object>();
-        for (int i = 0; i < array.length(); i++) {
-            Object value = array.get(i);
-            if (value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            } else if (value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            list.add(value);
-        }
-        return list;
+    public void showGlobalNotification(NotiResponseObject notiResponseObject, int id){
+        new GlobalNotification(id, notiResponseObject, configActivityMap, application).show();
     }
 
     public void track(String eventKey, ValueMap traits) {
@@ -467,7 +324,7 @@ public class Analytics {
                     cacheValueMap.put("event_data", traits);
                     cacheValueMap.put("event_key", eventKey);
                     cacheValueMap.put("type", "track");
-                    sendSync(cacheValueMap);
+                    processSync(cacheValueMap);
                 }
             }
         });
@@ -484,16 +341,6 @@ public class Analytics {
         return packageInfo.versionName;
     }
 
-    public void autoSendSync() {
-        LogMobio.logD("Analytics", "Scheduler");
-        if (listDataWaitToSend.size() > 0) {
-            ArrayList<DataObject> listDataToSend = (ArrayList<DataObject>) listDataWaitToSend.clone();
-            for (DataObject dataObject : listDataToSend) {
-                //sendSync(dataObject);
-            }
-        }
-    }
-
     public Map<String, Object> parameters(Object obj) {
         Map<String, Object> map = new HashMap<>();
         for (Field field : obj.getClass().getDeclaredFields()) {
@@ -506,36 +353,33 @@ public class Analytics {
         return map;
     }
 
-    private boolean compareTwoJson(String first, String second) {
-        try {
-            JSONObject jsonObject = new JSONObject(first);
-            JSONObject jsonObject1 = new JSONObject(second);
-            Iterator<String> s = jsonObject.keys();
-            for (Iterator<String> it = s; it.hasNext(); ) {
-                String str = it.next();
-                System.out.println("key:" + str + " : value1:" + jsonObject.get(str) + ":value2:" + jsonObject1.get(str));
-                //compare value of json1 with json2
-                if (!jsonObject.get(str).equals(jsonObject1.get(str))) {
-                    return false;
-                }
-            }
-            return true;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public ArrayList<ValueMap> getPendingJsonPush() {
         String strPendingPush = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_PENDING_PUSH);
         JSONObject jsonObject = null;
         try {
             if(strPendingPush != null) {
                 jsonObject = new JSONObject(strPendingPush);
-                ValueMap vm = Analytics.getInstance().toMap(jsonObject);
+                ValueMap vm = Utils.toMap(jsonObject);
                 if (vm.get("key_pending_push") != null) {
                     return new ArrayList<>((List<ValueMap>) vm.get("key_pending_push"));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+        return new ArrayList<>();
+    }
+
+    public ArrayList<ValueMap> getEventQueue() {
+        String strPendingPush = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_EVENT_QUEUE);
+        JSONObject jsonObject = null;
+        try {
+            if(strPendingPush != null) {
+                jsonObject = new JSONObject(strPendingPush);
+                ValueMap vm = Utils.toMap(jsonObject);
+                if (vm.get("key_event_queue") != null) {
+                    return new ArrayList<>((List<ValueMap>) vm.get("key_event_queue"));
                 }
             }
         } catch (JSONException e) {
@@ -550,6 +394,13 @@ public class Analytics {
         String jsonEvent = new Gson().toJson(vm, new TypeToken<ValueMap>() {
         }.getType());
         SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
+    }
+
+    public void updateEventQueue(ArrayList<ValueMap> pendingJsonPush) {
+        ValueMap vm = new ValueMap().put("key_event_queue", pendingJsonPush);
+        String jsonEvent = new Gson().toJson(vm, new TypeToken<ValueMap>() {
+        }.getType());
+        SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_EVENT_QUEUE, jsonEvent);
     }
 
     public void processPendingJson() {
@@ -584,7 +435,7 @@ public class Analytics {
         });
     }
 
-    private void processEventAfterSync(ValueMap dataObject) {
+    private void processEventBeforeSync(ValueMap dataObject) {
         pendingJsonPush = getPendingJsonPush();
         String eventKey = (String) dataObject.get("event_key");
         ValueMap eventData = (ValueMap) dataObject.get("event_data");
@@ -617,7 +468,7 @@ public class Analytics {
             }
             String edStr = new Gson().toJson(tpEventData);
             String eventStr = new Gson().toJson(eventData);
-            if (compareTwoJson(edStr, eventStr)) {
+            if (Utils.compareTwoJson(edStr, eventStr)) {
                 eventKeyEqual = true;
                 List<ValueMap> childrens = (List<ValueMap>) tempEvent.get("children_node");
 
@@ -690,11 +541,14 @@ public class Analytics {
         if((!eventKeyEqual || !checkEvent) && pendingJsonPush.size() > 0){
             ValueMap tempPush = pendingJsonPush.get(0);
             ValueMap noti = (ValueMap) tempPush.get("noti_response");
-            String pushId = (String) tempPush.get("node_id");
-            String notiStr = new Gson().toJson(noti);
-            NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
-            notiResponseObject.setPushId(pushId);
-            showPushInApp(notiResponseObject);
+            List<String> eventsCanShow = (List<String>) tempPush.get("events_to_show");
+            if(eventsCanShow != null && eventsCanShow.contains(eventKey)) {
+                String pushId = (String) tempPush.get("node_id");
+                String notiStr = new Gson().toJson(noti);
+                NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
+                notiResponseObject.setPushId(pushId);
+                showPushInApp(notiResponseObject);
+            }
             pendingJsonPush.remove(0);
             updatePendingJsonPush(pendingJsonPush);
         }
@@ -705,34 +559,68 @@ public class Analytics {
             showGlobalPopup(notiResponseObject);
         } else {
             int randomId = (int) (Math.random()*10000);
-            showGlobalNotification(notiResponseObject, randomId);
+            new GlobalNotification(randomId, notiResponseObject, configActivityMap, application).show();
         }
     }
 
-    private void sendSync(ValueMap dataObject) {
-//        if(isAppropriateTimeToShow()){
-            processEventAfterSync(dataObject); // 2 list json
-//        }
+    public boolean sendSync(ValueMap dataObject){
         String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
         String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
         try {
             ValueMap bodyMap = new ValueMap().put("data", dataObject);
             LogMobio.logD("Analytics", "send = " + new Gson().toJson(bodyMap));
             Response<Void> response = RetrofitClient.getInstance(url).getMyApi().sendSync(Utils.getHeader(application.getApplicationContext()), bodyMap, endpoint).execute();
+            LogMobio.logD(TAG, "code = " + response.code());
             if (response.code() != 200) {
                 JSONObject jObjError = new JSONObject(response.errorBody().string());
                 LogMobio.logD(TAG, "body = " + jObjError.toString());
-            } else {
-                listDataWaitToSend.remove(dataObject);
+                return false;
             }
-            LogMobio.logD(TAG, "code = " + response.code());
+            else {
+                return true;
+            }
         } catch (IOException | JSONException e) {
             LogMobio.logD(TAG, "api dies ");
             e.printStackTrace();
+            return false;
         } catch (Exception e) {
             LogMobio.logD(TAG, "api dies hard");
             e.printStackTrace();
+            return false;
         }
+    }
+
+    private void processSync(ValueMap dataObject) {
+//        if(isAppropriateTimeToShow()){
+            processEventBeforeSync(dataObject); // 2 list json
+//        }
+
+        listDataWaitToSend = getEventQueue();
+
+        if(Utils.isOnline(application)) {
+            if(listDataWaitToSend != null && listDataWaitToSend.size() > 0){
+                for (ValueMap vm: listDataWaitToSend) {
+                    if(sendSync(vm)){
+                        listDataWaitToSend.remove(vm);
+                        updateEventQueue(listDataWaitToSend);
+                    }
+                }
+            }
+            if(!sendSync(dataObject)){
+                addEventQueue(dataObject);
+            }
+        }
+        else {
+            addEventQueue(dataObject);
+        }
+    }
+
+    private void addEventQueue(ValueMap vm){
+        if(listDataWaitToSend == null){
+            listDataWaitToSend = new ArrayList<>();
+        }
+        listDataWaitToSend.add(vm);
+        updateEventQueue(listDataWaitToSend);
     }
 
     private boolean isAppropriateTimeToShow(){
@@ -770,7 +658,7 @@ public class Analytics {
                     ((ValueMap) cacheValueMap.get("profile_info")).put("device_id", Build.ID);
                     ((ValueMap) cacheValueMap.get("profile_info")).put("push_id", profileVM.get("push_id"));
                     //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
-                    sendSync(cacheValueMap);
+                    processSync(cacheValueMap);
                     //listDataWaitToSend.add(cacheDataObject);
                 }
             });
@@ -786,7 +674,7 @@ public class Analytics {
                     cacheValueMap.put("event_data", traits);
                     cacheValueMap.put("event_key", SDK_Mobile_Test_Time_Visit_App);
                     cacheValueMap.put("type", "screen");
-                    sendSync(cacheValueMap);
+                    processSync(cacheValueMap);
                 }
             });
         }

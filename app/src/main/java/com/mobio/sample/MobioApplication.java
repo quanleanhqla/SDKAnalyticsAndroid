@@ -136,7 +136,7 @@ public class MobioApplication extends Application {
                 "}";
 
         String strPush = "{\n" +
-                "  \"pushes\": //data push in app\n" +
+                "  \"pushes\":\n" +
                 "    [{\n" +
                 "      \"type\":\"daily\",\n" +
                 "      \"time\":\"8h\",\n" +
@@ -152,7 +152,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 8 event2\",\n" +
                 "        \"content\": \"Thanh Toán Điện Thoại Viettel\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\", \"sdk_mobile_test_screen_end_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -169,7 +170,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 7 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -186,7 +188,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 6 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -203,7 +206,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 5 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -220,7 +224,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 1 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -237,7 +242,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 2 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -254,7 +260,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 9 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -271,7 +278,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 4 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -288,7 +296,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 10 event2\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"type\":\"daily\",\n" +
@@ -305,7 +314,8 @@ public class MobioApplication extends Application {
                 "        \"title\": \"CTKM 3 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
-                "      }\n" +
+                "      },\n" +
+                "      \"events_to_show\":[\"sdk_mobile_test_screen_start_in_app\"]\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";

@@ -30,7 +30,6 @@ public class NotificationService extends NotificationListenerService {
 
     }
     @Override
-
     public void onNotificationPosted(StatusBarNotification sbn) {
         String pack = sbn.getPackageName();
         String ticker ="";
