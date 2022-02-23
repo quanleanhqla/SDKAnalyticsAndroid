@@ -1,19 +1,16 @@
 package com.mobio.analytics.client.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mobio.analytics.R;
 import com.mobio.analytics.client.models.NotiResponseObject;
-import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.R;
 
 import java.util.ArrayList;
 

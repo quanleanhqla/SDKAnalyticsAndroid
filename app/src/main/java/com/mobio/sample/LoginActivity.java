@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,8 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mobio.analytics.client.Analytics;
-import com.mobio.analytics.client.models.NotiResponseObject;
+import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.GpsTracker;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -153,9 +150,9 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();
 
-                    Analytics.getInstance().identify(new ValueMap().put("email", userName).put("name", userName));
+                    MobioSDKClient.getInstance().identify(new ValueMap().put("email", userName).put("name", userName));
 
-                    Analytics.getInstance().track(Analytics.SDK_Mobile_Test_Click_Button_In_App, new ValueMap().put("button_name", "login button")
+                    MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Click_Button_In_App, new ValueMap().put("button_name", "login button")
                     .put("screen_name", LoginActivity.class.getSimpleName()).put("status", "success"));
                     //Analytics.with(LoginActivity.this).track("Login success");
                 }

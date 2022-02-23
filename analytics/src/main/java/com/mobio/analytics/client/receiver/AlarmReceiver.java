@@ -3,14 +3,12 @@ package com.mobio.analytics.client.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ValueMap;
-import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 
@@ -43,9 +41,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                         NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
                         notiResponseObject.setPushId(pushId);
                         if (SharedPreferencesUtils.getBool(context, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                            Analytics.getInstance().showGlobalPopup(notiResponseObject);
+                            MobioSDKClient.getInstance().showGlobalPopup(notiResponseObject);
                         } else {
-                            Analytics.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
+                            MobioSDKClient.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
                         }
                         listPendingNoti.remove(0);
                         ValueMap pendingPush = new ValueMap().put("key_pending_push", listPendingNoti);

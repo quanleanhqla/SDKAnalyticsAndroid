@@ -3,8 +3,6 @@ package com.mobio.analytics.client.view;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -17,8 +15,7 @@ import android.widget.Toast;
 
 import androidx.core.view.ViewCompat;
 
-import com.mobio.analytics.R;
-import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -188,7 +185,7 @@ public class HtmlController {
 
         @JavascriptInterface
         public void identifyUser(String name, String email){
-            Analytics.getInstance().identify(new ValueMap().put("name", name).put("email", email));
+            MobioSDKClient.getInstance().identify(new ValueMap().put("name", name).put("email", email));
         }
 
         @SuppressLint("ResourceType")

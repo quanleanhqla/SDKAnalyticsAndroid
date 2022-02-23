@@ -7,16 +7,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 
-import com.google.gson.Gson;
-import com.mobio.analytics.client.Analytics;
-import com.mobio.analytics.client.models.NotiResponseObject;
+import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.Utils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class TerminateService extends Service {
     private AlarmManager alarmManager;
@@ -41,7 +38,7 @@ public class TerminateService extends Service {
     public void onTaskRemoved(Intent rootIntent) {
         LogMobio.logD("TerminateService", "onTaskRemoved");
         try {
-            ArrayList<ValueMap> pendingJsonPush = Analytics.getInstance().getPendingJsonPush();
+            ArrayList<ValueMap> pendingJsonPush = MobioSDKClient.getInstance().getPendingJsonPush();
             if (pendingJsonPush.size() > 0) {
                 int countNoti = pendingJsonPush.size();
                 long maxInterval = 60 * 1000;

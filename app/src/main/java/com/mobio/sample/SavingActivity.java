@@ -1,6 +1,5 @@
 package com.mobio.sample;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
@@ -12,11 +11,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 
-import com.mobio.analytics.client.Analytics;
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;

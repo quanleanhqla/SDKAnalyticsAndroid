@@ -4,17 +4,11 @@ package com.mobio.sample;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.mobio.analytics.client.Analytics;
-import com.mobio.analytics.client.utility.LogMobio;
 
 public class HomeActivity extends AppCompatActivity {
     private CombineView cvSendMoney;

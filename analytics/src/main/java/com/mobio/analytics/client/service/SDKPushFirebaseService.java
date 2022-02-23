@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -80,14 +80,14 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                     }
                 }
 
-                Analytics.getInstance().track(Analytics.SDK_Mobile_Test_Receive_Push_In_App, new ValueMap().put("push_id", "abc")
+                MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Receive_Push_In_App, new ValueMap().put("push_id", "abc")
                         .put("device", "Android")
                         .put("action_time", Utils.getTimeUTC()));
 
                 if (SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                    Analytics.getInstance().showGlobalPopup(notiResponseObject);
+                    MobioSDKClient.getInstance().showGlobalPopup(notiResponseObject);
                 } else {
-                    Analytics.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
+                    MobioSDKClient.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -122,10 +122,10 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
             }
 
             if(SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                Analytics.getInstance().showGlobalPopup(notiResponseObject);
+                MobioSDKClient.getInstance().showGlobalPopup(notiResponseObject);
             }
             else {
-                Analytics.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
+                MobioSDKClient.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
             }
         }
 

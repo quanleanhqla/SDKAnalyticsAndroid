@@ -1,34 +1,24 @@
 package com.mobio.analytics.client;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
-import android.net.wifi.WifiManager;
+import android.net.Uri;
 import android.os.Build;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mobio.analytics.R;
-import com.mobio.analytics.client.activities.TransparentDeeplinkHandleActivity;
 import com.mobio.analytics.client.models.AppObject;
 import com.mobio.analytics.client.models.DataObject;
 import com.mobio.analytics.client.models.DeviceObject;
-import com.mobio.analytics.client.models.JourneyObject;
 import com.mobio.analytics.client.models.NotiResponseObject;
 import com.mobio.analytics.client.models.OsObject;
 import com.mobio.analytics.client.models.PropertiesObject;
@@ -36,18 +26,12 @@ import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.receiver.NetworkChangeReceiver;
-import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
-import com.mobio.analytics.client.service.ClickNotificationService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 import com.mobio.analytics.client.view.GlobalNotification;
 import com.mobio.analytics.network.RetrofitClient;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,7 +40,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -67,8 +50,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import retrofit2.Response;
 
-public class Analytics {
-    private static final String TAG = Analytics.class.getName();
+public class MobioSDKClient {
+    private static final String TAG = MobioSDKClient.class.getName();
     public static final String DEMO_EVENT = "android_event";
     public static final String SDK_Mobile_Test_Click_Button_In_App = "sdk_mobile_test_click_button_in_app";
     public static final String SDK_Mobile_Test_Identify_App = "sdk_mobile_test_identify_app";
@@ -97,9 +80,9 @@ public class Analytics {
     public static final int REQUEST_CODE = 1001;
 
     @SuppressLint("StaticFieldLeak")
-    static volatile Analytics singleton = null;
+    static volatile MobioSDKClient singleton = null;
     private Application application;
-    private AnalyticsLifecycleCallback analyticsLifecycleCallback;
+    private MobioSDKLifecycleCallback mobioSDKLifecycleCallback;
     private boolean shouldTrackAppLifecycle;
     private boolean shouldTrackScreenLifecycle;
     private boolean shouldTrackDeepLink;
@@ -125,8 +108,8 @@ public class Analytics {
     private final ExecutorService analyticsExecutor;
     private final ScheduledExecutorService sendSyncScheduler;
 
-    public static Analytics getInstance() {
-        synchronized (Analytics.class) {
+    public static MobioSDKClient getInstance() {
+        synchronized (MobioSDKClient.class) {
             if (singleton == null) {
                 singleton = new Builder().build();
             }
@@ -134,7 +117,7 @@ public class Analytics {
         return singleton;
     }
 
-    public Analytics(Builder builder) {
+    public MobioSDKClient(Builder builder) {
         application = builder.mApplication;
         shouldTrackAppLifecycle = builder.mShouldTrackAppLifecycle;
         shouldTrackScreenLifecycle = builder.mShouldTrackScreenLifecycle;
@@ -165,10 +148,10 @@ public class Analytics {
 //            }
 //        }, intervalSecond, intervalSecond, TimeUnit.SECONDS);
 
-        analyticsLifecycleCallback = new AnalyticsLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
+        mobioSDKLifecycleCallback = new MobioSDKLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
                 shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application, configActivityMap);
 
-        application.registerActivityLifecycleCallbacks(analyticsLifecycleCallback);
+        application.registerActivityLifecycleCallbacks(mobioSDKLifecycleCallback);
 
         if (application.getApplicationContext() != null) {
             alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
@@ -300,14 +283,14 @@ public class Analytics {
     }
 
     public void showGlobalPopup(NotiResponseObject notiResponseObject) {
-        if (analyticsLifecycleCallback != null) {
-            analyticsLifecycleCallback.showPopup(notiResponseObject);
+        if (mobioSDKLifecycleCallback != null) {
+            mobioSDKLifecycleCallback.showPopup(notiResponseObject);
         }
     }
 
     private void showListAdsPopup(ArrayList<NotiResponseObject> notiResponseObjectArrayList) {
-        if (analyticsLifecycleCallback != null) {
-            analyticsLifecycleCallback.showPopup(notiResponseObjectArrayList);
+        if (mobioSDKLifecycleCallback != null) {
+            mobioSDKLifecycleCallback.showPopup(notiResponseObjectArrayList);
         }
     }
 
@@ -559,7 +542,7 @@ public class Analytics {
             showGlobalPopup(notiResponseObject);
         } else {
             int randomId = (int) (Math.random()*10000);
-            new GlobalNotification(randomId, notiResponseObject, configActivityMap, application).show();
+            showGlobalNotification(notiResponseObject, randomId);
         }
     }
 
@@ -665,6 +648,36 @@ public class Analytics {
         }
     }
 
+    public void trackDeepLink(Activity activity) {
+        Intent intent = activity.getIntent();
+        if (intent == null || intent.getData() == null) {
+            LogMobio.logD(TAG, "deeplink 1");
+            return;
+        }
+
+        Uri referrer = Utils.getReferrer(activity);
+        if (referrer != null) {
+            //Todo save this link
+            LogMobio.logD(TAG, referrer.toString());
+        }
+
+        Uri uri = intent.getData();
+        LogMobio.logD(TAG, uri.toString());
+        try {
+            for (String parameter : uri.getQueryParameterNames()) {
+                String value = uri.getQueryParameter(parameter);
+                if (value != null && !value.trim().isEmpty()) {
+                    //Todo save
+                    LogMobio.logD(TAG, "parameter: " + parameter + " value: " + value);
+                }
+            }
+        } catch (Exception e) {
+            LogMobio.logE(TAG, e.toString());
+        }
+
+        //analytics.track("Deep Link Opened");
+    }
+
     void recordScreen(ValueMap traits) {
         if (cacheValueMap != null) {
             Future<?> future = analyticsExecutor.submit(new Runnable() {
@@ -707,17 +720,17 @@ public class Analytics {
             SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
             SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
             //track(DEMO_EVENT, TYPE_APP_LIFECYCLE,"Application updated");
-            track(Analytics.SDK_Mobile_Test_Open_Update_App, new ValueMap().put("build", currentVersionName)
+            track(MobioSDKClient.SDK_Mobile_Test_Open_Update_App, new ValueMap().put("build", currentVersionName)
                     .put("version", String.valueOf(currentVersionCode)));
         }
     }
 
-    public static void setSingletonInstance(Analytics analytics) {
-        synchronized (Analytics.class) {
+    public static void setSingletonInstance(MobioSDKClient mobioSDKClient) {
+        synchronized (MobioSDKClient.class) {
             if (singleton != null) {
                 throw new IllegalStateException("Singleton instance already exists.");
             }
-            singleton = analytics;
+            singleton = mobioSDKClient;
         }
     }
 
@@ -804,8 +817,8 @@ public class Analytics {
             return this;
         }
 
-        public Analytics build() {
-            return new Analytics(this);
+        public MobioSDKClient build() {
+            return new MobioSDKClient(this);
         }
     }
 }

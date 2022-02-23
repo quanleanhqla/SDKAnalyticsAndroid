@@ -1,22 +1,16 @@
 package com.mobio.sample;
 
 import android.app.Application;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.mobio.analytics.client.Analytics;
+import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.ScreenConfigObject;
-import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MobioApplication extends Application {
@@ -29,7 +23,7 @@ public class MobioApplication extends Application {
         screenConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home", "HomeActivity", new int[] {10}, HomeActivity.class, false));
         screenConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer", "SendMoneyInActivity", new int[] {10}, SendMoneyInActivity.class, false));
 
-        Analytics.Builder builder = new Analytics.Builder()
+        MobioSDKClient.Builder builder = new MobioSDKClient.Builder()
                 .withApplication(this)
                 .shouldTrackDeepLink(true)
                 .shouldTrackAppLifeCycle(true)
@@ -44,7 +38,7 @@ public class MobioApplication extends Application {
 
 
 
-        Analytics.setSingletonInstance(builder.build());
+        MobioSDKClient.setSingletonInstance(builder.build());
 
         String strEvent = "{\n" +
                 "  \"events\": [{\n" +
@@ -220,7 +214,7 @@ public class MobioApplication extends Application {
                 "      \"noti_response\": {\n" +
                 "        \"type\": 0,\n" +
                 "        \"source_screen\": \"Home\",\n" +
-                "        \"des_screen\": \"Saving\",\n" +
+                "        \"des_screen\": \"Transfer\",\n" +
                 "        \"title\": \"CTKM 1 event1\",\n" +
                 "        \"content\": \"Gửi tiết kiệm nhập số tiền đi\",\n" +
                 "        \"data\": \"Hello home\" \n" +
@@ -320,7 +314,7 @@ public class MobioApplication extends Application {
                 "  ]\n" +
                 "}";
 
-        Analytics.getInstance().setBothEventAndPushJson(strEvent, strPush);
+        MobioSDKClient.getInstance().setBothEventAndPushJson(strEvent, strPush);
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
@@ -334,7 +328,7 @@ public class MobioApplication extends Application {
                         // Get new FCM registration token
                         String token = task.getResult();
 
-                        Analytics.getInstance().setDeviceToken(token);
+                        MobioSDKClient.getInstance().setDeviceToken(token);
 
                         LogMobio.logD("MobioApplication", token);
 
