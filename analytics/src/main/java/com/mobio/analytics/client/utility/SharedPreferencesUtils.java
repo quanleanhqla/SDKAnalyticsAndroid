@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+//42d4c8ab69ac7166
+//42d4c8ab69ac7166
+
 public class SharedPreferencesUtils {
     private static final String KEY_SP = "keysp";
     public static final String KEY_FIRST_START_APP = "keyfirststartapp";
@@ -24,6 +27,7 @@ public class SharedPreferencesUtils {
     public static final String KEY_PUSH = "key_push";
     public static final String KEY_PENDING_PUSH = "key_pending_push";
     public static final String KEY_EVENT_QUEUE = "key_event_queue";
+    public static final String KEY_JOURNEY = "key_journey";
 
     private static SharedPreferences getSharedPreferences(Context context){
         return context.getSharedPreferences(KEY_SP, Context.MODE_PRIVATE);

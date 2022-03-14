@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
 
         String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        LogMobio.logD("LoginActivity", "imei " + Utils.getIMEIDeviceId(this));
+        LogMobio.logD("LoginActivity", "deviceid " + Utils.getIMEIDeviceId(this));
 
         int status = NetworkUtil.getConnectivityStatusString(this);
         LogMobio.logD("QuanLA", status+"");

@@ -8,6 +8,7 @@ import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.NetworkUtil;
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -24,7 +25,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 LogMobio.logD("QuanLA", "Network reciever not connect");
             } else {
                 LogMobio.logD("QuanLA", "Network reciever connect");
-                ArrayList<ValueMap> listDataWaitToSend = MobioSDKClient.getInstance().getEventQueue();
+                ArrayList<ValueMap> listDataWaitToSend = MobioSDKClient.getInstance().getListFromSharePref(SharedPreferencesUtils.KEY_EVENT_QUEUE);
                 if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
                     for (ValueMap vm : listDataWaitToSend) {
                         analyticsExecutor.submit(new Runnable() {
@@ -32,7 +33,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                             public void run() {
                                 if(MobioSDKClient.getInstance().sendSync(vm)){
                                     listDataWaitToSend.remove(vm);
-                                    MobioSDKClient.getInstance().updateEventQueue(listDataWaitToSend);
+                                    MobioSDKClient.getInstance().updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_EVENT_QUEUE);
                                 }
                             }
                         });

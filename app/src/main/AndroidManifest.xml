@@ -59,6 +59,29 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter android:label="Demo Analytics">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "example://gizmos” -->
+                <data
+                    android:host="analytics"
+                    android:scheme="example" />
+            </intent-filter>
+            <intent-filter android:label="Demo Analytics">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
+                <data
+                    android:host="www.test38.mobio.vn"
+                    android:pathPrefix="/app/mobiobank"
+                    android:scheme="https"/>
+                <!-- note that the leading "/" is required for pathPrefix -->
+            </intent-filter>
         </activity>
 
         <service

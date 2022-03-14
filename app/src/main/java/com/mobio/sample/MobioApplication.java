@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.models.ScreenConfigObject;
@@ -14,9 +15,11 @@ import com.mobio.analytics.client.utility.LogMobio;
 import java.util.HashMap;
 
 public class MobioApplication extends Application {
+    private FirebaseAnalytics mFirebaseAnalytics;
     @Override
     public void onCreate() {
         super.onCreate();
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         HashMap<String, ScreenConfigObject> screenConfigObjectHashMap = new HashMap<>();
         screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {10}, LoginActivity.class, true));
@@ -123,7 +126,7 @@ public class MobioApplication extends Application {
                 "    \"length\": 5,\n" +
                 "    \"event_key\": \"sdk_mobile_test_screen_end_in_app\",\n" +
                 "    \"event_data\": {\n" +
-                "      \"screen_name\": \"Home\"\n" +
+                "      \"screen_name\": \"Saving\"\n" +
                 "    }\n" +
                 "  }\n" +
                 " ]\n" +
@@ -314,7 +317,79 @@ public class MobioApplication extends Application {
                 "  ]\n" +
                 "}";
 
+        String strJourney = "{\n" +
+                "  \"journeys\": [\n" +
+                "    {\n" +
+                "      \"journey_id\": \"23997788-f69a-4770-89cc-7ce8a00f6672\",\n" +
+                "      \"status\": \"todo\",\n" +
+                "      \"events\": [\n" +
+                "        {\n" +
+                "          \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de97\",\n" +
+                "          \"status\": \"done\",\n" +
+                "          \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "          \"event_data\": {\n" +
+                "            \"time_visit\": 10,\n" +
+                "            \"screen_name\": \"Home\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de98\",\n" +
+                "          \"status\": \"pending\",\n" +
+                "          \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "          \"event_data\": {\n" +
+                "            \"time_visit\": 10,\n" +
+                "            \"screen_name\": \"Transfer\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de96\",\n" +
+                "          \"status\": \"todo\",\n" +
+                "          \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "          \"event_data\": {\n" +
+                "            \"time_visit\": 10,\n" +
+                "            \"screen_name\": \"Home\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"journey_id\": \"23997788-f69a-4770-89cc-7ce8a00f6673\",\n" +
+                "      \"status\": \"todo\",\n" +
+                "      \"events\": [\n" +
+                "        {\n" +
+                "          \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de95\",\n" +
+                "          \"status\": \"pending\",\n" +
+                "          \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "          \"event_data\": {\n" +
+                "            \"time_visit\": 10,\n" +
+                "            \"screen_name\": \"Recharge\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de94\",\n" +
+                "          \"status\": \"todo\",\n" +
+                "          \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "          \"event_data\": {\n" +
+                "            \"time_visit\": 10,\n" +
+                "            \"screen_name\": \"Home\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"node_id\": \"42319b1e-3b46-4a3b-8081-95e08c24de93\",\n" +
+                "          \"status\": \"todo\",\n" +
+                "          \"event_key\": \"sdk_mobile_test_time_visit_app\",\n" +
+                "          \"event_data\": {\n" +
+                "            \"time_visit\": 10,\n" +
+                "            \"screen_name\": \"Saving\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
         MobioSDKClient.getInstance().setBothEventAndPushJson(strEvent, strPush);
+        MobioSDKClient.getInstance().setCurrentJsonJourney(strJourney);
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
@@ -334,5 +409,7 @@ public class MobioApplication extends Application {
 
                     }
                 });
+
+
     }
 }

@@ -26,6 +26,7 @@ import com.mobio.analytics.client.models.ValueMap;
 import com.mobio.analytics.client.models.ScreenConfigObject;
 import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.receiver.NetworkChangeReceiver;
+import com.mobio.analytics.client.receiver.UninstallIntentReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
@@ -102,6 +103,7 @@ public class MobioSDKClient {
     private ArrayList<ValueMap> currentJsonEvent;
     private ArrayList<ValueMap> currentJsonPush;
     private ArrayList<ValueMap> pendingJsonPush;
+    private ArrayList<ValueMap> currentJsonJourney;
 
     private AlarmManager alarmManager;
 
@@ -212,6 +214,14 @@ public class MobioSDKClient {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         application.registerReceiver(networkChangeReceiver, intentFilter);
+
+        UninstallIntentReceiver uninstallIntentReceiver = new UninstallIntentReceiver();
+        IntentFilter intentFilter1 = new IntentFilter();
+        intentFilter1.addAction("android.intent.action.PACKAGE_ADDED");
+        intentFilter1.addAction("android.intent.action.QUERY_PACKAGE_RESTART");
+        intentFilter1.addAction("android.intent.action.PACKAGE_REPLACED");
+        intentFilter1.addAction("android.intent.action.PACKAGE_REMOVED");
+        application.registerReceiver(uninstallIntentReceiver, intentFilter1);
     }
 
     public void setDeviceToken(String deviceToken) {
@@ -222,6 +232,28 @@ public class MobioSDKClient {
         if (pushIdVM != null) {
             pushIdVM.put("push_id", deviceToken);
             ((ValueMap) cacheValueMap.get("profile_info")).put("push_id", pushIdVM);
+        }
+    }
+
+    public void setCurrentJsonJourney(String journeyJson) {
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(journeyJson);
+            ValueMap vm = Utils.toMap(jsonObject);
+            if (vm.get("journeys") == null) {
+                return;
+            }
+
+            List<ValueMap> journeys = (List<ValueMap>) vm.get("journeys");
+            if (journeys != null && journeys.size() > 0) {
+                currentJsonJourney = new ArrayList<ValueMap>(journeys);
+            }
+
+            String jsonJourney = new Gson().toJson(currentJsonJourney, new TypeToken<ArrayList<ValueMap>>() {
+            }.getType());
+            SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_JOURNEY, jsonJourney);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -294,7 +326,7 @@ public class MobioSDKClient {
         }
     }
 
-    public void showGlobalNotification(NotiResponseObject notiResponseObject, int id){
+    public void showGlobalNotification(NotiResponseObject notiResponseObject, int id) {
         new GlobalNotification(id, notiResponseObject, configActivityMap, application).show();
     }
 
@@ -336,15 +368,15 @@ public class MobioSDKClient {
         return map;
     }
 
-    public ArrayList<ValueMap> getPendingJsonPush() {
-        String strPendingPush = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_PENDING_PUSH);
+    public ArrayList<ValueMap> getListFromSharePref(String key) {
+        String strJson = SharedPreferencesUtils.getString(application, key);
         JSONObject jsonObject = null;
         try {
-            if(strPendingPush != null) {
-                jsonObject = new JSONObject(strPendingPush);
+            if (strJson != null) {
+                jsonObject = new JSONObject(strJson);
                 ValueMap vm = Utils.toMap(jsonObject);
-                if (vm.get("key_pending_push") != null) {
-                    return new ArrayList<>((List<ValueMap>) vm.get("key_pending_push"));
+                if (vm.get(key) != null) {
+                    return new ArrayList<>((List<ValueMap>) vm.get(key));
                 }
             }
         } catch (JSONException e) {
@@ -354,43 +386,18 @@ public class MobioSDKClient {
         return new ArrayList<>();
     }
 
-    public ArrayList<ValueMap> getEventQueue() {
-        String strPendingPush = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_EVENT_QUEUE);
-        JSONObject jsonObject = null;
-        try {
-            if(strPendingPush != null) {
-                jsonObject = new JSONObject(strPendingPush);
-                ValueMap vm = Utils.toMap(jsonObject);
-                if (vm.get("key_event_queue") != null) {
-                    return new ArrayList<>((List<ValueMap>) vm.get("key_event_queue"));
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-        return new ArrayList<>();
-    }
-
-    private void updatePendingJsonPush(ArrayList<ValueMap> pendingJsonPush) {
-        ValueMap vm = new ValueMap().put("key_pending_push", pendingJsonPush);
+    public void updateListSharePref(ArrayList<ValueMap> list, String key) {
+        ValueMap vm = new ValueMap().put(key, list);
         String jsonEvent = new Gson().toJson(vm, new TypeToken<ValueMap>() {
         }.getType());
-        SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
-    }
-
-    public void updateEventQueue(ArrayList<ValueMap> pendingJsonPush) {
-        ValueMap vm = new ValueMap().put("key_event_queue", pendingJsonPush);
-        String jsonEvent = new Gson().toJson(vm, new TypeToken<ValueMap>() {
-        }.getType());
-        SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_EVENT_QUEUE, jsonEvent);
+        SharedPreferencesUtils.editString(application, key, jsonEvent);
     }
 
     public void processPendingJson() {
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                pendingJsonPush = getPendingJsonPush();
+                pendingJsonPush = getListFromSharePref(SharedPreferencesUtils.KEY_PENDING_PUSH);
                 if (pendingJsonPush.size() > 0) {
                     int countNoti = pendingJsonPush.size();
                     long maxInterval = 60 * 1000;
@@ -400,17 +407,12 @@ public class MobioSDKClient {
                     long now = System.currentTimeMillis();
 
                     for (int i = 0; i < countNoti; i++) {
-                        ValueMap noti = (ValueMap) pendingJsonPush.get(i).get("noti_response");
-                        String notiStr = new Gson().toJson(noti);
                         Intent intent = new Intent(application, AlarmReceiver.class);
                         intent.setAction("ACTION_LAUNCH_NOTI");
-                        intent.putExtra("NOTI_OBJECT", notiStr);
-                        intent.putExtra("NOTI_ID", i+((int) (Math.random() * 10000)));
-                        intent.putExtra("NODE_ID", (String) ((ValueMap) pendingJsonPush.get(i)).get("node_id"));
 
                         PendingIntent alarmIntent = PendingIntent.getBroadcast(application, i, intent, PendingIntent.FLAG_IMMUTABLE);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                            alarmManager.setExact(AlarmManager.RTC,  now + intervel * (i+1), alarmIntent);
+                            alarmManager.setExact(AlarmManager.RTC, now + intervel * (i + 1), alarmIntent);
                         }
                     }
                 }
@@ -419,7 +421,7 @@ public class MobioSDKClient {
     }
 
     private void processEventBeforeSync(ValueMap dataObject) {
-        pendingJsonPush = getPendingJsonPush();
+        pendingJsonPush = getListFromSharePref(SharedPreferencesUtils.KEY_PENDING_PUSH);
         String eventKey = (String) dataObject.get("event_key");
         ValueMap eventData = (ValueMap) dataObject.get("event_data");
         String actionTime = null;
@@ -506,7 +508,7 @@ public class MobioSDKClient {
                                             }
                                         }
                                     }
-                                    updatePendingJsonPush(pendingJsonPush);
+                                    updateListSharePref(pendingJsonPush, SharedPreferencesUtils.KEY_PENDING_PUSH);
                                 }
                                 tempChildren.put("complete", true);
                                 childrens.set(j, tempChildren);
@@ -521,11 +523,11 @@ public class MobioSDKClient {
             }
         }
 
-        if((!eventKeyEqual || !checkEvent) && pendingJsonPush.size() > 0){
+        if ((!eventKeyEqual || !checkEvent) && pendingJsonPush.size() > 0) {
             ValueMap tempPush = pendingJsonPush.get(0);
             ValueMap noti = (ValueMap) tempPush.get("noti_response");
             List<String> eventsCanShow = (List<String>) tempPush.get("events_to_show");
-            if(eventsCanShow != null && eventsCanShow.contains(eventKey)) {
+            if (eventsCanShow != null && eventsCanShow.contains(eventKey)) {
                 String pushId = (String) tempPush.get("node_id");
                 String notiStr = new Gson().toJson(noti);
                 NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
@@ -533,20 +535,20 @@ public class MobioSDKClient {
                 showPushInApp(notiResponseObject);
             }
             pendingJsonPush.remove(0);
-            updatePendingJsonPush(pendingJsonPush);
+            updateListSharePref(pendingJsonPush, SharedPreferencesUtils.KEY_PENDING_PUSH);
         }
     }
 
-    private void showPushInApp(NotiResponseObject notiResponseObject){
+    private void showPushInApp(NotiResponseObject notiResponseObject) {
         if (SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
             showGlobalPopup(notiResponseObject);
         } else {
-            int randomId = (int) (Math.random()*10000);
+            int randomId = (int) (Math.random() * 10000);
             showGlobalNotification(notiResponseObject, randomId);
         }
     }
 
-    public boolean sendSync(ValueMap dataObject){
+    public boolean sendSync(ValueMap dataObject) {
         String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
         String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
         try {
@@ -558,8 +560,7 @@ public class MobioSDKClient {
                 JSONObject jObjError = new JSONObject(response.errorBody().string());
                 LogMobio.logD(TAG, "body = " + jObjError.toString());
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         } catch (IOException | JSONException e) {
@@ -573,40 +574,90 @@ public class MobioSDKClient {
         }
     }
 
-    private void processSync(ValueMap dataObject) {
-//        if(isAppropriateTimeToShow()){
-            processEventBeforeSync(dataObject); // 2 list json
-//        }
+    private boolean checkEventExistInJourneyWeb(ValueMap data) {
+        String eventKey = (String) data.get("event_key");
+        ValueMap eventData = (ValueMap) data.get("event_data");
 
-        listDataWaitToSend = getEventQueue();
+        if (currentJsonJourney.size() == 0) {
+            return false;
+        }
 
-        if(Utils.isOnline(application)) {
-            if(listDataWaitToSend != null && listDataWaitToSend.size() > 0){
-                for (ValueMap vm: listDataWaitToSend) {
-                    if(sendSync(vm)){
-                        listDataWaitToSend.remove(vm);
-                        updateEventQueue(listDataWaitToSend);
+        for (ValueMap journey : currentJsonJourney) {
+            String statusJb = (String) journey.get("status");
+            if (statusJb == null) continue;
+            if (statusJb.equals("todo")) {
+                List<ValueMap> listEvent = (List<ValueMap>) journey.get("events");
+                if (listEvent == null || listEvent.size() == 0) {
+                    continue;
+                }
+                for (ValueMap event : listEvent) {
+                    String mkey = (String) event.get("event_key");
+                    ValueMap mData = (ValueMap) event.get("event_data");
+                    String statusEvent = (String) event.get("status");
+
+                    if (mkey == null || mData == null || statusEvent == null) continue;
+                    String edStr = new Gson().toJson(mData);
+                    String eventStr = new Gson().toJson(eventData);
+                    if (mkey.equals(eventKey)
+                            && Utils.compareTwoJson(edStr, eventStr)
+                            && statusEvent.equals("pending")) {
+                        event.put("status", "done");
+                        if(listEvent.indexOf(event)+1 < listEvent.size()){
+                            ValueMap eventNext = listEvent.get(listEvent.indexOf(event)+1);
+                            eventNext.put("status", "pending");
+                            listEvent.set(listEvent.indexOf(event)+1, eventNext);
+                        }
+                        listEvent.set(listEvent.indexOf(event), event);
+                        journey.put("events", listEvent);
+                        currentJsonJourney.set(currentJsonJourney.indexOf(journey), journey);
+                        updateListSharePref(currentJsonJourney, SharedPreferencesUtils.KEY_JOURNEY);
+                        LogMobio.logD("QuanLA", "journey true"+currentJsonJourney);
+                        return true;
                     }
                 }
             }
-            if(!sendSync(dataObject)){
+        }
+        LogMobio.logD("QuanLA", "journey false"+currentJsonJourney);
+        return false;
+    }
+
+    private void processSync(ValueMap dataObject) {
+        //        if(isAppropriateTimeToShow()){
+        if (!checkEventExistInJourneyWeb(dataObject)) {
+            LogMobio.logD("QuanLA", "1");
+            processEventBeforeSync(dataObject); // 2 list json
+        }
+        //        }
+        LogMobio.logD("QuanLA", "2");
+
+        listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.KEY_EVENT_QUEUE);
+
+        if (Utils.isOnline(application)) {
+            if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
+                for (ValueMap vm : listDataWaitToSend) {
+                    if (sendSync(vm)) {
+                        listDataWaitToSend.remove(vm);
+                        updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_EVENT_QUEUE);
+                    }
+                }
+            }
+            if (!sendSync(dataObject)) {
                 addEventQueue(dataObject);
             }
-        }
-        else {
+        } else {
             addEventQueue(dataObject);
         }
     }
 
-    private void addEventQueue(ValueMap vm){
-        if(listDataWaitToSend == null){
+    private void addEventQueue(ValueMap vm) {
+        if (listDataWaitToSend == null) {
             listDataWaitToSend = new ArrayList<>();
         }
         listDataWaitToSend.add(vm);
-        updateEventQueue(listDataWaitToSend);
+        updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_EVENT_QUEUE);
     }
 
-    private boolean isAppropriateTimeToShow(){
+    private boolean isAppropriateTimeToShow() {
         Calendar now = Calendar.getInstance();
 //        int year = now.get(Calendar.YEAR);
 //        int month = now.get(Calendar.MONTH) + 1; // Note: zero based!
@@ -616,7 +667,7 @@ public class MobioSDKClient {
         int second = now.get(Calendar.SECOND);
         int millis = now.get(Calendar.MILLISECOND);
 
-        LogMobio.logD("QuanLA", ""+hour+":"+minute+":"+second+":"+millis);
+        LogMobio.logD("QuanLA", "" + hour + ":" + minute + ":" + second + ":" + millis);
 
         return hour == 8 || hour == 13;
     }
@@ -658,7 +709,9 @@ public class MobioSDKClient {
         Uri referrer = Utils.getReferrer(activity);
         if (referrer != null) {
             //Todo save this link
-            LogMobio.logD(TAG, referrer.toString());
+            LogMobio.logD(TAG, "deep link " + referrer.toString());
+            LogMobio.logD(TAG, "deep link "+referrer.getAuthority());
+            LogMobio.logD(TAG, "deep link "+ referrer.getUserInfo());
         }
 
         Uri uri = intent.getData();
