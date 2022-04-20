@@ -54,7 +54,6 @@ public class ModelFactory {
     private static Sdk getSdk(){
         return new Sdk().putCode("123456")
                 .putSource("MobioBank")
-                .putBuild(BuildConfig.VERSION_CODE+"")
                 .putName("SDK_ANDROID")
                 .putVersion(BuildConfig.VERSION_NAME);
     }
@@ -103,6 +102,6 @@ public class ModelFactory {
     private static Identity getIdentity(Context context){
         return new Identity().putSdk(getSdk())
                 .putIdentityDetail(getIdentityDetail(context))
-                .putActionTime(Utils.getTimeUTC());
+                .putActionTime(System.currentTimeMillis());
     }
 }

@@ -31,7 +31,7 @@ public class Identity extends Properties {
         return putValue(KEY_IDENTITY_DETAIL, identity_detail);
     }
 
-    public Identity putActionTime(String actionTime){
+    public Identity putActionTime(long actionTime){
         return putValue(KEY_ACTION_TIME, actionTime);
     }
 }
