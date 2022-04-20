@@ -26,7 +26,7 @@ public class ModelFactory {
         return new Device().putChannel("app")
                 .putType("mobile")
                 .putDId("")
-                .putTId(Utils.getIMEIDeviceId(context))
+                .putTId("Quan2022")
                 .putUId(Utils.getIMEIDeviceId(context));
     }
 
@@ -34,7 +34,7 @@ public class ModelFactory {
         return new IdentityDetail().putChannel("app")
                 .putType("mobile")
                 .putDId("")
-                .putTId(Utils.getIMEIDeviceId(context))
+                .putTId("Quan2022")
                 .putUId(Utils.getIMEIDeviceId(context));
     }
 
@@ -42,7 +42,7 @@ public class ModelFactory {
         return new IdentityDetail().putChannel("app")
                 .putType("mobile")
                 .putDId("")
-                .putTId(Utils.getIMEIDeviceId(context))
+                .putTId("Quan2022")
                 .putUId(Utils.getIMEIDeviceId(context))
                 .putOs(getOs())
                 .putNetwork(getNetwork(context))
