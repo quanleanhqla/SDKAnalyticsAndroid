@@ -42,6 +42,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -265,8 +266,7 @@ public class Utils {
     }
 
     public static String getTimeZone() {
-        LogMobio.logD("Utils", "Timezone " + TimeZone.getDefault().getDisplayName());
-        return TimeZone.getDefault().getDisplayName();
+        return TimeZone.getDefault().getID();
     }
 
     public static String getTimeUTC() {
@@ -342,7 +342,7 @@ public class Utils {
     }
 
     public static String getLocale(Context context){
-        Locale current = context.getResources().getConfiguration().locale;
-        return current.getDisplayName();
+        //Locale current = context.getResources().getConfiguration().locale;
+        return Locale.getDefault().getLanguage();
     }
 }

@@ -187,6 +187,7 @@ public class LoginActivity extends AppCompatActivity {
 //                    }
 //                });
 
+                MobioSDKClient.getInstance().identify();
             }
         });
     }

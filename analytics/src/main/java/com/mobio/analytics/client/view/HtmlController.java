@@ -1,19 +1,33 @@
 package com.mobio.analytics.client.view;
 
+import static android.content.Context.DOWNLOAD_SERVICE;
+
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
+import android.webkit.URLUtil;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -93,6 +107,7 @@ public class HtmlController {
             "</body>\n" +
             "</html>";
     private static final String keyWordSubstr = "<div id=\"m_modal\">";
+    private static final int ID_OF_PROGRESSBAR = 336699;
 
     private Activity activity;
     private Push push;
@@ -142,6 +157,20 @@ public class HtmlController {
         container.addView(imageView, params);
     }
 
+    private void showLoading(ViewGroup container){
+        ProgressBar progressBar = new ProgressBar(activity);
+        progressBar.setId(ID_OF_PROGRESSBAR);
+        progressBar.getIndeterminateDrawable().setColorFilter(Color.parseColor("#A6ACAF"), android.graphics.PorterDuff.Mode.MULTIPLY);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        container.addView(progressBar, params);
+    }
+
+    private void hideLoading(ViewGroup container){
+        container.removeView(container.findViewById(ID_OF_PROGRESSBAR));
+    }
+
     private void createWebview(ViewGroup container, String assetPath, Push push) {
         activity.runOnUiThread(new Runnable() {
             @SuppressLint({"SetJavaScriptEnabled", "ResourceType"})
@@ -151,8 +180,8 @@ public class HtmlController {
                 webView.setId(ViewCompat.generateViewId());
                 webView.setFocusableInTouchMode(true);
                 webView.setBackgroundColor(Color.parseColor("#80000000"));
-                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-                webView.requestFocus();
+//                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+                webView.setVisibility(View.GONE);
 
                 WebSettings webSettings = webView.getSettings();
                 webSettings.setJavaScriptEnabled(true);
@@ -160,6 +189,15 @@ public class HtmlController {
                 webSettings.setLoadWithOverviewMode(true);
                 webSettings.setDisplayZoomControls(false);
                 webSettings.setDomStorageEnabled(true);
+
+                CookieManager cookieManager = CookieManager.getInstance();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    cookieManager.setAcceptThirdPartyCookies(webView, true);
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    webSettings.setMediaPlaybackRequiresUserGesture(false);
+                }
                 webSettings.setAllowFileAccess(true);
 
                 webView.addJavascriptInterface(new JS_INTERFACE(activity), "sdk");
@@ -199,7 +237,6 @@ public class HtmlController {
                             HTML_ENCODING, null);
                 }
 
-
                 RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT);
                 webView.setLayoutParams(layoutParams);
@@ -216,6 +253,13 @@ public class HtmlController {
                         return false;
                     }
                 });
+                webView.setDownloadListener(new DownloadListener() {
+                    @Override
+                    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+                        download(url, userAgent, contentDisposition, mimetype, contentLength);
+                    }
+                });
+
                 webView.setVisibility(View.GONE);
                 container.addView(webView);
                 if (content_type.equals(Push.Alert.TYPE_HTML)){
@@ -223,6 +267,26 @@ public class HtmlController {
                 }
             }
         });
+    }
+
+    private void download(String url, String userAgent, String contentDisposition, String mimetype, long contentLength){
+        DownloadManager.Request request = new DownloadManager.Request(
+                Uri.parse(url));
+        request.setMimeType(mimetype);
+        String cookies = CookieManager.getInstance().getCookie(url);
+        request.addRequestHeader("cookie", cookies);
+        request.addRequestHeader("User-Agent", userAgent);
+        request.setDescription("Downloading File...");
+        request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
+        request.allowScanningByMediaScanner();
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(
+                        url, contentDisposition, mimetype));
+        DownloadManager dm = (DownloadManager) activity.getSystemService(DOWNLOAD_SERVICE);
+        dm.enqueue(request);
+
+        LogMobio.logD("QuanLA", "downloading");
     }
 
     private void dismissMessage() {
