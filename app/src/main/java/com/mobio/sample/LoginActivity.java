@@ -1,5 +1,6 @@
 package com.mobio.sample;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -17,11 +18,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mobio.analytics.client.MobioSDKClient;
-import com.mobio.analytics.client.models.ValueMap;
+import com.mobio.analytics.client.model.digienty.Properties;
+import com.mobio.analytics.client.model.digienty.ValueMap;
 import com.mobio.analytics.client.utility.GpsTracker;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.NetworkUtil;
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 
 import java.io.IOException;
@@ -49,20 +55,25 @@ public class LoginActivity extends AppCompatActivity {
         initView();
         addListener();
 
-        String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        LogMobio.logD("LoginActivity", "deviceid " + Utils.getIMEIDeviceId(this));
 
-        int status = NetworkUtil.getConnectivityStatusString(this);
-        LogMobio.logD("QuanLA", status+"");
-
+//        ArrayList<Event.Dynamic> listDynamic = new ArrayList<>();
+//        listDynamic.add(new Event.Dynamic().putEventKey("sdk_mobile_open_app").putEventData(
+//                new ValueMap().put("name", "name").put("email", "email").put("action_time", "123456789")));
+//        Event eventDynamic = new Event().putSource("popup_builder")
+//                .putType("dynamic").putActionTime("123456789")
+//                .putDynamic(listDynamic);
+//
+//        ArrayList<Event> listEvent = new ArrayList<>();
+//        listEvent.add(eventDynamic);
+//        MobioSDKClient.getInstance().trackVersion1(listEvent);
     }
 
     private void getAddress(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            if(addresses != null && addresses.size() > 0) {
+            if (addresses != null && addresses.size() > 0) {
                 Address obj = addresses.get(0);
                 String add = obj.getAddressLine(0);
                 add = add + "\n" + obj.getCountryName();
@@ -88,9 +99,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public void getLocation(){
+    public void getLocation() {
         gpsTracker = new GpsTracker(LoginActivity.this);
-        if(gpsTracker.canGetLocation()){
+        if (gpsTracker.canGetLocation()) {
             double latitude = gpsTracker.getLatitude();
             double longitude = gpsTracker.getLongitude();
             runOnUiThread(new Runnable() {
@@ -102,13 +113,13 @@ public class LoginActivity extends AppCompatActivity {
             });
             getAddress(latitude, longitude);
 
-        }else{
+        } else {
             gpsTracker.showSettingsAlert();
             LogMobio.logD("LoginActivity", "error");
         }
     }
 
-    private void initView(){
+    private void initView() {
         btnLogin = findViewById(R.id.btn_login);
         etUsername = findViewById(R.id.et_username);
         etPassword = findViewById(R.id.et_password);
@@ -118,10 +129,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
         try {
-            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -133,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
-    private void addListener(){
+    private void addListener() {
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,26 +152,22 @@ public class LoginActivity extends AppCompatActivity {
                 String userName = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
 
-                LogMobio.logD("LoginActivity","userName" + userName);
-                LogMobio.logD("LoginActivity","password" + password);
+                LogMobio.logD("LoginActivity", "userName" + userName);
+                LogMobio.logD("LoginActivity", "password" + password);
 
-                if(!TextUtils.isEmpty(userName) &&
+                if (!TextUtils.isEmpty(userName) &&
                         !TextUtils.isEmpty(password) &&
-                        isEmailValid(userName)){
+                        isEmailValid(userName)) {
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();
 
-                    MobioSDKClient.getInstance().identify(new ValueMap().put("email", userName).put("name", userName));
-
-                    MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Click_Button_In_App, new ValueMap().put("button_name", "login button")
-                    .put("screen_name", LoginActivity.class.getSimpleName()).put("status", "success"));
+                    MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Click_Button_In_App, new Properties().putValue("button_name", "login button")
+                            .putValue("screen_name", LoginActivity.class.getSimpleName()).putValue("status", "success"));
                     //Analytics.with(LoginActivity.this).track("Login success");
-                }
-                else {
-                    if(TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)){
+                } else {
+                    if (TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)) {
                         Toast.makeText(LoginActivity.this, "Mail or password is null", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
+                    } else {
                         Toast.makeText(LoginActivity.this, "Invalid mail", Toast.LENGTH_SHORT).show();
                     }
                 }

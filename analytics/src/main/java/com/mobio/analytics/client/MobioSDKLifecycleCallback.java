@@ -5,13 +5,10 @@ import static android.content.Context.ALARM_SERVICE;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Application;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,31 +17,26 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.webkit.WebView;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mobio.analytics.R;
-import com.mobio.analytics.client.adapters.AdsAdapter;
-import com.mobio.analytics.client.models.NotiResponseObject;
-import com.mobio.analytics.client.models.ScreenConfigObject;
-import com.mobio.analytics.client.models.ValueMap;
+import com.mobio.analytics.client.model.digienty.Push;
+import com.mobio.analytics.client.model.old.NotiResponseObject;
+import com.mobio.analytics.client.model.old.ScreenConfigObject;
+import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 import com.mobio.analytics.client.view.popup.CustomDialog;
 import com.mobio.analytics.client.view.HtmlController;
-import com.mobio.analytics.client.view.popup.PermissionDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,17 +85,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
         if (!alreadyLaunch) {
             alreadyLaunch = true;
-
-            PackageInfo packageInfo = mobioSDKClient.getPackageInfo(application);
-            String currentVersionName = packageInfo.versionName;
-            int currentVersionCode = packageInfo.versionCode;
-
-            SharedPreferencesUtils.editBool(application.getApplicationContext(), SharedPreferencesUtils.KEY_FIRST_START_APP, true);
-            SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
-            SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
-
-            mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_First_App, new ValueMap().put("build", String.valueOf(currentVersionCode))
-                                                                                      .put("version", currentVersionName));
+            doFirstOpen();
         }
         mobioSDKClient.trackApplicationLifecycleEvents();
         if (trackDeepLinks) {
@@ -112,64 +94,24 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         activity.startService(new Intent(activity, TerminateService.class));
     }
 
-    public void showPopup(ArrayList<NotiResponseObject> notiResponseObjectArrayList){
-        if(currentActivity != null){
-            currentActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Dialog dialog = new Dialog(currentActivity);
-                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    dialog.setCancelable(false);
-                    dialog.setContentView(R.layout.custom_list_ads);
+    private void doFirstOpen(){
+        PackageInfo packageInfo = mobioSDKClient.getPackageInfo(application);
+        String currentVersionName = packageInfo.versionName;
+        int currentVersionCode = packageInfo.versionCode;
 
-                    ImageView imvClose = (ImageView) dialog.findViewById(R.id.imv_close);
-                    RecyclerView recyclerView = (RecyclerView) dialog.findViewById(R.id.rv_ads);
-
-                    AdsAdapter adsAdapter = new AdsAdapter(notiResponseObjectArrayList, new AdsAdapter.OnItemClick() {
-                        @Override
-                        public void onClick(NotiResponseObject notiResponseObject) {
-                            dialog.dismiss();
-                            Class des = null;
-                            for(int i = 0; i < screenConfigObjectHashMap.values().size(); i++){
-                                ScreenConfigObject screenConfigObject = (ScreenConfigObject) screenConfigObjectHashMap.values().toArray()[i];
-                                if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
-                                    des = screenConfigObject.getClassName();
-                                    LogMobio.logD("ABCDE", screenConfigObject.getActivityName());
-                                    break;
-                                }
-                            }
-                            if(des != null){
-                                Intent desIntent = new Intent(currentActivity, des);
-                                currentActivity.startActivity(desIntent);
-                            }
-                        }
-                    });
-                    recyclerView.setLayoutManager(new LinearLayoutManager(currentActivity));
-                    recyclerView.setAdapter(adsAdapter);
-
-                    imvClose.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog.dismiss();
-                            //todo
-                            //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click No on Popup");
-
-                        }
-                    });
-
-                    dialog.show();
-                }
-            });
-        }
+        SharedPreferencesUtils.editBool(application.getApplicationContext(), SharedPreferencesUtils.KEY_FIRST_START_APP, true);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
+        SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
+        mobioSDKClient.identify();
+        mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_First_App, new Properties().putValue("build", String.valueOf(currentVersionCode))
+                .putValue("version", currentVersionName));
     }
 
-
-    private Class findDes(NotiResponseObject notiResponseObject){
-        Class des = null;
+    private Class<?> findDes(Push push){
+        Class<?> des = null;
         for(int i = 0; i < screenConfigObjectHashMap.values().size(); i++){
             ScreenConfigObject screenConfigObject = (ScreenConfigObject) screenConfigObjectHashMap.values().toArray()[i];
-            if(screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())){
+            if(screenConfigObject.getTitle().equals(push.getDesScreen())){
                 des = screenConfigObject.getClassName();
                 break;
             }
@@ -177,24 +119,22 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         return des;
     }
 
-    public void showPopup(NotiResponseObject notiResponseObject) {
+    public void showPopup(Push push) {
         if(currentActivity != null) {
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Push.Alert alert = push.getAlert();
+                    if(alert == null) return;
 
-                    if(notiResponseObject.getType()==NotiResponseObject.TYPE_NATIVE) {
-                        new CustomDialog(currentActivity, notiResponseObject, findDes(notiResponseObject)).show();
+                    String contentType = alert.getContentType();
+                    if(contentType == null) return;
+                    if(contentType.equals(Push.Alert.TYPE_POPUP) || contentType.equals(Push.Alert.TYPE_HTML)) {
+                        new HtmlController(currentActivity, push, "").showHtmlView();
                     }
                     else {
-                        new HtmlController(currentActivity, notiResponseObject, "", findDes(notiResponseObject)).showHtmlView();
+                        new CustomDialog(currentActivity, push, findDes(push)).show();
                     }
-
-//                    analytics.track(Analytics.SDK_Mobile_Test_Open_Popup_App,
-//                            new ValueMap().put("action_time", Utils.getTimeUTC())
-//                    .put("push_id", notiResponseObject.getPushId())
-//                    .put("device", "Android"));
-                    LogMobio.logD("QuanLA", "show popup "+notiResponseObject.getPushId());
                 }
             });
         }
@@ -222,22 +162,11 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
             LogMobio.logD(TAG, "app went to foreground");
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, true);
             if (shouldTrackApplicationLifecycleEvents) {
-                mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_App, new ValueMap().put("build", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
-                        .put("version", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
+                mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_App, new Properties().putValue("build", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
+                        .putValue("version", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
             }
-            if(!Utils.areNotificationsEnabled(application)){
-                if(currentActivity != null) {
-                    currentActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            new PermissionDialog(currentActivity).show();
-                        }
-                    });
-                }
-            }
-            else {
-                //todo get devicetoken
-            }
+
+            mobioSDKClient.trackNotificationOnOff(currentActivity);
         }
         numStarted++;
 
@@ -246,8 +175,8 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
             if (screenConfigObject != null) {
 
                 if (shouldTrackScreenLifecycleEvents) {
-                    mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_Start_In_App, new ValueMap().put("screen_name", screenConfigObject.getTitle())
-                            .put("time", Utils.getTimeUTC()));
+                    mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_Start_In_App, new Properties().putValue("screen_name", screenConfigObject.getTitle())
+                            .putValue("time", Utils.getTimeUTC()));
                 }
 
                 if (shouldRecordScreenViews) {
@@ -263,7 +192,8 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                                 if (screenConfigObject.getVisitTime().length > 0) {
                                     for (int i = 0; i < screenConfigObject.getVisitTime().length; i++) {
                                         if (screenConfigObject.getVisitTime()[i] == countSecond) {
-                                            mobioSDKClient.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
+                                            mobioSDKClient.recordScreen(new Properties().putValue("time_visit", countSecond)
+                                                    .putValue("screen_name", screenConfigObject.getTitle()));
                                         }
                                     }
                                 }
@@ -280,9 +210,6 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         if (shouldTrackScrollEvent) {
             trackScrollEvent(activity);
         }
-
-        LogMobio.logD(TAG, "onresume");
-
     }
 
     public void trackScrollEvent(Activity activity) {
@@ -302,11 +229,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 
                                 scrollRange[0] = viewHeight - scrollviewHeight;
 
-                                if (Build.VERSION.SDK_INT < 16) {
-                                    view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                                } else {
-                                    view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                                }
+                                view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
 
                             }
@@ -371,7 +294,6 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        LogMobio.logD(TAG, "onstop");
         numStarted--;
 
         if (numStarted == 0) {
@@ -386,13 +308,8 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         if (shouldTrackScreenLifecycleEvents && screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0) {
             ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
             if (screenConfigObject != null) {
-                mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_End_In_App, new ValueMap().put("screen_name", screenConfigObject.getTitle())
-                        .put("time", Utils.getTimeUTC()));
-
-//                if (shouldRecordScreenViews) {
-//                    analytics.recordScreen(new ValueMap().put("time_visit", countSecond).put("screen_name", screenConfigObject.getTitle()));
-//                }
-
+                mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_End_In_App, new Properties().putValue("screen_name", screenConfigObject.getTitle())
+                        .putValue("time", Utils.getTimeUTC()));
             }
         }
 

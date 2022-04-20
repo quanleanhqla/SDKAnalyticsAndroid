@@ -1,6 +1,7 @@
 package com.mobio.sample;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 
@@ -9,17 +10,18 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mobio.analytics.client.MobioSDKClient;
-import com.mobio.analytics.client.models.ScreenConfigObject;
+import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.Utils;
 
 import java.util.HashMap;
 
 public class MobioApplication extends Application {
     private FirebaseAnalytics mFirebaseAnalytics;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         HashMap<String, ScreenConfigObject> screenConfigObjectHashMap = new HashMap<>();
         screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {10}, LoginActivity.class, true));
@@ -391,12 +393,20 @@ public class MobioApplication extends Application {
         MobioSDKClient.getInstance().setBothEventAndPushJson(strEvent, strPush);
         MobioSDKClient.getInstance().setCurrentJsonJourney(strJourney);
 
+        Utils.listAllActivities(this);
+        initAndGenTokenFirebase(this);
+    }
+
+    private void initAndGenTokenFirebase(Context context){
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        mFirebaseAnalytics.setUserProperty("mobio_id", Utils.getIMEIDeviceId(context));
+
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
                     public void onComplete(@NonNull Task<String> task) {
                         if (!task.isSuccessful()) {
-                            LogMobio.logD("MobioApplication", "Fetching FCM registration token failed" + task.getException());
+                            LogMobio.logD("Firbase ", "Fetching FCM registration token failed" + task.getException());
                             return;
                         }
 
@@ -404,12 +414,11 @@ public class MobioApplication extends Application {
                         String token = task.getResult();
 
                         MobioSDKClient.getInstance().setDeviceToken(token);
+                        mFirebaseAnalytics.setUserProperty("token_id", token);
 
-                        LogMobio.logD("MobioApplication", token);
+                        LogMobio.logD("Firbase ", token);
 
                     }
                 });
-
-
     }
 }

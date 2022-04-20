@@ -33,7 +33,7 @@ public class ClickNotificationService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_FOO.equals(action)) {
-                final Class param1 = (Class) intent.getSerializableExtra(EXTRA_PARAM1);
+                final Class<?> param1 = (Class<?>) intent.getSerializableExtra(EXTRA_PARAM1);
                 final String param2 = intent.getStringExtra(EXTRA_PARAM2);
                 final int param3 = intent.getIntExtra(EXTRA_PARAM3, 0);
                 handleActionFoo(param1, param2, param3);
@@ -49,7 +49,7 @@ public class ClickNotificationService extends IntentService {
      * Handle action Foo in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionFoo(Class param1, String param2, int param3) {
+    private void handleActionFoo(Class<?> param1, String param2, int param3) {
         // TODO: Handle action Foo
         LogMobio.logD("QuanLA", "click "+param2+"\nid "+param3);
         Intent i = new Intent(this, param1);

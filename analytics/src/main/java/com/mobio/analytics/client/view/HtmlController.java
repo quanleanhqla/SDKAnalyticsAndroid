@@ -2,24 +2,35 @@ package com.mobio.analytics.client.view;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.core.view.ViewCompat;
 
+import com.google.gson.Gson;
+import com.mobio.analytics.R;
 import com.mobio.analytics.client.MobioSDKClient;
-import com.mobio.analytics.client.models.NotiResponseObject;
-import com.mobio.analytics.client.models.ValueMap;
+import com.mobio.analytics.client.model.digienty.Event;
+import com.mobio.analytics.client.model.digienty.Properties;
+import com.mobio.analytics.client.model.digienty.Push;
+import com.mobio.analytics.client.model.digienty.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,28 +95,27 @@ public class HtmlController {
     private static final String keyWordSubstr = "<div id=\"m_modal\">";
 
     private Activity activity;
-    private NotiResponseObject notiResponseObject;
+    private Push push;
     private String assetPath;
-    private Class des;
+    private WebView webView;
 
-    public HtmlController(Activity activity, NotiResponseObject notiResponseObject, String assetPath, Class des) {
+    public HtmlController(Activity activity, Push push, String assetPath) {
         this.activity = activity;
-        this.notiResponseObject = notiResponseObject;
+        this.push = push;
         this.assetPath = assetPath;
-        this.des = des;
     }
 
-    public void showHtmlView(){
+    public void showHtmlView() {
         getWindowRoot(activity).addView(createContainer());
     }
 
-    private View createContainer(){
+    private View createContainer() {
         RelativeLayout containerLayout = new RelativeLayout(activity);
         containerLayout.setId(VIEW_ID);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         containerLayout.setLayoutParams(layoutParams);
-        createWebview(containerLayout, assetPath, notiResponseObject, des);
+        createWebview(containerLayout, assetPath, push);
         return containerLayout;
     }
 
@@ -116,14 +126,32 @@ public class HtmlController {
                 .getRootView();
     }
 
-    private void createWebview(ViewGroup container, String assetPath, NotiResponseObject notiResponseObject, Class des){
+    private void createButtonClose(ViewGroup container){
+        ImageView imageView = new ImageView(activity);
+        imageView.setImageResource(R.drawable.ic_circle_xmark_solid);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismissMessage();
+            }
+        });
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+        params.setMargins(20, 100, 20, 20);
+        container.addView(imageView, params);
+    }
+
+    private void createWebview(ViewGroup container, String assetPath, Push push) {
         activity.runOnUiThread(new Runnable() {
-            @SuppressLint("SetJavaScriptEnabled")
+            @SuppressLint({"SetJavaScriptEnabled", "ResourceType"})
             @Override
             public void run() {
-                WebView webView = new WebView(activity);
+                webView = new WebView(activity);
                 webView.setId(ViewCompat.generateViewId());
                 webView.setFocusableInTouchMode(true);
+                webView.setBackgroundColor(Color.parseColor("#80000000"));
+                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
                 webView.requestFocus();
 
                 WebSettings webSettings = webView.getSettings();
@@ -134,90 +162,135 @@ public class HtmlController {
                 webSettings.setDomStorageEnabled(true);
                 webSettings.setAllowFileAccess(true);
 
-                webView.addJavascriptInterface(new JS_INTERFACE(activity, des), "sdk");
-                webView.setWebViewClient (new WebViewClient() {
+                webView.addJavascriptInterface(new JS_INTERFACE(activity), "sdk");
+                webView.setWebViewClient(new WebViewClient() {
                     @Override
-                    public void onPageFinished (WebView view, String url) {
-                        webView.loadUrl ("javascript: window.sdk.getContentWidth (document.getElementsByTagName ('html') [0] .scrollWidth);");
+                    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                        LogMobio.logD("QuanLA", "onPageStarted");
+                        view.loadUrl("javascript:(function() {" +
+                                "window.parent.addEventListener ('message', function(event) {" +
+                                " sdk.receiveMessage(JSON.stringify(event.data));});" +
+                                "})();");
+                    }
+
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+                        LogMobio.logD("QuanLA", "onPageFinished");
+                        Utils.hideKeyboard(activity);
+                        webView.setVisibility(View.VISIBLE);
+                        webView.requestFocus();
                     }
                 });
-                if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML_URL) {
-                    webView.loadUrl(notiResponseObject.getContent());
-                }
-                else if(notiResponseObject.getType() == NotiResponseObject.TYPE_HTML) {
+
+                Push.Data data = push.getData();
+                Push.Alert alert = push.getAlert();
+                if (alert == null) return;
+
+                String content_type = alert.getContentType();
+                if (content_type.equals(Push.Alert.TYPE_POPUP)) {
+                    if(data == null) return;
+                    String popupUrl = data.getPopupUrl();
+                    if (popupUrl != null) webView.loadUrl(popupUrl);
+                } else if (content_type.equals(Push.Alert.TYPE_HTML)) {
                     webView.loadDataWithBaseURL(assetPath,
-                            genDynamicHtml(notiResponseObject.getData()),
-                            //notiResponseObject.getData(),
+                            genDynamicHtml(alert.getBodyHTML()),
+                            //alert.getBodyHTML(),
                             HTML_MIME_TYPE,
                             HTML_ENCODING, null);
                 }
 
+
                 RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT);
                 webView.setLayoutParams(layoutParams);
+                webView.setOnKeyListener(new View.OnKeyListener() {
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                            switch (keyCode) {
+                                case KeyEvent.KEYCODE_BACK:
+                                    dismissMessage();
+                                    return true;
+                            }
+                        }
+                        return false;
+                    }
+                });
+                webView.setVisibility(View.GONE);
                 container.addView(webView);
+                if (content_type.equals(Push.Alert.TYPE_HTML)){
+                    createButtonClose(container);
+                }
+            }
+        });
+    }
+
+    private void dismissMessage() {
+        activity.runOnUiThread(new Runnable() {
+            @SuppressLint("ResourceType")
+            @Override
+            public void run() {
+                FrameLayout root = getWindowRoot(activity);
+                if (root != null) {
+                    root.removeView(root.findViewById(20001));
+                }
             }
         });
     }
 
     public class JS_INTERFACE {
         private Activity activity;
-        private Class dest;
-        private ViewGroup root;
 
         /**
          * Instantiate the interface and set the context
          */
-        public JS_INTERFACE(Activity a, Class des) {
-            dest = des;
+        public JS_INTERFACE(Activity a) {
             activity = a;
-            root = getWindowRoot(activity);
         }
 
         @SuppressLint("ResourceType")
         @JavascriptInterface
         public void trackClick() {
-            if (dest != null) {
-                Intent desIntent = new Intent(activity, dest);
-                activity.startActivity(desIntent);
+            //todo
+        }
+
+        @JavascriptInterface
+        public void receiveMessage(String data) {
+            if (data != null) {
+                LogMobio.logD("QuanLA", "data " + data);
+                processReceivedMessage(data);
             }
         }
 
         @JavascriptInterface
-        public void identifyUser(String name, String email){
-            MobioSDKClient.getInstance().identify(new ValueMap().put("name", name).put("email", email));
+        public void identifyUser(String name, String email) {
+            //todo
         }
 
         @SuppressLint("ResourceType")
         @JavascriptInterface
         public void dismissMessage() {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(root != null){
-                        root.removeView(root.findViewById(20001));
-                    }
-                }
-            });
+            HtmlController.this.dismissMessage();
         }
 
         @SuppressLint("ResourceType")
         @JavascriptInterface
-        public void getContentWidth (String value) {
+        public void getContentWidth(String value) {
             if (value != null) {
-                LogMobio.logD ("HtmlController", "Result from javascript:" + Integer.parseInt (value));
+                LogMobio.logD("HtmlController", "Result from javascript:" + Integer.parseInt(value));
             }
         }
 
         @JavascriptInterface
-        public String getDataFromNative(){
+        public String getDataFromNative() {
             return "Demo data native";
         }
 
         // Show a toast from the web page
         @JavascriptInterface
-        public void showToast(String toast) {
-            Toast.makeText(activity, toast, Toast.LENGTH_SHORT).show();
+        public void showToast() {
+            LogMobio.logD("QuanLA", "abc");
+            Toast.makeText(activity, "toast", Toast.LENGTH_SHORT).show();
         }
 
         @JavascriptInterface
@@ -228,18 +301,86 @@ public class HtmlController {
         @SuppressLint("ResourceType")
         @JavascriptInterface
         public void navigateToHome() {
-            if(activity.getClass().getSimpleName().equals("LoginActivity")){
-                if (dest != null) {
-                    Intent desIntent = new Intent(activity, dest);
-                    activity.startActivity(desIntent);
-                    activity.finish();
-                }
-            }
+            //todo
         }
 
         @JavascriptInterface
         public void showAndroidVersion(String versionName) {
             Toast.makeText(activity, versionName, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void processReceivedMessage(String data) {
+        Properties dataVM = Properties.convertJsonStringtoProperties(data);
+        String message = (String) dataVM.get("message");
+        if (message != null) {
+            if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
+                dismissMessage();
+                return;
+            }
+
+            if (message.equals("MO_BUTTON_CLICK")) {
+                processDynamicEvents(dataVM);
+                return;
+            }
+            if (message.equals("MO_POPUP_LOADED")) {
+                webView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                            webView.evaluateJavascript("handleReplacePersonalization('" + getProfileInfoToWebview(push) + "');", null);
+                            webView.evaluateJavascript("showPopup('cc');", null);
+                        } else {
+                            webView.loadUrl("javascript:handleReplacePersonalization('" + getProfileInfoToWebview(push) + "');");
+                            webView.loadUrl("javascript:showPopup('cc');");
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private String getProfileInfoToWebview(Push push) {
+        Push.Data data = push.getData();
+        if (data != null) {
+            Properties profileInfo = data.getValueMap("profile_info", Properties.class);
+            if (profileInfo != null) {
+                return new Gson().toJson(profileInfo);
+            }
+        }
+        return "";
+    }
+
+    private void processDynamicEvents(Properties valueMap) {
+        long actionTime = 0;
+        List<Properties> listEvents = valueMap.getList("events", Properties.class);
+        ArrayList<Event> listEvent = new ArrayList<>();
+        if (listEvents != null && listEvents.size() > 0) {
+            for (int i = 0; i < listEvents.size(); i++) {
+                Properties tempEvent = listEvents.get(i);
+
+                if (tempEvent == null) continue;
+
+                String eventKey = (String) tempEvent.get("eventKey");
+                Properties eventData = (Properties) tempEvent.get("eventData");
+                boolean includedReport = tempEvent.getBoolean("includedReport", false);
+
+                if (eventData != null) {
+                    List<Properties> fields = eventData.getList("fields", Properties.class);
+                    if (fields != null && fields.size() > 0) {
+                        actionTime = (long) fields.get(0).getLong("value", 0);
+                    }
+                }
+
+                ArrayList<Event.Dynamic> listDynamic = new ArrayList<>();
+                listDynamic.add(new Event.Dynamic().putEventKey(eventKey).putEventData(
+                        new Properties().putValue("action_time", actionTime)).putValue("includedReport", includedReport));
+                Event eventDynamic = new Event().putSource("popup_builder")
+                        .putType("dynamic").putActionTime(123456789)
+                        .putDynamic(listDynamic);
+                listEvent.add(eventDynamic);
+            }
+            MobioSDKClient.getInstance().track(listEvent);
         }
     }
 
@@ -254,4 +395,5 @@ public class HtmlController {
         }
         return html.substring(0, endPos)+ receiveHtml +html.substring(endPos);
     }
+
 }

@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.mobio.analytics.client.models.Campaign;
+import com.mobio.analytics.client.model.old.Campaign;
 
 import java.util.ArrayList;
 import java.util.List;

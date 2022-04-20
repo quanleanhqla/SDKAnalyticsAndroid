@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)https://test38.mobio.vn/624aa6e8365e1f7a2b81165c.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript">
+      window.ladi_viewport = function() {
+        var screen_width = window.ladi_screen_width || window.screen.width;
+        var width = window.outerWidth > 0 ? window.outerWidth : screen_width;
+        var widthDevice = width;
+        var is_desktop = width >= 768;
+        var content = "";
+        if (typeof window.ladi_is_desktop == "undefined" || window.ladi_is_desktop == undefined) {
+          window.ladi_is_desktop = is_desktop;
+        }
+        if (!is_desktop) {
+          widthDevice = 420;
+        } else {
+          widthDevice = 960;
+        }
+        content = "width=" + widthDevice + ", user-scalable=no";
+        var scale = 1;
+        if (!is_desktop && widthDevice != screen_width && screen_width > 0) {
+          scale = screen_width / widthDevice;
+        }
+        if (scale != 1) {
+          content += ", initial-scale=" + scale + ", minimum-scale=" + scale + ", maximum-scale=" + scale;
+        }
+        var docViewport = document.getElementById("viewport");
+        if (!docViewport) {
+          docViewport = document.createElement("meta");
+          docViewport.setAttribute("id", "viewport");
+          docViewport.setAttribute("name", "viewport");
+          document.head.appendChild(docViewport);
+        }
+        docViewport.setAttribute("content", content);
+      };
+      window.ladi_viewport();
+      console.log('ladi_viewport');
+      window.ladi_fbq_data = [];
+      window.ladi_fbq = function(track_name, conversion_name, data, event_data) {
+        window.ladi_fbq_data.push([track_name, conversion_name, data, event_data]);
+      };
+    </script>
+    <meta id="viewport" name="viewport" content="width=960, user-scalable=no">
+    <script type="text/javascript">
+      window.addEventListener('message', function(e) {
+        console.log('data by parent');
+        // Get the sent data
+        const data = e.data;
+        // If you encode the message in JSON before sending them,
+        // then decode here
+        const decoded = JSON.parse(data);
+        console.log('message web :', decoded);
+        const obj = decoded.data;
+        for (let [key, value] of Object.entries(obj)) {
+          console.log(`${key}: ${value}`);
+          replaceOnDocument(key, value);
+        }
+      });
+      const replaceOnDocument = (pattern, string, {
+        target = document.body
+      } = {}) => {
+        // Handle `string` — see the last section
+        [
+          target, ...target.querySelectorAll("*:not(script):not(noscript):not(style)")
+        ].forEach(({
+          childNodes: [...nodes]
+        }) => nodes.filter(({
+          nodeType
+        }) => nodeType === document.TEXT_NODE).forEach((textNode) => textNode.textContent = textNode.textContent.replace(pattern, string)));
+      };
+      document.addEventListener("DOMContentLoaded", function(event) {
+        console.log("document ready");
+        document.querySelector("#b0d1efc22fe0").addEventListener("click", function(e) {
+          handleButtonClick(
+            [{
+              actionKey: "CLOSE",
+              actionName: "Tắt popup"
+            }],
+            [{
+              includedReport: true,
+              eventKey: "lan_test_popup_builder_2",
+              eventData: {
+                key: "lan_test_popup_builder_2",
+                name: "Lan test popup builder 2",
+                fields: [{
+                  key: "action_time",
+                  name: "Thời gian phát sinh Event",
+                  property: "date",
+                  value: ""
+                }]
+              },
+            }, {
+              includedReport: false,
+              eventKey: "test_123",
+              eventData: {
+                key: "test_123",
+                name: "Test 123",
+                fields: [{
+                  key: "action_time",
+                  name: "Thời gian phát sinh Event",
+                  property: "date",
+                  value: ""
+                }]
+              }
+            }, ], "Button", "b0d1efc22fe0");
+        });
+        document.querySelector(".mo-close-button").addEventListener("click", function(e) {
+          window.parent.postMessage({
+            message: "MO_CLOSE_BUTTON_CLICK"
+          }, "*");
+        });
+        window.parent.postMessage({
+          message: "MO_POPUP_LOADED"
+        }, "*");
+      });
+
+      function androidCall(){
+      	sdk.showToast('abc');
+      	window.parent.postMessage({
+            message: p1,
+            data: p2
+          }, "*");
+      }
+
+      function handleIframeEvents() {
+      	window.parent.postMessage({
+            message: "MO_POPUP_PERSONALIZATION",
+            data:
+          }, "*");
+        var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+        var eventer = window[eventMethod];
+        var messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
+        eventer(messageEvent, function(e) {
+          console.log(e.data);
+        });
+        console.log("handleIframeEvents");
+      }
+
+      function handleButtonClick(actions, events, name, id) {
+        if (actions.length > 1) {
+          const actionKey = actions[1].actionKey;
+          if (actionKey === "REDIRECT" && actions[1].isOpenTap) {
+            window.open(actions[1].redirectUrl, "_blank");
+          }
+          if (actionKey === "REDIRECT" && !actions[1].isOpenTap) {
+            setTimeout(function() {
+              window.parent.location.href = actions[1].redirectUrl;
+            }, 500);
+          }
+          if (actionKey === "DOWNLOAD") {
+            const url = actions[1].downloadUrl;
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = url.split("/").pop();
+            a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+        }
+        console.log("events=", events);
+        for (let i = 0; i < events.length; i++) {
+          events[i].eventData.fields[0].value = new Date().getTime();
+        }
+        window.parent.postMessage({
+          message: "MO_BUTTON_CLICK",
+          actions: actions,
+          events: events,
+          id: id,
+          name: name
+        }, "*");
+      }
+      handleIframeEvents();
+    </script>
+    <link rel="stylesheet" href="./template_files/undefined">
+    <link rel="stylesheet" href="./template_files/css">
+    <link rel="stylesheet" href="./template_files/css(1)">
+    <style type="text/css">
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Helvetica, "Helvetica neue", Arial, Verdana, sans-serif;
+      }
+
+      .mo-popup-container {
+        position: absolute;
+        height: 550px;
+        width: 764px;
+        background-color: rgb(255, 255, 255);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+      }
+
+      .mo-popup-overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+      }
+
+      p {
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+        padding-top: 0px;
+        padding-right: 0px;
+        padding-bottom: 0px;
+        padding-left: 0px;
+      }
+
+      .mo-widget {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+      }
+
+      .mo-close-button {
+        width: 40px;
+        height: 40px;
+      }
+
+      .mo-close-button a {
+        width: 100%;
+        height: 100%;
+        display: inline-block;
+        position: relative;
+        text-decoration-line: none;
+        text-decoration-thickness: initial;
+        text-decoration-style: initial;
+        text-decoration-color: initial;
+      }
+
+      .mo-close-button svg {
+        font-size: 12px;
+        color: rgb(255, 255, 255);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .mo-workspace::-webkit-scrollbar {
+        display: none;
+      }
+
+      #p-main-container {
+        height: 550px;
+        width: 764px;
+        display: block;
+      }
+
+      #p-second-container {
+        height: 550px;
+        width: 764px;
+        display: block;
+      }
+
+      #o5612312 {
+        display: block;
+      }
+
+      #c453653 {
+        display: block;
+        top: 10px;
+        right: 10px;
+        left: auto;
+      }
+
+      #c453656 {
+        display: block;
+        top: 10px;
+        right: 10px;
+        left: auto;
+      }
+
+      #bb482233f4d1 {
+        left: 92px;
+        top: 60px;
+        z-index: 10000;
+        width: 275px;
+        height: 183px;
+      }
+
+      .mo-widget-image {
+        border-image-source: initial;
+        border-image-slice: initial;
+        border-image-width: initial;
+        border-image-outset: initial;
+        border-image-repeat: initial;
+        display: block;
+        height: 100px;
+        width: 100px;
+      }
+
+      #b233f4d1a910 {
+        background-color: rgb(6, 43, 64);
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-top-left-radius: 4px;
+        color: rgb(255, 255, 255);
+        font-family: Raleway;
+        font-size: 16px;
+        font-weight: 700;
+        font-style: normal;
+        line-height: 150%;
+        height: 40px;
+        text-align: center;
+        position: absolute;
+        z-index: 10000;
+        border-image-source: initial;
+        border-image-slice: initial;
+        border-image-width: initial;
+        border-image-outset: initial;
+        border-image-repeat: initial;
+        outline-color: initial;
+        outline-style: none;
+        outline-width: initial;
+        padding-top: 0px;
+        padding-right: 0px;
+        padding-bottom: 0px;
+        padding-left: 0px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+        cursor: pointer;
+        top: 100px;
+        left: 20px;
+        width: 200px;
+      }
+
+      #b233f4d1a910 .mo-widget-button-inner {
+        white-space: nowrap;
+        transform: translateY(-50%);
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        left: 0px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        text-decoration-line: none;
+        text-decoration-thickness: initial;
+        text-decoration-style: initial;
+        text-decoration-color: initial;
+      }
+
+      #b33f4d1a9102 {
+        left: 354.059px;
+        top: 313.672px;
+        z-index: 10000;
+        width: 240px;
+        height: 160px;
+        background-color: rgb(255, 255, 255);
+        display: block;
+      }
+
+      #b3f4d1a91022 {
+        top: 20px;
+        left: 20px;
+        width: 200px;
+        font-style: normal;
+        font-weight: 400;
+      }
+
+      #b4d1a9102249 {
+        background-color: rgb(6, 43, 64);
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-top-left-radius: 4px;
+        color: rgb(255, 255, 255);
+        font-family: Raleway;
+        font-size: 16px;
+        font-weight: 700;
+        font-style: normal;
+        line-height: 150%;
+        height: 40px;
+        text-align: center;
+        position: absolute;
+        z-index: 10000;
+        border-image-source: initial;
+        border-image-slice: initial;
+        border-image-width: initial;
+        border-image-outset: initial;
+        border-image-repeat: initial;
+        outline-color: initial;
+        outline-style: none;
+        outline-width: initial;
+        padding-top: 0px;
+        padding-right: 0px;
+        padding-bottom: 0px;
+        padding-left: 0px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+        cursor: pointer;
+        top: 100px;
+        left: 20px;
+        width: 200px;
+      }
+
+      #b4d1a9102249 .mo-widget-button-inner {
+        white-space: nowrap;
+        transform: translateY(-50%);
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        left: 0px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        text-decoration-line: none;
+        text-decoration-thickness: initial;
+        text-decoration-style: initial;
+        text-decoration-color: initial;
+      }
+
+      #b33f4d1a9102 .mo-widget-input-text {
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        background-color: rgb(255, 255, 255);
+        background-image: none;
+        padding-top: 10px;
+        padding-right: 5px;
+        padding-bottom: 10px;
+        padding-left: 5px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        height: 40px;
+        color: rgb(51, 51, 51);
+        font-size: 14px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        font-family: "Open Sans";
+        outline-color: initial;
+        outline-style: none;
+        outline-width: initial;
+        border-top: 1px solid rgb(230, 232, 237);
+        border-left: 1px solid rgb(230, 232, 237);
+        border-bottom: 1px solid rgb(230, 232, 237);
+        border-right: 1px solid rgb(230, 232, 237);
+      }
+
+      #b33f4d1a9102 .mo-form-label {
+        color: rgb(51, 51, 51);
+        font-family: "Open Sans";
+        margin-bottom: 4px;
+        font-size: 14px;
+        line-height: 150%;
+      }
+
+      #b0d1efc22fe0 {
+        width: 200px;
+        height: 40px;
+        left: 98.0586px;
+        top: 364.207px;
+        z-index: 10000;
+        background-color: rgb(6, 43, 64);
+        font-style: normal;
+        font-weight: 400;
+      }
+
+      .mo-widget-button {
+        background-color: rgb(6, 43, 64);
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-top-left-radius: 4px;
+        color: rgb(255, 255, 255);
+        font-family: "Open Sans";
+        font-size: 16px;
+        font-weight: 700;
+        font-style: normal;
+        line-height: 150%;
+        width: 200px;
+        height: 40px;
+        text-align: center;
+        position: absolute;
+        z-index: 10000;
+        border-image-source: initial;
+        border-image-slice: initial;
+        border-image-width: initial;
+        border-image-outset: initial;
+        border-image-repeat: initial;
+        outline-color: initial;
+        outline-style: none;
+        outline-width: initial;
+        padding-top: 0px;
+        padding-right: 0px;
+        padding-bottom: 0px;
+        padding-left: 0px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+        cursor: pointer;
+        border-top: initial none initial;
+        border-left: initial none initial;
+        border-bottom: initial none initial;
+        border-right: initial none initial;
+      }
+
+      .mo-widget-button-inner {
+        white-space: nowrap;
+        transform: translateY(-50%);
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        left: 0px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        text-decoration-line: none;
+        text-decoration-thickness: initial;
+        text-decoration-style: initial;
+        text-decoration-color: initial;
+      }
+
+      @keyframes slideLeft {
+        0% {
+          left: -1000px;
+          top: 50%;
+          transform: translate(0%, -50%);
+        }
+
+        100% {
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      @media only screen and (max-width: 768px) {
+        #p-main-container {
+          width: 375px;
+          height: 600px;
+        }
+
+        #p-second-container {
+          width: 375px;
+          height: 600px;
+        }
+
+        #c453653 {
+          display: block;
+          top: 10px;
+          right: 10px;
+          left: auto;
+        }
+
+        #c453656 {
+          display: block;
+          top: 10px;
+          right: 10px;
+          left: auto;
+        }
+
+        #bb482233f4d1 {
+          left: 20px;
+          top: 70px;
+          display: block;
+        }
+
+        #b33f4d1a9102 {
+          left: 20px;
+          top: 272px;
+          display: block;
+        }
+
+        #b0d1efc22fe0 {
+          left: 20px;
+          top: 452px;
+          display: block;
+        }
+      }
+    </style>
+</head>
+<body>
+<link rel="stylesheet" href="./template_files/undefined">
+<link rel="stylesheet" href="./template_files/css">
+<link rel="stylesheet" href="./template_files/css(1)">
+<div class="mo-popup-overlay" id="o5612312"></div>
+<div class="mo-workspace">
+    <div class="mo-popup-container mo-widget-popup" id="p-main-container" style="display:block;">
+        <div class="mo-widget mo-close-button" id="c453653">
+            <a href="javascript:void(0);">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 122.881 122.88" enable-background="new 0 0 122.881 122.88" xml:space="preserve">
+              <g>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M61.44,0c33.933,0,61.441,27.507,61.441,61.439 c0,33.933-27.508,61.44-61.441,61.44C27.508,122.88,0,95.372,0,61.439C0,27.507,27.508,0,61.44,0L61.44,0z M81.719,36.226 c1.363-1.363,3.572-1.363,4.936,0c1.363,1.363,1.363,3.573,0,4.936L66.375,61.439l20.279,20.278c1.363,1.363,1.363,3.573,0,4.937 c-1.363,1.362-3.572,1.362-4.936,0L61.44,66.376L41.162,86.654c-1.362,1.362-3.573,1.362-4.936,0c-1.363-1.363-1.363-3.573,0-4.937 l20.278-20.278L36.226,41.162c-1.363-1.363-1.363-3.573,0-4.936c1.363-1.363,3.573-1.363,4.936,0L61.44,56.504L81.719,36.226 L81.719,36.226z"></path>
+              </g>
+            </svg>
+            </a>
+        </div>
+        <img class="mo-widget mo-widget-image" id="bb482233f4d1" src="./template_files/624a9401ed57d55d8ec6509c.jpg" onmousedown="return false">
+        <form class="mo-widget mo-widget-form" id="b33f4d1a9102" onsubmit="return false;">
+            <div class="mo-widget mo-widget-input" id="b3f4d1a91022" style="">
+                <div class="mo-form-label">Họ và tên</div>
+                <input class="mo-widget-input-text" name="name111" placeholder="Nhập họ tên" isrequire="false">
+            </div>
+        </form>
+        <div class="mo-widget mo-widget-button mo-comp-selected" id="b0d1efc22fe0">
+            <div class="mo-widget-button-inner">
+                <p>Button</p>
+            </div>
+        </div>
+        <div class="" id="" contenteditable="false">
+            <p>*|NAME|* Nhấn click đúp để sửa nội dung</p>
+        </div>
+        <div class="" id="" contenteditable="false">
+            <p>*|VC_CODE|* Nhấn click đúp để sửa nội dung</p>
+        </div>
+    </div>
+    <div class="mo-popup-container mo-widget-popup" id="p-second-container" style="display:none;">
+        <div class="mo-widget mo-close-button" id="c453653">
+            <a href="javascript:void(0);">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 122.881 122.88" enable-background="new 0 0 122.881 122.88" xml:space="preserve">
+              <g>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M61.44,0c33.933,0,61.441,27.507,61.441,61.439 c0,33.933-27.508,61.44-61.441,61.44C27.508,122.88,0,95.372,0,61.439C0,27.507,27.508,0,61.44,0L61.44,0z M81.719,36.226 c1.363-1.363,3.572-1.363,4.936,0c1.363,1.363,1.363,3.573,0,4.936L66.375,61.439l20.279,20.278c1.363,1.363,1.363,3.573,0,4.937 c-1.363,1.362-3.572,1.362-4.936,0L61.44,66.376L41.162,86.654c-1.362,1.362-3.573,1.362-4.936,0c-1.363-1.363-1.363-3.573,0-4.937 l20.278-20.278L36.226,41.162c-1.363-1.363-1.363-3.573,0-4.936c1.363-1.363,3.573-1.363,4.936,0L61.44,56.504L81.719,36.226 L81.719,36.226z"></path>
+              </g>
+            </svg>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

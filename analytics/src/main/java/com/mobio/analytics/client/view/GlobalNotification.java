@@ -13,26 +13,29 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 
 import com.mobio.analytics.R;
-import com.mobio.analytics.client.activities.TransparentDeeplinkHandleActivity;
-import com.mobio.analytics.client.models.NotiResponseObject;
-import com.mobio.analytics.client.models.ScreenConfigObject;
+import com.mobio.analytics.client.activity.TransparentDeeplinkHandleActivity;
+import com.mobio.analytics.client.model.digienty.Push;
+import com.mobio.analytics.client.model.old.NotiResponseObject;
+import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.service.ClickNotificationService;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.Utils;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class GlobalNotification {
     private int id;
-    private NotiResponseObject notiResponseObject;
+    private Push push;
     private HashMap<String, ScreenConfigObject> configActivityMap;
     private Context context;
     private Class classDes;
     private NotificationManager notificationManager;
 
-    public GlobalNotification(int id, NotiResponseObject notiResponseObject, HashMap<String, ScreenConfigObject> configActivityMap, Context context) {
+    public GlobalNotification(int id, Push push, HashMap<String, ScreenConfigObject> configActivityMap, Context context) {
         this.id = id;
-        this.notiResponseObject = notiResponseObject;
+        this.push = push;
         this.configActivityMap = configActivityMap;
         this.context = context;
         this.classDes = findDes();
@@ -45,17 +48,17 @@ public class GlobalNotification {
         intent.setComponent(new ComponentName(context, ClickNotificationService.class));
         intent.setAction(ClickNotificationService.ACTION_FOO);
         intent.putExtra(ClickNotificationService.EXTRA_PARAM1, classDes);
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM2, notiResponseObject.getPushId());
+        intent.putExtra(ClickNotificationService.EXTRA_PARAM2, Utils.getMD5(push.toString()));
         intent.putExtra(ClickNotificationService.EXTRA_PARAM3, id);
         return intent;
     }
 
-    private Class findDes(){
-        Class classDes = null;
-        Class classInitial = null;
+    private Class<?> findDes(){
+        Class<?> classDes = null;
+        Class<?> classInitial = null;
         for (int i = 0; i < configActivityMap.values().size(); i++) {
             ScreenConfigObject screenConfigObject = (ScreenConfigObject) configActivityMap.values().toArray()[i];
-            if (screenConfigObject.getTitle().equals(notiResponseObject.getDes_screen())) {
+            if (screenConfigObject.getTitle().equals(push.getDesScreen())) {
                 classDes = screenConfigObject.getClassName();
                 break;
             }
@@ -87,8 +90,8 @@ public class GlobalNotification {
                 .setSmallIcon(R.mipmap.icon)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
                         R.mipmap.icon))
-                .setContentTitle(notiResponseObject.getTitle())
-                .setContentText(notiResponseObject.getContent())
+                .setContentTitle(push.getAlert().getTitle())
+                .setContentText(push.getAlert().getBody())
                 .setDeleteIntent(createOnDismissedIntent(context, id, false))
                 //.setContentIntent(classDes != null ? PendingIntent.getActivity(application.getApplicationContext(), REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE) : null)
                 .setContentIntent(PendingIntent.getService(context, id, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT))
@@ -113,7 +116,7 @@ public class GlobalNotification {
 //        .put("push_id", notiResponseObject.getPushId())
 //        .put("device", "Android"));
 
-        LogMobio.logD("QuanLA", "show noti "+notiResponseObject.getPushId()+"\nid "+id);
+        LogMobio.logD("QuanLA", "show noti "+Utils.getMD5(push.toString())+"\nid "+id);
     }
 
 }

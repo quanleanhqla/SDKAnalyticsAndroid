@@ -26,7 +26,7 @@ public class SharedPreferencesUtils {
     public static final String KEY_EVENT = "key_event";
     public static final String KEY_PUSH = "key_push";
     public static final String KEY_PENDING_PUSH = "key_pending_push";
-    public static final String KEY_EVENT_QUEUE = "key_event_queue";
+    public static final String KEY_SEND_QUEUE = "key_send_queue";
     public static final String KEY_JOURNEY = "key_journey";
 
     private static SharedPreferences getSharedPreferences(Context context){

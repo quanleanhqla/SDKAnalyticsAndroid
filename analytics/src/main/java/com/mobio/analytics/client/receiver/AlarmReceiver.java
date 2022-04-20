@@ -7,13 +7,8 @@ import android.content.Intent;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.client.MobioSDKClient;
-import com.mobio.analytics.client.models.NotiResponseObject;
-import com.mobio.analytics.client.models.ValueMap;
+import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
-import com.mobio.analytics.client.utility.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -26,35 +21,20 @@ public class AlarmReceiver extends BroadcastReceiver {
         else {
             if(intent.getAction().equals("ACTION_LAUNCH_NOTI")) {
                 String strPendingPush = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_PENDING_PUSH);
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(strPendingPush);
-                    ValueMap vm = Utils.toMap(jsonObject);
-                    if (vm.get("key_pending_push") != null) {
-                        List<ValueMap> listPendingNoti = (List<ValueMap>) vm.get("key_pending_push");
-                        if(listPendingNoti == null || listPendingNoti.size() == 0) return;
-                        vm = listPendingNoti.get(0);
-                        ValueMap notiVm = (ValueMap) vm.get("noti_response");
-                        if(notiVm == null) return;
-                        String notiStr = new Gson().toJson(notiVm);
-                        String pushId = (String) vm.get("node_id");
-                        NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
-                        notiResponseObject.setPushId(pushId);
-                        if (SharedPreferencesUtils.getBool(context, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-                            MobioSDKClient.getInstance().showGlobalPopup(notiResponseObject);
-                        } else {
-                            MobioSDKClient.getInstance().showGlobalNotification(notiResponseObject, (int) (Math.random() * 10000));
-                        }
-                        listPendingNoti.remove(0);
-                        ValueMap pendingPush = new ValueMap().put("key_pending_push", listPendingNoti);
-                        String jsonEvent = new Gson().toJson(pendingPush, new TypeToken<ValueMap>() {
-                        }.getType());
-                        SharedPreferencesUtils.editString(context, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
-                    }
-                }
-                catch (JSONException e){
-                    e.printStackTrace();
-                }
+                Properties tempP = Properties.convertJsonStringtoProperties(strPendingPush);
+                List<Properties> listPendingNoti = tempP.getList("key_pending_push", Properties.class);
+                if(listPendingNoti == null || listPendingNoti.size() == 0) return;
+                tempP = listPendingNoti.get(0);
+                Properties notiPp = tempP.getValueMap("noti_response", Properties.class);
+                if(notiPp == null) return;
+                MobioSDKClient.getInstance().showPushInApp(notiPp);
+
+                listPendingNoti.remove(0);
+                Properties pendingPush = new Properties().putValue("key_pending_push", listPendingNoti);
+                String jsonEvent = new Gson().toJson(pendingPush, new TypeToken<Properties>() {
+                }.getType());
+                SharedPreferencesUtils.editString(context, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
+
             }
         }
     }
