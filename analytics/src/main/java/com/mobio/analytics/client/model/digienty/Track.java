@@ -7,6 +7,7 @@ public class Track extends Properties {
     private static final String KEY_SDK = "sdk";
     private static final String KEY_DEVICE = "device";
     private static final String KEY_EVENTS = "events";
+    private static final String KEY_ACTION_TIME = "action_time";
 
     public Track() {}
 
@@ -30,6 +31,10 @@ public class Track extends Properties {
 
     public Track putDevice(Device device){
         return putValue(KEY_DEVICE, device);
+    }
+
+    public Track putActionTime(long actionTime){
+        return putValue(KEY_ACTION_TIME, actionTime);
     }
 
     public Track putEvents(ArrayList<Event> eventArrayList){return putValue(KEY_EVENTS, eventArrayList);}

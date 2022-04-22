@@ -127,6 +127,10 @@ public class Utils {
             return "track";
         }
 
+        if(valueMap.containsKey("notification")){
+            return "notification";
+        }
+
         return null;
     }
 

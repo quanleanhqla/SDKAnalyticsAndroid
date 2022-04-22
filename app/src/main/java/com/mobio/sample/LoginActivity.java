@@ -54,19 +54,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initView();
         addListener();
-
-
-
-//        ArrayList<Event.Dynamic> listDynamic = new ArrayList<>();
-//        listDynamic.add(new Event.Dynamic().putEventKey("sdk_mobile_open_app").putEventData(
-//                new ValueMap().put("name", "name").put("email", "email").put("action_time", "123456789")));
-//        Event eventDynamic = new Event().putSource("popup_builder")
-//                .putType("dynamic").putActionTime("123456789")
-//                .putDynamic(listDynamic);
-//
-//        ArrayList<Event> listEvent = new ArrayList<>();
-//        listEvent.add(eventDynamic);
-//        MobioSDKClient.getInstance().trackVersion1(listEvent);
     }
 
     private void getAddress(double latitude, double longitude) {
@@ -163,7 +150,6 @@ public class LoginActivity extends AppCompatActivity {
 
                     MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Click_Button_In_App, new Properties().putValue("button_name", "login button")
                             .putValue("screen_name", LoginActivity.class.getSimpleName()).putValue("status", "success"));
-                    //Analytics.with(LoginActivity.this).track("Login success");
                 } else {
                     if (TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)) {
                         Toast.makeText(LoginActivity.this, "Mail or password is null", Toast.LENGTH_SHORT).show();
@@ -171,21 +157,6 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "Invalid mail", Toast.LENGTH_SHORT).show();
                     }
                 }
-
-//                ValueMap vkl = new ValueMap().put("abc", "abc");
-//                ValueMap vcl = new ValueMap().put("abcd", "abc").put("abc", "abc");
-//                vkl.put("vcl", vcl);
-//                vcl.put("xxx", "xxx");
-//
-//                LogMobio.logD("LoginActivity", "vkl "+ vkl.toString());
-//                LogMobio.logD("LoginActivity", "vcl "+ vcl.toString());
-
-//                new Handler().post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        getLocation();
-//                    }
-//                });
 
                 MobioSDKClient.getInstance().identify();
             }

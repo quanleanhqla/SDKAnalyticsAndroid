@@ -51,6 +51,7 @@
             android:name=".LoginActivity"
             android:exported="true"
             android:launchMode="singleTop"
+            android:configChanges="orientation|keyboardHidden"
             android:theme="@style/CustomTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

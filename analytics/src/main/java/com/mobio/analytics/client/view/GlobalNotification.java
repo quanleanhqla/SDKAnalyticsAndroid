@@ -12,6 +12,7 @@ import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
+import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.activity.TransparentDeeplinkHandleActivity;
 import com.mobio.analytics.client.model.digienty.Push;
@@ -50,6 +51,7 @@ public class GlobalNotification {
         intent.putExtra(ClickNotificationService.EXTRA_PARAM1, classDes);
         intent.putExtra(ClickNotificationService.EXTRA_PARAM2, Utils.getMD5(push.toString()));
         intent.putExtra(ClickNotificationService.EXTRA_PARAM3, id);
+        intent.putExtra(ClickNotificationService.EXTRA_PARAM4, new Gson().toJson(push));
         return intent;
     }
 

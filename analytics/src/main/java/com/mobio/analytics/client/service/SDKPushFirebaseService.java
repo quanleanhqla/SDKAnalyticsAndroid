@@ -73,6 +73,13 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
 
     private Push createPush(String remoteMessage){
         Push message = Push.convertJsonStringtoPush(remoteMessage);
+        Push.Alert alert = message.getAlert();
+        String contentType = alert.getContentType();
+
+        if(contentType.equals(Push.Alert.TYPE_POPUP)){
+            alert.putTitle("Thông báo");
+            alert.putBody("Bạn có 1 thông báo mới!");
+        }
         LogMobio.logD("QuanLA", new Gson().toJson(message));
         return message;
     }

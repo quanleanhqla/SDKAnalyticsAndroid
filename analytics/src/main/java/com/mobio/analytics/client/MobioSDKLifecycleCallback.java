@@ -28,7 +28,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mobio.analytics.client.model.digienty.Push;
-import com.mobio.analytics.client.model.old.NotiResponseObject;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.service.TerminateService;
@@ -36,7 +35,7 @@ import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 import com.mobio.analytics.client.view.popup.CustomDialog;
-import com.mobio.analytics.client.view.HtmlController;
+import com.mobio.analytics.client.view.htmlPopup.HtmlController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,7 +129,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                     String contentType = alert.getContentType();
                     if(contentType == null) return;
                     if(contentType.equals(Push.Alert.TYPE_POPUP) || contentType.equals(Push.Alert.TYPE_HTML)) {
-                        new HtmlController(currentActivity, push, "").showHtmlView();
+                        new HtmlController(currentActivity, push, "", false).showHtmlView();
                     }
                     else {
                         new CustomDialog(currentActivity, push, findDes(push)).show();

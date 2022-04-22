@@ -70,9 +70,7 @@ public class PermissionDialog extends BaseDialog{
     private void denyPermission(){
         String permisson = MobioSDKClient.getInstance().getCurrentNotiPermissionInValue();
         if(permisson == null || !permisson.equals(Notification.KEY_DENIED)) {
-            Notification notification = new Notification().putPermisson(Notification.KEY_DENIED)
-                    .putToken(SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_DEVICE_TOKEN));
-            //MobioSDKClient.getInstance().identify(notification);
+            MobioSDKClient.getInstance().updateNotificationPermission(Notification.KEY_DENIED);
         }
     }
 }

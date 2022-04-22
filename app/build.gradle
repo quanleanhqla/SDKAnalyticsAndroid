@@ -16,6 +16,8 @@ android {
         versionCode 2
         versionName "2.0"
 
+        multiDexEnabled true
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

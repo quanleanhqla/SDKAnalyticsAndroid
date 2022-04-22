@@ -6,6 +6,7 @@ import android.os.Build;
 import com.mobio.analytics.BuildConfig;
 import com.mobio.analytics.client.model.digienty.App;
 import com.mobio.analytics.client.model.digienty.DataIdentity;
+import com.mobio.analytics.client.model.digienty.DataNotification;
 import com.mobio.analytics.client.model.digienty.DataTrack;
 import com.mobio.analytics.client.model.digienty.Device;
 import com.mobio.analytics.client.model.digienty.Identity;
@@ -24,14 +25,6 @@ public class ModelFactory {
 
     private static Device getDevice(Context context){
         return new Device().putChannel("app")
-                .putType("mobile")
-                .putDId("")
-                .putTId("Quan2022")
-                .putUId(Utils.getIMEIDeviceId(context));
-    }
-
-    private static IdentityDetail getIdentityDetail(Context context, Notification notification){
-        return new IdentityDetail().putChannel("app")
                 .putType("mobile")
                 .putDId("")
                 .putTId("Quan2022")
@@ -63,12 +56,16 @@ public class ModelFactory {
         return new DataTrack().putTrack(new Track().putSdk(getSdk()).putDevice(getDevice(context)));
     }
 
-    public static DataIdentity getDataIdentity(Context context, Notification notification){
-        return new DataIdentity().putIdentity(new Identity().putSdk(getSdk()).putIdentityDetail(getIdentityDetail(context, notification)));
-    }
-
     public static DataIdentity getDataIdentity(Context context){
         return new DataIdentity().putIdentity(getIdentity(context));
+    }
+
+    public static DataNotification getDataNotification(Context context){
+        return new DataNotification().putNotification(new Notification().putSdk(getSdk())
+                .putDetail(new Notification.Detail().putToken(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_DEVICE_TOKEN))
+                                                    .putPermission(Utils.areNotificationsEnabled(context) ? Notification.KEY_GRANTED : Notification.KEY_DENIED))
+                .putActionTime(System.currentTimeMillis())
+                .putDevice(getIdentityDetail(context)));
     }
 
     private static Screen getScreen(Context context){

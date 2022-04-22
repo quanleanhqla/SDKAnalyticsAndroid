@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.client.model.ModelFactory;
 import com.mobio.analytics.client.model.digienty.DataIdentity;
+import com.mobio.analytics.client.model.digienty.DataNotification;
 import com.mobio.analytics.client.model.digienty.DataTrack;
 import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Identity;
@@ -101,8 +102,10 @@ public class MobioSDKClient {
     private String domainURL;
     private String endPoint;
     private HashMap<String, ScreenConfigObject> configActivityMap;
+
     private DataTrack cacheValueTrack;
     private DataIdentity cacheValueIdentity;
+    private DataNotification cacheValueNotification;
 
     private ArrayList<Properties> currentJsonEvent;
     private ArrayList<Properties> currentJsonPush;
@@ -179,12 +182,12 @@ public class MobioSDKClient {
         cacheValueTrack = ModelFactory.getDataTrack(application);
     }
 
-    private void initIdentityCache(Notification notification) {
-        cacheValueIdentity = ModelFactory.getDataIdentity(application, notification);
-    }
-
     private void initIdentityCache() {
         cacheValueIdentity = ModelFactory.getDataIdentity(application);
+    }
+
+    private void initNotificationCache() {
+        cacheValueNotification = ModelFactory.getDataNotification(application);
     }
 
     private void initNetworkReceiver() {
@@ -196,11 +199,40 @@ public class MobioSDKClient {
 
     public void setDeviceToken(String deviceToken) {
         this.deviceToken = deviceToken;
-        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
-        Notification notification = new Notification().putToken(deviceToken)
-                .putPermisson(Utils.areNotificationsEnabled(application) ? Notification.KEY_GRANTED : Notification.KEY_DENIED);
 
-        //identify(notification);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
+
+        updateNotificationToken(deviceToken);
+    }
+
+    private void updateNotificationToken(String token){
+        LogMobio.logD("Send", "updateNotificationToken");
+        if(cacheValueNotification == null){
+            initNotificationCache();
+        }
+
+        cacheValueNotification.getNotification().getDetail().putToken(token);
+        analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                processSend(cacheValueNotification);
+            }
+        });
+    }
+
+    public void updateNotificationPermission(String permission){
+        LogMobio.logD("Send", "updateNotificationPermission");
+        if(cacheValueNotification == null){
+            initNotificationCache();
+        }
+
+        cacheValueNotification.getNotification().getDetail().putPermission(permission);
+        analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                processSend(cacheValueNotification);
+            }
+        });
     }
 
     public String getCurrentNotiPermissionInValue(){
@@ -233,31 +265,19 @@ public class MobioSDKClient {
             }
         }
         else {
-//            if(cacheValueIdentity == null){
-//                Notification notification = new Notification().putPermisson(Notification.KEY_GRANTED).putToken(SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_DEVICE_TOKEN));
-//                identify(notification);
-//            }
-//            else {
-//                Identity currentIdentity = (Identity) cacheValueIdentity.get("identity");
-//
-//                if(currentIdentity == null) return;
-//                IdentityDetail currentIdentityDetail = (IdentityDetail) currentIdentity.get("identity_detail");
-//
-//                if(currentIdentityDetail == null) return;
-//                Notification currentNotification = (Notification) currentIdentityDetail.get("notification");
-//
-//                if(currentNotification == null) return;
-//                String permission = (String) currentNotification.get("permission");
-//
-//                if(permission == null) return;
-//                if(!permission.equals(Notification.KEY_GRANTED)){
-//                    currentNotification.putPermisson(Notification.KEY_GRANTED);
-//                    currentIdentityDetail.putNotification(currentNotification);
-//                    currentIdentity.putIdentityDetail(currentIdentityDetail);
-//                    cacheValueIdentity.putIdentity(currentIdentity);
-//                    identify();
-//                }
-//            }
+            if(cacheValueNotification == null){
+                initNotificationCache();
+            }
+            else {
+                String permission = cacheValueNotification.getNotification().getDetail().getPermission();
+
+                LogMobio.logD("Send", " "+permission);
+
+                if(permission == null) return;
+                if(!permission.equals(Notification.KEY_GRANTED)){
+                    updateNotificationPermission(Notification.KEY_GRANTED);
+                }
+            }
         }
     }
 
@@ -352,7 +372,9 @@ public class MobioSDKClient {
 
     private void processTrack(String eventKey, Properties eventData) {
         eventData.put("action_time", System.currentTimeMillis());
-        cacheValueTrack.getValueMap("track", Track.class).putEvents(Utils.createListEvent(Utils.createDynamicListEvent(eventKey, eventData)));
+        cacheValueTrack.getValueMap("track", Track.class)
+                .putEvents(Utils.createListEvent(Utils.createDynamicListEvent(eventKey, eventData)))
+                .putActionTime(System.currentTimeMillis());
 
         if (!checkEventExistInJourneyWeb(eventKey, eventData)) {
             processCommonPushBeforeSync(eventKey, eventData);
@@ -373,6 +395,9 @@ public class MobioSDKClient {
             } else if (typeOfValue.equals("identity")) {
                 response = RetrofitClient.getInstance().getMyApi().sendDevice(value).execute();
             }
+            else if(typeOfValue.equals("notification")){
+                response = RetrofitClient.getInstance().getMyApi().sendNotification(value).execute();
+            }
 
             LogMobio.logD("Send event v2", "code = " + response.code());
 
@@ -381,7 +406,7 @@ public class MobioSDKClient {
                 LogMobio.logD("Send event v2", "response error body = " + jObjError.toString());
                 return false;
             } else {
-                //LogMobio.logD("Send event v2", "response body = " + response.body());
+                LogMobio.logD("Send event v2", "response body = " + response.body());
                 return true;
             }
         } catch (IOException | JSONException e) {
@@ -406,7 +431,7 @@ public class MobioSDKClient {
                 if (eventList == null || eventList.size() == 0) return;
 
                 cacheValueTrack.getValueMap("track", Track.class).put("events", eventList);
-                sendv2(cacheValueTrack);
+                processSend(cacheValueTrack);
             }
         });
     }
@@ -460,8 +485,7 @@ public class MobioSDKClient {
                     int countNoti = pendingJsonPush.size();
                     long maxInterval = 60 * 1000;
                     long minInterval = 2 * 1000;
-                    long diff = maxInterval - minInterval;
-                    long intervel = diff / countNoti + minInterval;
+                    long intervel = Utils.getTimeInterval(maxInterval, minInterval, countNoti);
                     long now = System.currentTimeMillis();
 
                     for (int i = 0; i < countNoti; i++) {
@@ -719,21 +743,6 @@ public class MobioSDKClient {
                 processIdentity();
             }
         });
-    }
-
-    public void identify(Notification notification) {
-        LogMobio.logD("Identity", "identify(Notification notification)");
-        Future<?> future = analyticsExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                processIdentity(notification);
-            }
-        });
-    }
-
-    private void processIdentity(Notification notification) {
-        initIdentityCache(notification);
-        processSend(cacheValueIdentity);
     }
 
     private void processIdentity() {

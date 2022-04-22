@@ -1,12 +1,10 @@
-package com.mobio.analytics.client.view;
+package com.mobio.analytics.client.view.htmlPopup;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DownloadManager;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -17,19 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
-import android.webkit.JavascriptInterface;
-import android.webkit.PermissionRequest;
 import android.webkit.URLUtil;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.core.view.ViewCompat;
 
@@ -39,7 +32,6 @@ import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
-import com.mobio.analytics.client.model.digienty.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.Utils;
 
@@ -113,15 +105,20 @@ public class HtmlController {
     private Push push;
     private String assetPath;
     private WebView webView;
+    private boolean closeActivity;
 
-    public HtmlController(Activity activity, Push push, String assetPath) {
+    public HtmlController(Activity activity, Push push, String assetPath, boolean closeActivity) {
         this.activity = activity;
         this.push = push;
         this.assetPath = assetPath;
+        this.closeActivity = closeActivity;
     }
 
     public void showHtmlView() {
-        getWindowRoot(activity).addView(createContainer());
+        FrameLayout root = getWindowRoot(activity);
+        if (root.findViewById(VIEW_ID) == null) {
+            getWindowRoot(activity).addView(createContainer());
+        }
     }
 
     private View createContainer() {
@@ -141,7 +138,7 @@ public class HtmlController {
                 .getRootView();
     }
 
-    private void createButtonClose(ViewGroup container){
+    private void createButtonClose(ViewGroup container) {
         ImageView imageView = new ImageView(activity);
         imageView.setImageResource(R.drawable.ic_circle_xmark_solid);
         imageView.setOnClickListener(new View.OnClickListener() {
@@ -157,7 +154,7 @@ public class HtmlController {
         container.addView(imageView, params);
     }
 
-    private void showLoading(ViewGroup container){
+    private void showLoading(ViewGroup container) {
         ProgressBar progressBar = new ProgressBar(activity);
         progressBar.setId(ID_OF_PROGRESSBAR);
         progressBar.getIndeterminateDrawable().setColorFilter(Color.parseColor("#A6ACAF"), android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -167,7 +164,7 @@ public class HtmlController {
         container.addView(progressBar, params);
     }
 
-    private void hideLoading(ViewGroup container){
+    private void hideLoading(ViewGroup container) {
         container.removeView(container.findViewById(ID_OF_PROGRESSBAR));
     }
 
@@ -200,7 +197,19 @@ public class HtmlController {
                 }
                 webSettings.setAllowFileAccess(true);
 
-                webView.addJavascriptInterface(new JS_INTERFACE(activity), "sdk");
+                webView.addJavascriptInterface(new JavaScriptInterface(new JavaScriptInterface.OnActionJavascript() {
+                    @Override
+                    public void onReceiveMessage(String data) {
+                        processReceivedMessage(data);
+                    }
+
+                    @Override
+                    public void onDismissMessage() {
+                        dismissMessage();
+                    }
+                }), "sdk");
+
+
                 webView.setWebViewClient(new WebViewClient() {
                     @Override
                     public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -226,7 +235,7 @@ public class HtmlController {
 
                 String content_type = alert.getContentType();
                 if (content_type.equals(Push.Alert.TYPE_POPUP)) {
-                    if(data == null) return;
+                    if (data == null) return;
                     String popupUrl = data.getPopupUrl();
                     if (popupUrl != null) webView.loadUrl(popupUrl);
                 } else if (content_type.equals(Push.Alert.TYPE_HTML)) {
@@ -259,17 +268,15 @@ public class HtmlController {
                         download(url, userAgent, contentDisposition, mimetype, contentLength);
                     }
                 });
-
-                webView.setVisibility(View.GONE);
                 container.addView(webView);
-                if (content_type.equals(Push.Alert.TYPE_HTML)){
+                if (content_type.equals(Push.Alert.TYPE_HTML)) {
                     createButtonClose(container);
                 }
             }
         });
     }
 
-    private void download(String url, String userAgent, String contentDisposition, String mimetype, long contentLength){
+    private void download(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
         DownloadManager.Request request = new DownloadManager.Request(
                 Uri.parse(url));
         request.setMimeType(mimetype);
@@ -298,80 +305,12 @@ public class HtmlController {
                 if (root != null) {
                     root.removeView(root.findViewById(20001));
                 }
+
+                if(closeActivity){
+                    activity.finish();
+                }
             }
         });
-    }
-
-    public class JS_INTERFACE {
-        private Activity activity;
-
-        /**
-         * Instantiate the interface and set the context
-         */
-        public JS_INTERFACE(Activity a) {
-            activity = a;
-        }
-
-        @SuppressLint("ResourceType")
-        @JavascriptInterface
-        public void trackClick() {
-            //todo
-        }
-
-        @JavascriptInterface
-        public void receiveMessage(String data) {
-            if (data != null) {
-                LogMobio.logD("QuanLA", "data " + data);
-                processReceivedMessage(data);
-            }
-        }
-
-        @JavascriptInterface
-        public void identifyUser(String name, String email) {
-            //todo
-        }
-
-        @SuppressLint("ResourceType")
-        @JavascriptInterface
-        public void dismissMessage() {
-            HtmlController.this.dismissMessage();
-        }
-
-        @SuppressLint("ResourceType")
-        @JavascriptInterface
-        public void getContentWidth(String value) {
-            if (value != null) {
-                LogMobio.logD("HtmlController", "Result from javascript:" + Integer.parseInt(value));
-            }
-        }
-
-        @JavascriptInterface
-        public String getDataFromNative() {
-            return "Demo data native";
-        }
-
-        // Show a toast from the web page
-        @JavascriptInterface
-        public void showToast() {
-            LogMobio.logD("QuanLA", "abc");
-            Toast.makeText(activity, "toast", Toast.LENGTH_SHORT).show();
-        }
-
-        @JavascriptInterface
-        public int getAndroidVersion() {
-            return android.os.Build.VERSION.SDK_INT;
-        }
-
-        @SuppressLint("ResourceType")
-        @JavascriptInterface
-        public void navigateToHome() {
-            //todo
-        }
-
-        @JavascriptInterface
-        public void showAndroidVersion(String versionName) {
-            Toast.makeText(activity, versionName, Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void processReceivedMessage(String data) {
@@ -448,16 +387,16 @@ public class HtmlController {
         }
     }
 
-    public String genDynamicHtml(String receiveHtml){
+    public String genDynamicHtml(String receiveHtml) {
         Pattern word = Pattern.compile(keyWordSubstr);
         Matcher match = word.matcher(templateHtml);
-        String html=templateHtml;
+        String html = templateHtml;
         int endPos = 0;
         while (match.find()) {
             endPos = match.end();
-            LogMobio.logD("Found love at index ",html.substring(0, endPos)+ receiveHtml +html.substring(endPos));
+            LogMobio.logD("Found love at index ", html.substring(0, endPos) + receiveHtml + html.substring(endPos));
         }
-        return html.substring(0, endPos)+ receiveHtml +html.substring(endPos);
+        return html.substring(0, endPos) + receiveHtml + html.substring(endPos);
     }
 
 }

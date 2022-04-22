@@ -1,5 +1,7 @@
 package com.mobio.analytics.network;
 
+import com.mobio.analytics.BuildConfig;
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
@@ -27,7 +29,7 @@ public class RetrofitClient {
     private Api myApi;
 
     private RetrofitClient() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(Api.BASE_URL)
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(BuildConfig.API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(getUnsafeOkHttpClient().build())
                 .build();

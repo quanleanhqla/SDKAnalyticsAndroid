@@ -8,7 +8,7 @@ public class Event extends ValueMap{
     private static final String KEY_ACTION_TIME= "action_time";
     private static final String KEY_TYPE= "type";
     private static final String KEY_BASE= "base";
-    private static final String KEY_DYNAMIC= "dynamic";
+    private static final String KEY_DYNAMIC= "dynamics";
 
     public Event() {
     }
