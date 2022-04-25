@@ -256,7 +256,7 @@ public class HtmlController {
                         if (event.getAction() == KeyEvent.ACTION_DOWN) {
                             switch (keyCode) {
                                 case KeyEvent.KEYCODE_BACK:
-                                    //dismissMessage();
+                                    dismissMessage();
                                     return true;
                             }
                         }
