@@ -2,6 +2,7 @@ package com.mobio.analytics.client;
 
 import static android.content.Context.ALARM_SERVICE;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Application;
@@ -24,6 +25,8 @@ import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -166,6 +169,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
             }
 
             mobioSDKClient.trackNotificationOnOff(currentActivity);
+            requestAppPermissions();
         }
         numStarted++;
 
@@ -324,5 +328,21 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
+    }
+
+    private void requestAppPermissions() {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+
+        if (Utils.hasWritePermissions(currentActivity) && Utils.hasPhonePermissions(currentActivity)) {
+            return;
+        }
+
+        ActivityCompat.requestPermissions(currentActivity,
+                new String[] {
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE
+                }, 999); // your request code
     }
 }

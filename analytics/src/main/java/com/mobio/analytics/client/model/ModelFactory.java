@@ -9,17 +9,24 @@ import com.mobio.analytics.client.model.digienty.DataIdentity;
 import com.mobio.analytics.client.model.digienty.DataNotification;
 import com.mobio.analytics.client.model.digienty.DataTrack;
 import com.mobio.analytics.client.model.digienty.Device;
+import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Identity;
 import com.mobio.analytics.client.model.digienty.IdentityDetail;
+import com.mobio.analytics.client.model.digienty.Journey;
 import com.mobio.analytics.client.model.digienty.Network;
 import com.mobio.analytics.client.model.digienty.Notification;
 import com.mobio.analytics.client.model.digienty.Os;
+import com.mobio.analytics.client.model.digienty.Properties;
+import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.digienty.Screen;
 import com.mobio.analytics.client.model.digienty.Sdk;
 import com.mobio.analytics.client.model.digienty.Track;
 import com.mobio.analytics.client.utility.NetworkUtil;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModelFactory {
 
@@ -101,5 +108,28 @@ public class ModelFactory {
         return new Identity().putSdk(getSdk())
                 .putIdentityDetail(getIdentityDetail(context))
                 .putActionTime(System.currentTimeMillis());
+    }
+
+    public static List<Event> createBaseList(Push push, String object){
+        Push.Data data = push.getData();
+        Journey journey = new Journey()
+                .putId(data.getJourneyId())
+                .putNodeId(data.getNodeId())
+                .putInstanceId(data.getInstanceId())
+                .putMasterCampaignId(data.getMasterCampaignId())
+                .putMerchantId(data.getMerchantId())
+                .putPopupId(data.getPopupId())
+                .putProfileId(data.getProfileId());
+        Event.Base base = new Event.Base()
+                .putObject(object)
+                .putValue(new Properties().putValue("journey", journey));
+
+        ArrayList<Event> events = new ArrayList<>();
+        Event event = new Event().putBase(base)
+                .putSource("popup_builder")
+                .putType("base")
+                .putActionTime(System.currentTimeMillis());
+        events.add(event);
+        return events;
     }
 }

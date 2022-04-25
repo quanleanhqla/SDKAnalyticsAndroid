@@ -29,6 +29,7 @@ import androidx.core.view.ViewCompat;
 import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.MobioSDKClient;
+import com.mobio.analytics.client.model.ModelFactory;
 import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Journey;
 import com.mobio.analytics.client.model.digienty.Properties;
@@ -254,10 +255,9 @@ public class HtmlController {
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                            switch (keyCode) {
-                                case KeyEvent.KEYCODE_BACK:
-                                    dismissMessage();
-                                    return true;
+                            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                                dismissMessage();
+                                return true;
                             }
                         }
                         return false;
@@ -266,7 +266,9 @@ public class HtmlController {
                 webView.setDownloadListener(new DownloadListener() {
                     @Override
                     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                        download(url, userAgent, contentDisposition, mimetype, contentLength);
+                        if(Utils.hasWritePermissions(activity)) {
+                            download(url, userAgent, contentDisposition, mimetype, contentLength);
+                        }
                     }
                 });
                 container.addView(webView);
@@ -319,7 +321,7 @@ public class HtmlController {
         String message = (String) dataVM.get("message");
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
-                MobioSDKClient.getInstance().track(createBaseList(push, "close"));
+                MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "close"));
                 dismissMessage();
                 return;
             }
@@ -340,7 +342,7 @@ public class HtmlController {
                             webView.loadUrl("javascript:showPopup('cc');");
                         }
 
-                        MobioSDKClient.getInstance().track(createBaseList(push, "open"));
+                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "open"));
                     }
                 });
             }
@@ -390,29 +392,6 @@ public class HtmlController {
             }
             MobioSDKClient.getInstance().track(listEvent);
         }
-    }
-
-    private List<Event> createBaseList(Push push, String object){
-        Push.Data data = push.getData();
-        Journey journey = new Journey()
-                .putId(data.getJourneyId())
-                .putNodeId(data.getNodeId())
-                .putInstanceId(data.getInstanceId())
-                .putMasterCampaignId(data.getMasterCampaignId())
-                .putMerchantId(data.getMerchantId())
-                .putPopupId(data.getPopupId())
-                .putProfileId(data.getProfileId());
-        Event.Base base = new Event.Base()
-                .putObject(object)
-                .putValue(new Properties().putValue("journey", journey));
-
-        ArrayList<Event> events = new ArrayList<>();
-        Event event = new Event().putBase(base)
-                .putSource("popup_builder")
-                .putType("base")
-                .putActionTime(System.currentTimeMillis());
-        events.add(event);
-        return events;
     }
 
     public String genDynamicHtml(String receiveHtml) {

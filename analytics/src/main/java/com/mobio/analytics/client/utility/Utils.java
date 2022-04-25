@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import com.mobio.analytics.BuildConfig;
 import com.mobio.analytics.client.model.digienty.Event;
@@ -348,5 +349,13 @@ public class Utils {
     public static String getLocale(Context context){
         //Locale current = context.getResources().getConfiguration().locale;
         return Locale.getDefault().getLanguage();
+    }
+
+    public static boolean hasWritePermissions(Context context) {
+        return (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public static boolean hasPhonePermissions(Context context) {
+        return (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
     }
 }

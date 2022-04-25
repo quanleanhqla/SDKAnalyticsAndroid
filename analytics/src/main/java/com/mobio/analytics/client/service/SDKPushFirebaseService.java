@@ -6,6 +6,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.mobio.analytics.client.MobioSDKClient;
+import com.mobio.analytics.client.model.ModelFactory;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.digienty.ValueMap;
@@ -39,9 +40,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
             try {
                 Push push = createPush(remoteMessage.getData().toString());
 
-                MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Receive_Push_In_App, new Properties().putValue("push_id", "abc")
-                        .putValue("device", "Android")
-                        .putValue("action_time", Utils.getTimeUTC()));
+                MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "receive"));
 
                 if (SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
                     MobioSDKClient.getInstance().showGlobalPopup(push);
