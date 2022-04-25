@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.model.digienty.Event;
+import com.mobio.analytics.client.model.digienty.Journey;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -255,7 +256,7 @@ public class HtmlController {
                         if (event.getAction() == KeyEvent.ACTION_DOWN) {
                             switch (keyCode) {
                                 case KeyEvent.KEYCODE_BACK:
-                                    dismissMessage();
+                                    //dismissMessage();
                                     return true;
                             }
                         }
@@ -318,6 +319,7 @@ public class HtmlController {
         String message = (String) dataVM.get("message");
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
+                MobioSDKClient.getInstance().track(createBaseList(push, "close"));
                 dismissMessage();
                 return;
             }
@@ -337,6 +339,8 @@ public class HtmlController {
                             webView.loadUrl("javascript:handleReplacePersonalization('" + getProfileInfoToWebview(push) + "');");
                             webView.loadUrl("javascript:showPopup('cc');");
                         }
+
+                        MobioSDKClient.getInstance().track(createBaseList(push, "open"));
                     }
                 });
             }
@@ -379,12 +383,36 @@ public class HtmlController {
                 listDynamic.add(new Event.Dynamic().putEventKey(eventKey).putEventData(
                         new Properties().putValue("action_time", actionTime)).putValue("includedReport", includedReport));
                 Event eventDynamic = new Event().putSource("popup_builder")
-                        .putType("dynamic").putActionTime(123456789)
+                        .putType("dynamic")
+                        .putActionTime(System.currentTimeMillis())
                         .putDynamic(listDynamic);
                 listEvent.add(eventDynamic);
             }
             MobioSDKClient.getInstance().track(listEvent);
         }
+    }
+
+    private List<Event> createBaseList(Push push, String object){
+        Push.Data data = push.getData();
+        Journey journey = new Journey()
+                .putId(data.getJourneyId())
+                .putNodeId(data.getNodeId())
+                .putInstanceId(data.getInstanceId())
+                .putMasterCampaignId(data.getMasterCampaignId())
+                .putMerchantId(data.getMerchantId())
+                .putPopupId(data.getPopupId())
+                .putProfileId(data.getProfileId());
+        Event.Base base = new Event.Base()
+                .putObject(object)
+                .putValue(new Properties().putValue("journey", journey));
+
+        ArrayList<Event> events = new ArrayList<>();
+        Event event = new Event().putBase(base)
+                .putSource("popup_builder")
+                .putType("base")
+                .putActionTime(System.currentTimeMillis());
+        events.add(event);
+        return events;
     }
 
     public String genDynamicHtml(String receiveHtml) {

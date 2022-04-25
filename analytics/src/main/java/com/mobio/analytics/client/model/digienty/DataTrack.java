@@ -24,4 +24,8 @@ public class DataTrack extends Properties {
     public DataTrack putTrack(Track track){
         return putValue(KEY_TRACK, track);
     }
+
+    public Track getTrack(){
+        return getValueMap(KEY_TRACK, Track.class);
+    }
 }

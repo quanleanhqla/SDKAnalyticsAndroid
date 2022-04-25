@@ -31,6 +31,10 @@ public class Identity extends Properties {
         return putValue(KEY_IDENTITY_DETAIL, identity_detail);
     }
 
+    public IdentityDetail getDetail(){
+        return getValueMap(KEY_IDENTITY_DETAIL, IdentityDetail.class);
+    }
+
     public Identity putActionTime(long actionTime){
         return putValue(KEY_ACTION_TIME, actionTime);
     }

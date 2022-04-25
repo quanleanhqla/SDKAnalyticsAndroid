@@ -136,6 +136,10 @@ public class Push extends Properties {
             return putValue(KEY_POPUP_ID, popup_id);
         }
 
+        public String getPopupId(){
+            return getString(KEY_POPUP_ID);
+        }
+
         public Data putPopupUrl(String popup_url){
             return putValue(KEY_POPUP_URL, popup_url);
         }
@@ -148,8 +152,16 @@ public class Push extends Properties {
             return putValue(KEY_MERCHANT_ID, merchant_id);
         }
 
+        public String getMerchantId(){
+            return getString(KEY_MERCHANT_ID);
+        }
+
         public Data putMasterCampaignId(String master_campaign_id){
             return putValue(KEY_MASTER_CAMPAIGN_ID, master_campaign_id);
+        }
+
+        public String getMasterCampaignId(){
+            return getString(KEY_MASTER_CAMPAIGN_ID);
         }
 
         public Data putProfileInfo(Object profile_info){
@@ -160,12 +172,24 @@ public class Push extends Properties {
             return putValue(KEY_PROFILE_ID, profile_id);
         }
 
+        public String getProfileId(){
+            return getString(KEY_PROFILE_ID);
+        }
+
         public Data putJourneyId(String journey_id){
             return putValue(KEY_JOURNEY_ID, journey_id);
         }
 
+        public String getJourneyId(){
+            return getString(KEY_JOURNEY_ID);
+        }
+
         public Data putNodeId(String node_id){
             return putValue(KEY_NODE_ID, node_id);
+        }
+
+        public String getNodeId(){
+            return getString(KEY_NODE_ID);
         }
 
         public Data putSendId(String send_id){
@@ -178,6 +202,10 @@ public class Push extends Properties {
 
         public Data putInstanceId(String instance_id){
             return putValue(KEY_INSTANCE_ID, instance_id);
+        }
+
+        public String getInstanceId(){
+            return getString(KEY_INSTANCE_ID);
         }
     }
 

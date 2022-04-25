@@ -4,25 +4,48 @@ import com.google.gson.annotations.SerializedName;
 import com.mobio.analytics.client.model.digienty.Device;
 
 public class SendEventResponse {
-    @SerializedName("device")
-    Device device;
+    @SerializedName("action_time")
+    String actionTime;
 
-    public SendEventResponse(Device device) {
-        this.device = device;
+    @SerializedName("d_id")
+    String dId;
+
+    @SerializedName("t_id")
+    String tId;
+
+    @SerializedName("u_id")
+    String uId;
+
+    public SendEventResponse(String actionTime, String dId, String tId, String uId) {
+        this.actionTime = actionTime;
+        this.dId = dId;
+        this.tId = tId;
+        this.uId = uId;
     }
 
-    public Device getDevice() {
-        return device;
+    public String getActionTime() {
+        return actionTime;
     }
 
-    public void setDevice(Device device) {
-        this.device = device;
+    public String getdId() {
+        return dId;
+    }
+
+    public String gettId() {
+        return tId;
+    }
+
+    public String getuId() {
+        return uId;
     }
 
     @Override
     public String toString() {
         return "SendEventResponse{" +
-                "device=" + device +
+                "actionTime='" + actionTime + '\'' +
+                ", dId='" + dId + '\'' +
+                ", tId='" + tId + '\'' +
+                ", uId='" + uId + '\'' +
                 '}';
     }
 }

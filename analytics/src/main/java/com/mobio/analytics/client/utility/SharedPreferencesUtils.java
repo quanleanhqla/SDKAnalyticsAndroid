@@ -28,6 +28,7 @@ public class SharedPreferencesUtils {
     public static final String KEY_PENDING_PUSH = "key_pending_push";
     public static final String KEY_SEND_QUEUE = "key_send_queue";
     public static final String KEY_JOURNEY = "key_journey";
+    public static final String KEY_D_ID = "d_id";
 
     private static SharedPreferences getSharedPreferences(Context context){
         return context.getSharedPreferences(KEY_SP, Context.MODE_PRIVATE);

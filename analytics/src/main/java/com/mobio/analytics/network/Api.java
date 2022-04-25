@@ -1,5 +1,7 @@
 package com.mobio.analytics.network;
 
+import com.mobio.analytics.client.model.reponse.SendEventResponse;
+
 import java.util.Map;
 
 import retrofit2.Call;
@@ -16,11 +18,11 @@ public interface Api {
     Call<Void> sendSync(@HeaderMap Map<String, String> headers, @Body Map<String, Object> sendSyncObject, @Path("endpoint") String endpoint);
 
     @POST("track.json")
-    Call<Void> sendEvent(@Body Map<String, Object> sendEventObject);
+    Call<SendEventResponse> sendEvent(@Body Map<String, Object> sendEventObject);
 
     @POST("device.json")
-    Call<Void> sendDevice(@Body Map<String, Object> sendDeviceObject);
+    Call<SendEventResponse> sendDevice(@Body Map<String, Object> sendDeviceObject);
 
     @POST("device/notification.json")
-    Call<Void> sendNotification(@Body Map<String, Object> sendNotificationObject);
+    Call<SendEventResponse> sendNotification(@Body Map<String, Object> sendNotificationObject);
 }

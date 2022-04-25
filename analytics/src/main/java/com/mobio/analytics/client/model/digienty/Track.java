@@ -33,6 +33,10 @@ public class Track extends Properties {
         return putValue(KEY_DEVICE, device);
     }
 
+    public Device getDevice(){
+        return getValueMap(KEY_DEVICE, Device.class);
+    }
+
     public Track putActionTime(long actionTime){
         return putValue(KEY_ACTION_TIME, actionTime);
     }

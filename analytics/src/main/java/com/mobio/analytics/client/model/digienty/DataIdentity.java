@@ -24,4 +24,8 @@ public class DataIdentity extends Properties {
     public DataIdentity putIdentity(Identity identity){
         return putValue(KEY_IDENTITY, identity);
     }
+
+    public Identity getIdentity(){
+        return getValueMap(KEY_IDENTITY, Identity.class);
+    }
 }

@@ -20,6 +20,7 @@ import com.mobio.analytics.client.model.ModelFactory;
 import com.mobio.analytics.client.model.digienty.DataIdentity;
 import com.mobio.analytics.client.model.digienty.DataNotification;
 import com.mobio.analytics.client.model.digienty.DataTrack;
+import com.mobio.analytics.client.model.digienty.Device;
 import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Identity;
 import com.mobio.analytics.client.model.digienty.IdentityDetail;
@@ -28,6 +29,7 @@ import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.digienty.Track;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
+import com.mobio.analytics.client.model.reponse.SendEventResponse;
 import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.receiver.NetworkChangeReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -162,6 +164,8 @@ public class MobioSDKClient {
             alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         }
 
+        initIdentityCache();
+        initNotificationCache();
         initTrackCache();
         initNetworkReceiver();
     }
@@ -383,21 +387,48 @@ public class MobioSDKClient {
         processSend(cacheValueTrack);
     }
 
+    private void updateAllCacheValue(SendEventResponse sendEventResponse){
+
+        String d_id = sendEventResponse.getdId();
+        if(d_id != null) {
+            if(SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_D_ID) == null) {
+                SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_D_ID, d_id);
+
+                Track track = cacheValueTrack.getTrack();
+                Device device = track.getDevice();
+                device.putDId(d_id);
+
+                Identity identity = cacheValueIdentity.getIdentity();
+                IdentityDetail identityDetail = identity.getDetail();
+                identityDetail.putDId(d_id);
+
+                Notification notification = cacheValueNotification.getNotification();
+                IdentityDetail deviceNoti = notification.getDevice();
+                deviceNoti.putDId(d_id);
+            }
+        }
+    }
+
     public boolean sendv2(Properties value) {
         try {
-            Response<Void> response = null;
+            Response<SendEventResponse> response = null;
             LogMobio.logD("Send event v2", "send = " + new Gson().toJson(value));
             String typeOfValue = Utils.getTypeOfData(value);
 
             if (typeOfValue == null) return false;
-            if (typeOfValue.equals("track")) {
-                response = RetrofitClient.getInstance().getMyApi().sendEvent(value).execute();
-            } else if (typeOfValue.equals("identity")) {
-                response = RetrofitClient.getInstance().getMyApi().sendDevice(value).execute();
+            switch (typeOfValue) {
+                case "track":
+                    response = RetrofitClient.getInstance().getMyApi().sendEvent(value).execute();
+                    break;
+                case "identity":
+                    response = RetrofitClient.getInstance().getMyApi().sendDevice(value).execute();
+                    break;
+                case "notification":
+                    response = RetrofitClient.getInstance().getMyApi().sendNotification(value).execute();
+                    break;
             }
-            else if(typeOfValue.equals("notification")){
-                response = RetrofitClient.getInstance().getMyApi().sendNotification(value).execute();
-            }
+
+            if (response == null) return false;
 
             LogMobio.logD("Send event v2", "code = " + response.code());
 
@@ -406,7 +437,11 @@ public class MobioSDKClient {
                 LogMobio.logD("Send event v2", "response error body = " + jObjError.toString());
                 return false;
             } else {
-                LogMobio.logD("Send event v2", "response body = " + response.body());
+                SendEventResponse sendEventResponse = response.body();
+                if(sendEventResponse != null){
+                    LogMobio.logD("Send event v2", "response body = " + sendEventResponse.toString());
+                    updateAllCacheValue(sendEventResponse);
+                }
                 return true;
             }
         } catch (IOException | JSONException e) {

@@ -39,8 +39,6 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
             try {
                 Push push = createPush(remoteMessage.getData().toString());
 
-                if(push == null) return;
-
                 MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Receive_Push_In_App, new Properties().putValue("push_id", "abc")
                         .putValue("device", "Android")
                         .putValue("action_time", Utils.getTimeUTC()));

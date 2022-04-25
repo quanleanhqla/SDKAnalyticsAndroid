@@ -35,6 +35,10 @@ public class Notification extends Properties {
         return putValue(KEY_DEVICE, identityDetail);
     }
 
+    public IdentityDetail getDevice(){
+        return getValueMap(KEY_DEVICE, IdentityDetail.class);
+    }
+
     public Notification putDetail(Detail detail){
         return putValue(KEY_DETAIL, detail);
     }
