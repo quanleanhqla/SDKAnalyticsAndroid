@@ -53,7 +53,7 @@ public class ModelFactory {
     }
 
     private static Sdk getSdk(){
-        return new Sdk().putCode("123456")
+        return new Sdk().putCode("m-android-test-1")
                 .putSource("MobioBank")
                 .putName("SDK_ANDROID")
                 .putBuild(BuildConfig.VERSION_CODE+"")

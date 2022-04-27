@@ -164,10 +164,12 @@ public class MobioSDKClient {
             alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         }
 
+        LogMobio.logD("QuanLA", "1");
         initIdentityCache();
         initNotificationCache();
         initTrackCache();
         initNetworkReceiver();
+        LogMobio.logD("QuanLA", "2");
     }
 
     private void saveNetworkProperties(String merchantId, String apiToken, String domainURL, String endPoint) {
@@ -360,6 +362,7 @@ public class MobioSDKClient {
     }
 
     public void track(String eventKey, Properties eventData) {
+        LogMobio.logD("QuanLA", "Track 1");
         if (cacheValueTrack == null) {
             initTrackCache();
         }
@@ -371,6 +374,7 @@ public class MobioSDKClient {
                 }
             }
         });
+        LogMobio.logD("QuanLA", "Track 2");
 
     }
 
@@ -771,7 +775,7 @@ public class MobioSDKClient {
     }
 
     public void identify() {
-        LogMobio.logD("Identity", "identify()");
+        LogMobio.logD("QuanLA", "identify()");
         Future<?> future = analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
