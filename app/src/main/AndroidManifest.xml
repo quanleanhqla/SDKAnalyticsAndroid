@@ -41,7 +41,45 @@
             android:name=".HomeActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:theme="@style/CustomTheme" />
+            android:theme="@style/CustomTheme">
+            <intent-filter android:label="Demo Analytics">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "example://gizmos” -->
+                <data
+                    android:host="analytics"
+                    android:scheme="example" />
+            </intent-filter>
+            <intent-filter android:label="Demo Analytics"
+                android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
+                <data android:scheme="https"/>
+                <data
+                    android:host="www.test38.mobio.vn"
+                    android:pathPrefix="/app/mobiobank/home"/>
+                <!-- note that the leading "/" is required for pathPrefix -->
+            </intent-filter>
+
+            <intent-filter android:label="Demo Analytics"
+                android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
+                <data android:scheme="https"/>
+                <data
+                    android:host="bom.so"
+                    android:pathPrefix="/t6Dx6m" />
+                <!-- note that the leading "/" is required for pathPrefix -->
+            </intent-filter>
+        </activity>
         <activity
             android:name=".SavingActivity"
             android:exported="true"
@@ -58,16 +96,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:label="Demo Analytics">
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "example://gizmos” -->
-                <data
-                    android:host="analytics"
-                    android:scheme="example" />
-            </intent-filter>
             <intent-filter android:label="Demo Analytics">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -76,7 +105,7 @@
                 <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
                 <data
                     android:host="www.test38.mobio.vn"
-                    android:pathPrefix="/app/mobiobank"
+                    android:pathPrefix="/app/mobiobank/login"
                     android:scheme="https" />
                 <!-- note that the leading "/" is required for pathPrefix -->
             </intent-filter>

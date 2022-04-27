@@ -9,6 +9,7 @@ public class Event extends ValueMap{
     private static final String KEY_TYPE= "type";
     private static final String KEY_BASE= "base";
     private static final String KEY_DYNAMIC= "dynamics";
+    private static final String KEY_INCLUEDED_REPORT= "included_report";
 
     public Event() {
     }
@@ -45,6 +46,10 @@ public class Event extends ValueMap{
 
     public Event putDynamic(List<Dynamic> dynamic){
         return putValue(KEY_DYNAMIC, dynamic);
+    }
+
+    public Event putIncludedReport(int includedReport){
+        return putValue(KEY_INCLUEDED_REPORT, includedReport);
     }
 
     public static class Base extends Properties{

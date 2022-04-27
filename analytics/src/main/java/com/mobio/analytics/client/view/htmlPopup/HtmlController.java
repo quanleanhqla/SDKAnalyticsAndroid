@@ -31,7 +31,6 @@ import com.mobio.analytics.R;
 import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.model.ModelFactory;
 import com.mobio.analytics.client.model.digienty.Event;
-import com.mobio.analytics.client.model.digienty.Journey;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.utility.LogMobio;
@@ -203,6 +202,7 @@ public class HtmlController {
                     @Override
                     public void onReceiveMessage(String data) {
                         processReceivedMessage(data);
+                        LogMobio.logD("QuanLA", "data " + data);
                     }
 
                     @Override
@@ -266,7 +266,7 @@ public class HtmlController {
                 webView.setDownloadListener(new DownloadListener() {
                     @Override
                     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                        if(Utils.hasWritePermissions(activity)) {
+                        if (Utils.hasWritePermissions(activity)) {
                             download(url, userAgent, contentDisposition, mimetype, contentLength);
                         }
                     }
@@ -309,7 +309,7 @@ public class HtmlController {
                     root.removeView(root.findViewById(20001));
                 }
 
-                if(closeActivity){
+                if (closeActivity) {
                     activity.finish();
                 }
             }
@@ -321,15 +321,21 @@ public class HtmlController {
         String message = (String) dataVM.get("message");
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
-                MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "close"));
+                MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "close", "click"));
                 dismissMessage();
                 return;
             }
 
             if (message.equals("MO_BUTTON_CLICK")) {
-                processDynamicEvents(dataVM);
+                processClickButton(dataVM);
                 return;
             }
+
+            if (message.equals("MO_SUBMIT_BUTTON_CLICK")) {
+                processSubmitForm(dataVM);
+                return;
+            }
+
             if (message.equals("MO_POPUP_LOADED")) {
                 webView.post(new Runnable() {
                     @Override
@@ -342,11 +348,30 @@ public class HtmlController {
                             webView.loadUrl("javascript:showPopup('cc');");
                         }
 
-                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "open"));
+                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "open"));
                     }
                 });
             }
         }
+    }
+
+    private void processSubmitForm(Properties dataVM) {
+        if (dataVM == null) return;
+
+        Properties formData = dataVM.getValueMap("formData", Properties.class);
+        String id = formData.getString("id");
+        Properties field = formData.getValueMap("fields", Properties.class);
+
+        Properties tags = dataVM.getValueMap("tags", Properties.class);
+
+        Properties value = createValueForBase("submit", id, field, tags);
+        Event.Base base = ModelFactory.createBase("button", value);
+        Event event = new Event().putBase(base).putSource("popup_builder").putType("click");
+
+        ArrayList<Event> events = new ArrayList<>();
+        events.add(event);
+
+        MobioSDKClient.getInstance().track(events);
     }
 
     private String getProfileInfoToWebview(Push push) {
@@ -360,9 +385,14 @@ public class HtmlController {
         return "";
     }
 
-    private void processDynamicEvents(Properties valueMap) {
+    private void processClickButton(Properties valueMap) {
         long actionTime = 0;
         List<Properties> listEvents = valueMap.getList("events", Properties.class);
+        Properties tags = valueMap.getValueMap("tags", Properties.class);
+        int includedReport = valueMap.getInt("includedReport", 0);
+        String id = valueMap.getString("id");
+        String name = valueMap.getString("name");
+
         ArrayList<Event> listEvent = new ArrayList<>();
         if (listEvents != null && listEvents.size() > 0) {
             for (int i = 0; i < listEvents.size(); i++) {
@@ -370,28 +400,48 @@ public class HtmlController {
 
                 if (tempEvent == null) continue;
 
-                String eventKey = (String) tempEvent.get("eventKey");
-                Properties eventData = (Properties) tempEvent.get("eventData");
-                boolean includedReport = tempEvent.getBoolean("includedReport", false);
+                String eventKey = tempEvent.getString("eventKey");
+                Properties eventData = tempEvent.getValueMap("eventData", Properties.class);
 
                 if (eventData != null) {
                     List<Properties> fields = eventData.getList("fields", Properties.class);
                     if (fields != null && fields.size() > 0) {
-                        actionTime = (long) fields.get(0).getLong("value", 0);
+                        actionTime = fields.get(0).getLong("value", 0);
                     }
                 }
 
                 ArrayList<Event.Dynamic> listDynamic = new ArrayList<>();
                 listDynamic.add(new Event.Dynamic().putEventKey(eventKey).putEventData(
-                        new Properties().putValue("action_time", actionTime)).putValue("includedReport", includedReport));
+                        new Properties().putValue("action_time", actionTime)));
                 Event eventDynamic = new Event().putSource("popup_builder")
                         .putType("dynamic")
                         .putActionTime(System.currentTimeMillis())
                         .putDynamic(listDynamic);
                 listEvent.add(eventDynamic);
             }
-            MobioSDKClient.getInstance().track(listEvent);
         }
+
+        if (includedReport == 1) {
+            Properties value = createValueForBase("click", id, null, tags);
+            Event.Base base = ModelFactory.createBase("button", value);
+            Event event = new Event().putBase(base).putSource("popup_builder")
+                    .putType("click")
+                    .putActionTime(System.currentTimeMillis())
+                    .putIncludedReport(includedReport);
+            listEvent.add(event);
+        }
+        MobioSDKClient.getInstance().track(listEvent);
+
+    }
+
+    private Properties createValueForBase(String type, String id, Properties field, Properties tags) {
+        Properties value = new Properties()
+                .putValue("button", new Properties().putValue("type", type).putValue("id", id))
+                .putValue("tags", tags)
+                .putValue("journey", ModelFactory.getJourney(push));
+        if (field != null) value.putValue("input_fields", field);
+
+        return value;
     }
 
     public String genDynamicHtml(String receiveHtml) {
@@ -405,5 +455,4 @@ public class HtmlController {
         }
         return html.substring(0, endPos) + receiveHtml + html.substring(endPos);
     }
-
 }

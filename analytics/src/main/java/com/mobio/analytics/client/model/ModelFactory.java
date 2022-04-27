@@ -56,6 +56,7 @@ public class ModelFactory {
         return new Sdk().putCode("123456")
                 .putSource("MobioBank")
                 .putName("SDK_ANDROID")
+                .putBuild(BuildConfig.VERSION_CODE+"")
                 .putVersion(BuildConfig.VERSION_NAME);
     }
 
@@ -110,9 +111,32 @@ public class ModelFactory {
                 .putActionTime(System.currentTimeMillis());
     }
 
-    public static List<Event> createBaseList(Push push, String object){
+    public static List<Event> createBaseList(Push push, String object, String type){
+        Event.Base base = new Event.Base()
+                .putObject(object)
+                .putValue(new Properties().putValue("journey", getJourney(push)));
+
+        ArrayList<Event> events = new ArrayList<>();
+        Event event = new Event().putBase(base)
+                .putSource("popup_builder")
+                .putType(type)
+                .putActionTime(System.currentTimeMillis());
+        events.add(event);
+        return events;
+    }
+
+    public static Event.Base createBase(String object, Properties value){
+        return new Event.Base()
+                .putObject(object)
+                .putValue(value);
+    }
+
+    public static Journey getJourney(Push push){
         Push.Data data = push.getData();
-        Journey journey = new Journey()
+
+        if(data == null) return null;
+
+        return new Journey()
                 .putId(data.getJourneyId())
                 .putNodeId(data.getNodeId())
                 .putInstanceId(data.getInstanceId())
@@ -120,16 +144,5 @@ public class ModelFactory {
                 .putMerchantId(data.getMerchantId())
                 .putPopupId(data.getPopupId())
                 .putProfileId(data.getProfileId());
-        Event.Base base = new Event.Base()
-                .putObject(object)
-                .putValue(new Properties().putValue("journey", journey));
-
-        ArrayList<Event> events = new ArrayList<>();
-        Event event = new Event().putBase(base)
-                .putSource("popup_builder")
-                .putType("base")
-                .putActionTime(System.currentTimeMillis());
-        events.add(event);
-        return events;
     }
 }
