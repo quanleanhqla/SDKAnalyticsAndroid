@@ -34,7 +34,7 @@ public class ModelFactory {
         return new Device().putChannel("app")
                 .putType("mobile")
                 .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_D_ID))
-                .putTId("Quan2022")
+                .putTId(Utils.getIMEIDeviceId(context))
                 .putUId(Utils.getIMEIDeviceId(context));
     }
 
@@ -42,7 +42,7 @@ public class ModelFactory {
         return new IdentityDetail().putChannel("app")
                 .putType("mobile")
                 .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_D_ID))
-                .putTId("Quan2022")
+                .putTId(Utils.getIMEIDeviceId(context))
                 .putUId(Utils.getIMEIDeviceId(context))
                 .putOs(getOs())
                 .putNetwork(getNetwork(context))

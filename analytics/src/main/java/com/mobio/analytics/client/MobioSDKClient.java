@@ -389,7 +389,7 @@ public class MobioSDKClient {
 
     private void updateAllCacheValue(SendEventResponse sendEventResponse){
 
-        String d_id = sendEventResponse.getdId();
+        String d_id = sendEventResponse.getData().getdId();
         if(d_id != null) {
             if(SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_D_ID) == null) {
                 SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_D_ID, d_id);

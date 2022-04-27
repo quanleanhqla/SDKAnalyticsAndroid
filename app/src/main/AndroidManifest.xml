@@ -97,7 +97,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <intent-filter android:label="Demo Analytics">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="Demo Analytics">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
