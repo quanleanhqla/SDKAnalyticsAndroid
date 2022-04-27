@@ -222,26 +222,26 @@ public class Utils {
 
         String deviceId;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        } else {
-            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    return "";
-                }
-            }
-            assert mTelephony != null;
-            if (mTelephony.getDeviceId() != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    deviceId = mTelephony.getImei();
-                } else {
-                    deviceId = mTelephony.getDeviceId();
-                }
-            } else {
-                deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-            }
-        }
+//        } else {
+//            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+//                    return "";
+//                }
+//            }
+//            assert mTelephony != null;
+//            if (mTelephony.getDeviceId() != null) {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                    deviceId = mTelephony.getImei();
+//                } else {
+//                    deviceId = mTelephony.getDeviceId();
+//                }
+//            } else {
+//                deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+//            }
+//        }
         LogMobio.logD("deviceId", deviceId);
         return deviceId;
     }
