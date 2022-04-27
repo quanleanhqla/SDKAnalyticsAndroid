@@ -365,13 +365,16 @@ public class MobioSDKClient {
         LogMobio.logD("QuanLA", "Track 1");
         if (cacheValueTrack == null) {
             initTrackCache();
+            LogMobio.logD("QuanLA", "Track 3 "+cacheValueTrack.toString());
         }
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 if (eventData != null) {
+                    LogMobio.logD("QuanLA", "Track 4");
                     processTrack(eventKey, eventData);
                 }
+                LogMobio.logD("QuanLA", "Track 5");
             }
         });
         LogMobio.logD("QuanLA", "Track 2");
@@ -379,16 +382,21 @@ public class MobioSDKClient {
     }
 
     private void processTrack(String eventKey, Properties eventData) {
+        LogMobio.logD("QuanLA", "Track 8");
         eventData.put("action_time", System.currentTimeMillis());
         cacheValueTrack.getValueMap("track", Track.class)
                 .putEvents(Utils.createListEvent(Utils.createDynamicListEvent(eventKey, eventData)))
                 .putActionTime(System.currentTimeMillis());
+
+        LogMobio.logD("QuanLA", "Track 9 "+cacheValueTrack.toString());
 
         if (!checkEventExistInJourneyWeb(eventKey, eventData)) {
             processCommonPushBeforeSync(eventKey, eventData);
         }
 
         processSend(cacheValueTrack);
+
+        LogMobio.logD("QuanLA", "Track 6");
     }
 
     private void updateAllCacheValue(SendEventResponse sendEventResponse){
@@ -731,6 +739,7 @@ public class MobioSDKClient {
     }
 
     private void processSend(Properties data) {
+        LogMobio.logD("QuanLA", "Track 7");
         listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.KEY_SEND_QUEUE);
         sendv2(data);
 
