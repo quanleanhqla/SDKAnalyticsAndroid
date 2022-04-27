@@ -335,14 +335,13 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
             return;
         }
 
-        if (Utils.hasWritePermissions(currentActivity) && Utils.hasPhonePermissions(currentActivity)) {
+        if (Utils.hasWritePermissions(currentActivity) ) {
             return;
         }
 
         ActivityCompat.requestPermissions(currentActivity,
                 new String[] {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_PHONE_STATE
                 }, 999); // your request code
     }
 
