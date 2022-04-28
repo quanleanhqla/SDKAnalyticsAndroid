@@ -321,7 +321,7 @@ public class HtmlController {
         String message = (String) dataVM.get("message");
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
-                MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "close", "click"));
+                MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close"));
                 dismissMessage();
                 return;
             }
@@ -363,15 +363,22 @@ public class HtmlController {
         Properties field = formData.getValueMap("fields", Properties.class);
 
         Properties tags = dataVM.getValueMap("tags", Properties.class);
+        String buttonId = dataVM.getString("buttonId");
+        boolean hasSecondPage = dataVM.getBoolean("hasSecondPage", false);
 
         Properties value = createValueForBase("submit", id, field, tags);
         Event.Base base = ModelFactory.createBase("button", value);
-        Event event = new Event().putBase(base).putSource("popup_builder").putType("click");
+        Event event = new Event().putBase(base).putSource("popup_builder")
+                .putType("submit").putActionTime(System.currentTimeMillis());
 
         ArrayList<Event> events = new ArrayList<>();
         events.add(event);
 
         MobioSDKClient.getInstance().track(events);
+
+        if(!hasSecondPage) {
+            dismissMessage();
+        }
     }
 
     private String getProfileInfoToWebview(Push push) {
@@ -390,6 +397,7 @@ public class HtmlController {
         List<Properties> listEvents = valueMap.getList("events", Properties.class);
         Properties tags = valueMap.getValueMap("tags", Properties.class);
         int includedReport = valueMap.getInt("includedReport", 0);
+        boolean hasSecondPage = valueMap.getBoolean("hasSecondPage", false);
         String id = valueMap.getString("id");
         String name = valueMap.getString("name");
 
@@ -431,7 +439,7 @@ public class HtmlController {
             listEvent.add(event);
         }
         MobioSDKClient.getInstance().track(listEvent);
-
+        if(!hasSecondPage) dismissMessage();
     }
 
     private Properties createValueForBase(String type, String id, Properties field, Properties tags) {

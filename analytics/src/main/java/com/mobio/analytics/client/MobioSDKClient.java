@@ -49,12 +49,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-
 
 import retrofit2.Response;
 
@@ -164,12 +162,10 @@ public class MobioSDKClient {
             alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         }
 
-        LogMobio.logD("QuanLA", "1");
         initIdentityCache();
         initNotificationCache();
         initTrackCache();
         initNetworkReceiver();
-        LogMobio.logD("QuanLA", "2");
     }
 
     private void saveNetworkProperties(String merchantId, String apiToken, String domainURL, String endPoint) {
@@ -362,41 +358,30 @@ public class MobioSDKClient {
     }
 
     public void track(String eventKey, Properties eventData) {
-        LogMobio.logD("QuanLA", "Track 1");
         if (cacheValueTrack == null) {
             initTrackCache();
-            LogMobio.logD("QuanLA", "Track 3 "+cacheValueTrack.toString());
         }
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 if (eventData != null) {
-                    LogMobio.logD("QuanLA", "Track 4");
                     processTrack(eventKey, eventData);
                 }
-                LogMobio.logD("QuanLA", "Track 5");
             }
         });
-        LogMobio.logD("QuanLA", "Track 2");
-
     }
 
     private void processTrack(String eventKey, Properties eventData) {
-        LogMobio.logD("QuanLA", "Track 8");
         eventData.put("action_time", System.currentTimeMillis());
         cacheValueTrack.getValueMap("track", Track.class)
                 .putEvents(Utils.createListEvent(Utils.createDynamicListEvent(eventKey, eventData)))
                 .putActionTime(System.currentTimeMillis());
-
-        LogMobio.logD("QuanLA", "Track 9 "+cacheValueTrack.toString());
 
         if (!checkEventExistInJourneyWeb(eventKey, eventData)) {
             processCommonPushBeforeSync(eventKey, eventData);
         }
 
         processSend(cacheValueTrack);
-
-        LogMobio.logD("QuanLA", "Track 6");
     }
 
     private void updateAllCacheValue(SendEventResponse sendEventResponse){
@@ -556,7 +541,7 @@ public class MobioSDKClient {
             return;
         }
 
-        if (currentJsonEvent == null || currentJsonEvent.size() == 0) {
+        if (currentJsonEvent == null || currentJsonEvent.size() == 0 || currentJsonPush == null || currentJsonPush.size() == 0) {
             return;
         }
 
@@ -697,7 +682,7 @@ public class MobioSDKClient {
 
     private boolean checkEventExistInJourneyWeb(String eventKey, Properties eventData) {
 
-        if (currentJsonJourney.size() == 0) {
+        if (currentJsonJourney == null || currentJsonJourney.size() == 0) {
             return false;
         }
 
@@ -705,7 +690,7 @@ public class MobioSDKClient {
             String statusJb = (String) journey.get("status");
             if (statusJb == null) continue;
             if (statusJb.equals("todo")) {
-                List<Properties> listEvent = (List<Properties>) journey.get("events");
+                List<Properties> listEvent = journey.getList("events", Properties.class);
                 if (listEvent == null || listEvent.size() == 0) {
                     continue;
                 }
@@ -739,7 +724,6 @@ public class MobioSDKClient {
     }
 
     private void processSend(Properties data) {
-        LogMobio.logD("QuanLA", "Track 7");
         listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.KEY_SEND_QUEUE);
         sendv2(data);
 
@@ -777,8 +761,6 @@ public class MobioSDKClient {
         int minute = now.get(Calendar.MINUTE);
         int second = now.get(Calendar.SECOND);
         int millis = now.get(Calendar.MILLISECOND);
-
-        LogMobio.logD("QuanLA", "" + hour + ":" + minute + ":" + second + ":" + millis);
 
         return hour == 8 || hour == 13;
     }

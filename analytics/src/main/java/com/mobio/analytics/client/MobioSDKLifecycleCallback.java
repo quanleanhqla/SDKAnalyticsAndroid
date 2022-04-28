@@ -81,13 +81,10 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         this.screenConfigObjectHashMap = screenConfigObjectHashMap;
 
         alarmManager = (AlarmManager) application.getSystemService(ALARM_SERVICE);
-
-        LogMobio.logD("QuanLA","12");
     }
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-        LogMobio.logD("QuanLA","11 "+alreadyLaunch);
         if (!alreadyLaunch) {
             alreadyLaunch = true;
             doFirstOpen();
@@ -107,11 +104,9 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         SharedPreferencesUtils.editBool(application.getApplicationContext(), SharedPreferencesUtils.KEY_FIRST_START_APP, true);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
         SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
-        LogMobio.logD("QuanLA", "4");
         mobioSDKClient.identify();
         mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_First_App, new Properties().putValue("build", String.valueOf(currentVersionCode))
                 .putValue("version", currentVersionName));
-        LogMobio.logD("QuanLA", "4");
     }
 
     private Class<?> findDes(Push push){

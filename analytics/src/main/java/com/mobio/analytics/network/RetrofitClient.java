@@ -4,7 +4,6 @@ import com.mobio.analytics.BuildConfig;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -29,7 +28,8 @@ public class RetrofitClient {
     private Api myApi;
 
     private RetrofitClient() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(BuildConfig.API_URL)
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BuildConfig.API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(getUnsafeOkHttpClient().build())
                 .build();
@@ -121,5 +121,4 @@ public class RetrofitClient {
             };
         }
     }
-
 }

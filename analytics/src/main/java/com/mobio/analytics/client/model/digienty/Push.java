@@ -196,8 +196,16 @@ public class Push extends Properties {
             return putValue(KEY_SEND_ID, send_id);
         }
 
+        public String getSendId(){
+            return getString(KEY_SEND_ID);
+        }
+
         public Data putCode(String code){
             return putValue(KEY_CODE, code);
+        }
+
+        public String getCode(){
+            return getString(KEY_CODE);
         }
 
         public Data putInstanceId(String instance_id){

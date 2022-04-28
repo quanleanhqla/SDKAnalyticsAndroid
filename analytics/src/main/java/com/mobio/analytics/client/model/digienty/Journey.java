@@ -10,6 +10,8 @@ public class Journey extends Properties{
     private static final String MERCHANT_ID = "merchant_id";
     private static final String POPUP_ID = "popup_id";
     private static final String PROFILE_ID = "profile_id";
+    private static final String KEY_SEND_ID = "send_id";
+    private static final String KEY_CODE = "code";
 
     public Journey() {}
 
@@ -53,5 +55,13 @@ public class Journey extends Properties{
 
     public Journey putProfileId(String profileId){
         return putValue(PROFILE_ID, profileId);
+    }
+
+    public Journey putSendId(String send_id){
+        return putValue(KEY_SEND_ID, send_id);
+    }
+
+    public Journey putCode(String code){
+        return putValue(KEY_CODE, code);
     }
 }

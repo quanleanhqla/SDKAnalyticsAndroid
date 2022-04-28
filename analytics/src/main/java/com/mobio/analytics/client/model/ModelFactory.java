@@ -143,6 +143,8 @@ public class ModelFactory {
                 .putMasterCampaignId(data.getMasterCampaignId())
                 .putMerchantId(data.getMerchantId())
                 .putPopupId(data.getPopupId())
+                .putSendId(data.getSendId())
+                .putCode(data.getCode())
                 .putProfileId(data.getProfileId());
     }
 }
