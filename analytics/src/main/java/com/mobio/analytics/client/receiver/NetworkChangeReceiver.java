@@ -25,21 +25,21 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             if (status == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED) {
                 LogMobio.logD("QuanLA", "Network reciever not connect");
             } else {
-//                LogMobio.logD("QuanLA", "Network reciever connect");
-//                ArrayList<Properties> listDataWaitToSend = MobioSDKClient.getInstance().getListFromSharePref(SharedPreferencesUtils.KEY_SEND_QUEUE);
-//                if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
-//                    for (Properties vm : listDataWaitToSend) {
-//                        analyticsExecutor.submit(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                if(MobioSDKClient.getInstance().sendv2(vm)){
-//                                    listDataWaitToSend.remove(vm);
-//                                    MobioSDKClient.getInstance().updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_SEND_QUEUE);
-//                                }
-//                            }
-//                        });
-//                    }
-//                }
+                LogMobio.logD("QuanLA", "Network reciever connect");
+                ArrayList<Properties> listDataWaitToSend = MobioSDKClient.getInstance().getListFromSharePref(SharedPreferencesUtils.KEY_SEND_QUEUE);
+                if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
+                    for (Properties vm : listDataWaitToSend) {
+                        analyticsExecutor.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(MobioSDKClient.getInstance().sendv2(vm)){
+                                    listDataWaitToSend.remove(vm);
+                                    MobioSDKClient.getInstance().updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_SEND_QUEUE);
+                                }
+                            }
+                        });
+                    }
+                }
             }
         }
     }

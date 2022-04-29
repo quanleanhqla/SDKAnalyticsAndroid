@@ -725,7 +725,6 @@ public class MobioSDKClient {
 
     private void processSend(Properties data) {
         listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.KEY_SEND_QUEUE);
-        sendv2(data);
 
 //        if (Utils.isOnline(application)) {
 //            if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
@@ -736,9 +735,9 @@ public class MobioSDKClient {
 //                    }
 //                }
 //            }
-//            if (!sendv2(data)) {
-//                addSendQueue(data);
-//            }
+            if (!sendv2(data)) {
+                addSendQueue(data);
+            }
 //        } else {
 //            addSendQueue(data);
 //        }
