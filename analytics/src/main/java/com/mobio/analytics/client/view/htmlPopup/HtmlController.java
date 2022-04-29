@@ -365,11 +365,14 @@ public class HtmlController {
         Properties tags = dataVM.getValueMap("tags", Properties.class);
         String buttonId = dataVM.getString("buttonId");
         boolean hasSecondPage = dataVM.getBoolean("hasSecondPage", false);
+        int includedReport = dataVM.getInt("includedReport", 0);
 
         Properties value = createValueForBase("submit", id, field, tags);
         Event.Base base = ModelFactory.createBase("button", value);
         Event event = new Event().putBase(base).putSource("popup_builder")
-                .putType("submit").putActionTime(System.currentTimeMillis());
+                .putType("submit")
+                .putIncludedReport(includedReport)
+                .putActionTime(System.currentTimeMillis());
 
         ArrayList<Event> events = new ArrayList<>();
         events.add(event);

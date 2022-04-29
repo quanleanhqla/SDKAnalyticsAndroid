@@ -2,6 +2,7 @@ package com.mobio.analytics.client.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.model.digienty.Push;
