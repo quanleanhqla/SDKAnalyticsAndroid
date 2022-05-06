@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class Identity extends Properties {
     private static final String KEY_SDK = "sdk";
-    private static final String KEY_IDENTITY_DETAIL = "detail";
+    private static final String KEY_IDENTITY_DETAIL = "device";
     private static final String KEY_ACTION_TIME = "action_time";
 
     public Identity(){}

@@ -14,6 +14,12 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.client.model.ModelFactory;
@@ -162,9 +168,9 @@ public class MobioSDKClient {
             alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         }
 
-        initIdentityCache();
-        initNotificationCache();
-        initTrackCache();
+        createIdentityCache();
+        createNotificationCache();
+        createTrackCache();
         initNetworkReceiver();
     }
 
@@ -180,15 +186,15 @@ public class MobioSDKClient {
         sendSyncScheduler = Executors.newScheduledThreadPool(1);
     }
 
-    private void initTrackCache() {
+    private void createTrackCache() {
         cacheValueTrack = ModelFactory.getDataTrack(application);
     }
 
-    private void initIdentityCache() {
+    private void createIdentityCache() {
         cacheValueIdentity = ModelFactory.getDataIdentity(application);
     }
 
-    private void initNotificationCache() {
+    private void createNotificationCache() {
         cacheValueNotification = ModelFactory.getDataNotification(application);
     }
 
@@ -201,17 +207,14 @@ public class MobioSDKClient {
 
     public void setDeviceToken(String deviceToken) {
         this.deviceToken = deviceToken;
-
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
 
         updateNotificationToken(deviceToken);
     }
 
-    private void updateNotificationToken(String token){
+    private void updateNotificationToken(String token) {
         LogMobio.logD("Send", "updateNotificationToken");
-        if(cacheValueNotification == null){
-            initNotificationCache();
-        }
+        createNotificationCache();
 
         cacheValueNotification.getNotification().getDetail().putToken(token);
         analyticsExecutor.submit(new Runnable() {
@@ -222,11 +225,9 @@ public class MobioSDKClient {
         });
     }
 
-    public void updateNotificationPermission(String permission){
+    public void updateNotificationPermission(String permission) {
         LogMobio.logD("Send", "updateNotificationPermission");
-        if(cacheValueNotification == null){
-            initNotificationCache();
-        }
+        createNotificationCache();
 
         cacheValueNotification.getNotification().getDetail().putPermission(permission);
         analyticsExecutor.submit(new Runnable() {
@@ -237,8 +238,8 @@ public class MobioSDKClient {
         });
     }
 
-    public String getCurrentNotiPermissionInValue(){
-        if(cacheValueIdentity != null) {
+    public String getCurrentNotiPermissionInValue() {
+        if (cacheValueIdentity != null) {
             Identity currentIdentity = cacheValueIdentity.getValueMap("identity", Identity.class);
 
             if (currentIdentity == null) return null;
@@ -255,9 +256,9 @@ public class MobioSDKClient {
         return null;
     }
 
-    public void trackNotificationOnOff(Activity activity){
-        if(!Utils.areNotificationsEnabled(activity)){
-            if(activity != null) {
+    public void trackNotificationOnOff(Activity activity) {
+        if (!Utils.areNotificationsEnabled(activity)) {
+            if (activity != null) {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -265,22 +266,19 @@ public class MobioSDKClient {
                     }
                 });
             }
-        }
-        else {
-            if(cacheValueNotification == null){
-                initNotificationCache();
-            }
-            else {
-                String permission = cacheValueNotification.getNotification().getDetail().getPermission();
+        } else {
+            createNotificationCache();
 
-                LogMobio.logD("Send", " "+permission);
+            String permission = cacheValueNotification.getNotification().getDetail().getPermission();
 
-                if(permission == null) return;
-                if(!permission.equals(Notification.KEY_GRANTED)){
-                    updateNotificationPermission(Notification.KEY_GRANTED);
-                }
+            LogMobio.logD("Send", " " + permission);
+
+            if (permission == null) return;
+            if (!permission.equals(Notification.KEY_GRANTED)) {
+                updateNotificationPermission(Notification.KEY_GRANTED);
             }
         }
+
     }
 
     public void setCurrentJsonJourney(String journeyJson) {
@@ -358,9 +356,8 @@ public class MobioSDKClient {
     }
 
     public void track(String eventKey, Properties eventData) {
-        if (cacheValueTrack == null) {
-            initTrackCache();
-        }
+        createTrackCache();
+
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -384,11 +381,11 @@ public class MobioSDKClient {
         processSend(cacheValueTrack);
     }
 
-    private void updateAllCacheValue(SendEventResponse sendEventResponse){
+    private void updateAllCacheValue(SendEventResponse sendEventResponse) {
 
         String d_id = sendEventResponse.getData().getdId();
-        if(d_id != null) {
-            if(SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_D_ID) == null) {
+        if (d_id != null) {
+            if (SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_D_ID) == null) {
                 SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_D_ID, d_id);
 
                 Track track = cacheValueTrack.getTrack();
@@ -435,7 +432,7 @@ public class MobioSDKClient {
                 return false;
             } else {
                 SendEventResponse sendEventResponse = response.body();
-                if(sendEventResponse != null){
+                if (sendEventResponse != null) {
                     LogMobio.logD("Send event v2", "response body = " + sendEventResponse.toString());
                     updateAllCacheValue(sendEventResponse);
                 }
@@ -456,13 +453,13 @@ public class MobioSDKClient {
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                if (cacheValueTrack == null) {
-                    initTrackCache();
-                }
+                createTrackCache();
 
                 if (eventList == null || eventList.size() == 0) return;
 
-                cacheValueTrack.getValueMap("track", Track.class).put("events", eventList);
+                cacheValueTrack.getValueMap("track", Track.class)
+                        .putValue("events", eventList)
+                        .putValue("action_time", System.currentTimeMillis());
                 processSend(cacheValueTrack);
             }
         });
@@ -645,7 +642,7 @@ public class MobioSDKClient {
     public void showPushInApp(Properties noti) {
         String contentType;
 
-        if(noti == null) return;
+        if (noti == null) return;
 
         Push.Alert alert = new Push.Alert()
                 .putBody(noti.getString("content"))
@@ -653,14 +650,12 @@ public class MobioSDKClient {
         Push push = new Push().putDestinationScreen(noti.getString("des_screen")).putFromScreen(noti.getString("source_screen"));
 
         int type = noti.getInt("type", 0);
-        if(type == 0){
+        if (type == 0) {
             contentType = Push.Alert.TYPE_TEXT;
-        }
-        else if(type == 1){
+        } else if (type == 1) {
             contentType = Push.Alert.TYPE_HTML;
             alert.putBodyHTML(noti.getString("data"));
-        }
-        else{
+        } else {
             contentType = Push.Alert.TYPE_POPUP;
             alert.putPopupUrl(noti.getString("data"));
         }
@@ -735,9 +730,9 @@ public class MobioSDKClient {
 //                    }
 //                }
 //            }
-            if (!sendv2(data)) {
-                addSendQueue(data);
-            }
+        if (!sendv2(data)) {
+            addSendQueue(data);
+        }
 //        } else {
 //            addSendQueue(data);
 //        }
@@ -775,10 +770,7 @@ public class MobioSDKClient {
     }
 
     private void processIdentity() {
-        if (cacheValueIdentity == null) {
-            initIdentityCache();
-        }
-
+        createIdentityCache();
         processSend(cacheValueIdentity);
     }
 
@@ -809,12 +801,39 @@ public class MobioSDKClient {
         } catch (Exception e) {
             LogMobio.logE(TAG, e.toString());
         }
+
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(intent)
+                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+                            LogMobio.logD("deeplink", "dynamic " + deepLink);
+                        }
+
+
+                        // Handle the deep link. For example, open the linked
+                        // content, or apply promotional credit to the user's
+                        // account.
+                        // ...
+
+                        // ...
+                    }
+                })
+                .addOnFailureListener(activity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        LogMobio.logD("Deep link", "getDynamicLink:onFailure " + e);
+                    }
+                });
     }
 
     void recordScreen(Properties eventData) {
-        if (cacheValueTrack == null) {
-            initTrackCache();
-        }
+        createTrackCache();
+
         Future<?> future = analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {

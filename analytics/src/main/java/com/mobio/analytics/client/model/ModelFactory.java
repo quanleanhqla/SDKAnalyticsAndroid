@@ -35,7 +35,7 @@ public class ModelFactory {
                 .putType("mobile")
                 .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_D_ID))
                 .putTId(Utils.getIMEIDeviceId(context))
-                .putUId(Utils.getIMEIDeviceId(context));
+                .putUId("");
     }
 
     private static IdentityDetail getIdentityDetail(Context context){
@@ -43,7 +43,7 @@ public class ModelFactory {
                 .putType("mobile")
                 .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_D_ID))
                 .putTId(Utils.getIMEIDeviceId(context))
-                .putUId(Utils.getIMEIDeviceId(context))
+                .putUId("")
                 .putOs(getOs())
                 .putNetwork(getNetwork(context))
                 .putScreen(getScreen(context))

@@ -48,13 +48,11 @@
                     android:host="analytics"
                     android:scheme="example" />
             </intent-filter>
-            <intent-filter android:label="Demo Analytics"
-                android:autoVerify="true">
+            <intent-filter android:label="Demo Analytics">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
                 <data android:scheme="https"/>
                 <data
                     android:host="www.test38.mobio.vn"
@@ -62,17 +60,16 @@
                 <!-- note that the leading "/" is required for pathPrefix -->
             </intent-filter>
 
-            <intent-filter android:label="Demo Analytics"
-                android:autoVerify="true">
+            <intent-filter android:label="Demo Analytics">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
                 <data android:scheme="https"/>
                 <data
-                    android:host="bom.so"
-                    android:pathPrefix="/t6Dx6m" />
+                    android:host="mobio.page.link"
+                    android:pathPrefix="/haha/home"
+                    android:scheme="https" />
                 <!-- note that the leading "/" is required for pathPrefix -->
             </intent-filter>
         </activity>
@@ -94,7 +91,6 @@
             </intent-filter>
 
             <intent-filter
-                android:autoVerify="true"
                 android:label="Demo Analytics">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -102,8 +98,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
                 <data
-                    android:host="www.test38.mobio.vn"
-                    android:pathPrefix="/app/mobiobank/login"
+                    android:host="mobio.page.link"
+                    android:pathPrefix="/haha/login"
                     android:scheme="https" />
                 <!-- note that the leading "/" is required for pathPrefix -->
             </intent-filter>

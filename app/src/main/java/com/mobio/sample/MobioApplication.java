@@ -31,6 +31,7 @@ public class MobioApplication extends Application {
         MobioSDKClient.Builder builder = new MobioSDKClient.Builder()
                 .withApplication(this)
                 .shouldTrackDeepLink(true)
+                .shouldTrackScroll(true)
                 .shouldTrackAppLifeCycle(true)
                 .shouldTrackScreenLifeCycle(true)
                 .withActivityMap(screenConfigObjectHashMap)

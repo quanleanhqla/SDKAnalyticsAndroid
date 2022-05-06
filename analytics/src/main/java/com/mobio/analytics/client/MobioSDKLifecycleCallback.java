@@ -162,6 +162,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         currentActivity = activity;
         if (numStarted == 0) {
             LogMobio.logD(TAG, "app went to foreground");
+            mobioSDKClient.identify();
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, true);
             if (shouldTrackApplicationLifecycleEvents) {
                 mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_App, new Properties().putValue("build", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.KEY_VERSION_CODE)))
@@ -240,15 +241,31 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                     }
 
                     int[] percentScroll = {0};
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        view.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-                            @Override
-                            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-                                percentScroll[0] = (int) (((float) i1 / scrollRange[0]) * 100);
-                                LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
-                            }
-                        });
-                    }
+                    view.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ViewTreeObserver observer = view.getViewTreeObserver();
+                            observer.addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener(){
+
+                                @Override
+                                public void onScrollChanged() {
+                                    int scrollX = view.getScrollX();
+                                    int scrollY = view.getScrollY();
+                                    percentScroll[0] = (int) (((float) scrollY / scrollRange[0]) * 100);
+//                                    LogMobio.logD("AnalyticsLifecycleCallback", "x " + scrollX + " y"+scrollY);
+                                    LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
+                                }});
+                        }
+                    });
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                        view.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+//                            @Override
+//                            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+//                                percentScroll[0] = (int) (((float) i1 / scrollRange[0]) * 100);
+//                                LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
+//                            }
+//                        });
+//                    }
                 } else if (view instanceof EditText) {
                     ((EditText) view).addTextChangedListener(new TextWatcher() {
                         @Override

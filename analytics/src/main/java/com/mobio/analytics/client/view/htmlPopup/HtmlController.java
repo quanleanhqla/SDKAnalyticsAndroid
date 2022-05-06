@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -21,6 +22,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -107,12 +109,14 @@ public class HtmlController {
     private String assetPath;
     private WebView webView;
     private boolean closeActivity;
+    private boolean closePopup;
 
     public HtmlController(Activity activity, Push push, String assetPath, boolean closeActivity) {
         this.activity = activity;
         this.push = push;
         this.assetPath = assetPath;
         this.closeActivity = closeActivity;
+        this.closePopup = false;
     }
 
     public void showHtmlView() {
@@ -320,7 +324,8 @@ public class HtmlController {
         Properties dataVM = Properties.convertJsonStringtoProperties(data);
         String message = (String) dataVM.get("message");
         if (message != null) {
-            if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
+            if (message.equals("MO_CLOSE_BUTTON_CLICK") && !closePopup) {
+                closePopup = true;
                 MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close"));
                 dismissMessage();
                 return;
