@@ -372,7 +372,7 @@ public class HtmlController {
         boolean hasSecondPage = dataVM.getBoolean("hasSecondPage", false);
         int includedReport = dataVM.getInt("includedReport", 0);
 
-        Properties value = createValueForBase("submit", id, field, tags);
+        Properties value = createValueForBase("submit", buttonId, field, tags);
         Event.Base base = ModelFactory.createBase("button", value);
         Event event = new Event().putBase(base).putSource("popup_builder")
                 .putType("submit")
