@@ -21,7 +21,7 @@ public class JavaScriptInterface {
         onActionJavascript.onDismissMessage();
     }
 
-    interface OnActionJavascript {
+    public interface OnActionJavascript {
         void onReceiveMessage(String data);
         void onDismissMessage();
     }

@@ -109,14 +109,12 @@ public class HtmlController {
     private String assetPath;
     private WebView webView;
     private boolean closeActivity;
-    private boolean closePopup;
 
     public HtmlController(Activity activity, Push push, String assetPath, boolean closeActivity) {
         this.activity = activity;
         this.push = push;
         this.assetPath = assetPath;
         this.closeActivity = closeActivity;
-        this.closePopup = false;
     }
 
     public void showHtmlView() {
@@ -191,6 +189,8 @@ public class HtmlController {
                 webSettings.setLoadWithOverviewMode(true);
                 webSettings.setDisplayZoomControls(false);
                 webSettings.setDomStorageEnabled(true);
+
+                LogMobio.logD("WebViewActivity", "UA: " + webView.getSettings().getUserAgentString());
 
                 CookieManager cookieManager = CookieManager.getInstance();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -322,11 +322,12 @@ public class HtmlController {
 
     private void processReceivedMessage(String data) {
         Properties dataVM = Properties.convertJsonStringtoProperties(data);
-        String message = (String) dataVM.get("message");
+        String message = dataVM.getString("message");
         if (message != null) {
-            if (message.equals("MO_CLOSE_BUTTON_CLICK") && !closePopup) {
-                closePopup = true;
-                MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close"));
+            if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
+                if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2)==1) {
+                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close"));
+                }
                 dismissMessage();
                 return;
             }
@@ -384,7 +385,7 @@ public class HtmlController {
 
         MobioSDKClient.getInstance().track(events);
 
-        if(!hasSecondPage) {
+        if (!hasSecondPage) {
             dismissMessage();
         }
     }
@@ -447,7 +448,7 @@ public class HtmlController {
             listEvent.add(event);
         }
         MobioSDKClient.getInstance().track(listEvent);
-        if(!hasSecondPage) dismissMessage();
+        if (!hasSecondPage) dismissMessage();
     }
 
     private Properties createValueForBase(String type, String id, Properties field, Properties tags) {

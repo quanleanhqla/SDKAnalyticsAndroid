@@ -2,6 +2,8 @@ package com.mobio.analytics.client;
 
 import static android.content.Context.ALARM_SERVICE;
 
+import static com.mobio.analytics.client.activity.PopupBuilderActivity.M_KEY_PUSH;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -30,6 +32,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.mobio.analytics.client.activity.PopupBuilderActivity;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.model.digienty.Properties;
@@ -37,8 +41,8 @@ import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
-import com.mobio.analytics.client.view.popup.CustomDialog;
 import com.mobio.analytics.client.view.htmlPopup.HtmlController;
+import com.mobio.analytics.client.view.popup.CustomDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,6 +137,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                     if(contentType == null) return;
                     if(contentType.equals(Push.Alert.TYPE_POPUP) || contentType.equals(Push.Alert.TYPE_HTML)) {
                         new HtmlController(currentActivity, push, "", false).showHtmlView();
+//                        startPopupActivity(currentActivity, push);
                     }
                     else {
                         new CustomDialog(currentActivity, push, findDes(push)).show();
@@ -140,6 +145,12 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                 }
             });
         }
+    }
+
+    private void startPopupActivity(Activity currentActivity, Push push){
+        Intent i = new Intent(currentActivity, PopupBuilderActivity.class);
+        i.putExtra(M_KEY_PUSH, new Gson().toJson(push));
+        currentActivity.startActivity(i);
     }
 
     public String getNameOfActivity(Activity activity) {

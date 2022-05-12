@@ -145,6 +145,7 @@ public class ModelFactory {
                 .putPopupId(data.getPopupId())
                 .putSendId(data.getSendId())
                 .putCode(data.getCode())
+                .putInteractiveTime(System.currentTimeMillis())
                 .putProfileId(data.getProfileId());
     }
 }

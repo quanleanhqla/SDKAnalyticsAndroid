@@ -12,6 +12,7 @@ public class Journey extends Properties{
     private static final String PROFILE_ID = "profile_id";
     private static final String KEY_SEND_ID = "send_id";
     private static final String KEY_CODE = "code";
+    private static final String KEY_INTERACTIVE_TIME = "interactive_time";
 
     public Journey() {}
 
@@ -63,5 +64,9 @@ public class Journey extends Properties{
 
     public Journey putCode(String code){
         return putValue(KEY_CODE, code);
+    }
+
+    public Journey putInteractiveTime(long time){
+        return putValue(KEY_INTERACTIVE_TIME, time);
     }
 }

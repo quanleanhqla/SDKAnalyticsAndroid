@@ -369,10 +369,11 @@ public class MobioSDKClient {
     }
 
     private void processTrack(String eventKey, Properties eventData) {
-        eventData.put("action_time", System.currentTimeMillis());
+        long actionTime = System.currentTimeMillis();
+        eventData.put("action_time", actionTime);
         cacheValueTrack.getValueMap("track", Track.class)
                 .putEvents(Utils.createListEvent(Utils.createDynamicListEvent(eventKey, eventData)))
-                .putActionTime(System.currentTimeMillis());
+                .putActionTime(actionTime);
 
         if (!checkEventExistInJourneyWeb(eventKey, eventData)) {
             processCommonPushBeforeSync(eventKey, eventData);
