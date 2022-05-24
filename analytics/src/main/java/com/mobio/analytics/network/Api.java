@@ -3,7 +3,6 @@ package com.mobio.analytics.network;
 import com.mobio.analytics.client.model.reponse.SendEventResponse;
 
 import java.util.Map;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.HeaderMap;

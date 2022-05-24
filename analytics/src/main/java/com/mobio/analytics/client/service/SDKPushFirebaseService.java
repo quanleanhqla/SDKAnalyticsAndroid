@@ -41,7 +41,8 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
                 Push push = createPush(remoteMessage.getData().toString());
 
                 if(push.getAlert().getContentType().equals(Push.Alert.TYPE_POPUP)) {
-                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "receive"));
+                    long actionTime = System.currentTimeMillis();
+                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "receive", actionTime), actionTime);
                 }
 
                 if (SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {

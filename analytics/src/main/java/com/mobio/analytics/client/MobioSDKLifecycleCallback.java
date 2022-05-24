@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.mobio.analytics.client.activity.PopupBuilderActivity;
+import com.mobio.analytics.client.model.ModelFactory;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.model.digienty.Properties;
@@ -190,8 +191,10 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
             if (screenConfigObject != null) {
 
                 if (shouldTrackScreenLifecycleEvents) {
-                    mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_Start_In_App, new Properties().putValue("screen_name", screenConfigObject.getTitle())
-                            .putValue("time", Utils.getTimeUTC()));
+                    long actionTime = System.currentTimeMillis();
+                    mobioSDKClient.track(ModelFactory.createBaseList(
+                            ModelFactory.createBase("screen", new Properties().putValue("screen_name", screenConfigObject.getTitle())),
+                            "view", actionTime, "digienty"), actionTime);
                 }
 
                 if (shouldRecordScreenViews) {
@@ -207,8 +210,11 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                                 if (screenConfigObject.getVisitTime().length > 0) {
                                     for (int i = 0; i < screenConfigObject.getVisitTime().length; i++) {
                                         if (screenConfigObject.getVisitTime()[i] == countSecond) {
-                                            mobioSDKClient.recordScreen(new Properties().putValue("time_visit", countSecond)
-                                                    .putValue("screen_name", screenConfigObject.getTitle()));
+                                            long action_time = System.currentTimeMillis();
+                                            mobioSDKClient.track(ModelFactory.createBaseList(
+                                                    ModelFactory.createBase("screen", new Properties().putValue("time_visit", countSecond)
+                                                            .putValue("screen_name", screenConfigObject.getTitle())),
+                                                    "time_visit", action_time, "digienty"), action_time);
                                         }
                                     }
                                 }
@@ -227,7 +233,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         }
     }
 
-    public void trackScrollEvent(Activity activity) {
+    private void trackScrollEvent(Activity activity) {
         for (View view : getAllViewCanScrollOrEdittext(activity.getWindow().getDecorView())) {
                 if (view instanceof ScrollView) {
                     int[] scrollRange = {0};
@@ -263,44 +269,46 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                                     int scrollX = view.getScrollX();
                                     int scrollY = view.getScrollY();
                                     percentScroll[0] = (int) (((float) scrollY / scrollRange[0]) * 100);
-//                                    LogMobio.logD("AnalyticsLifecycleCallback", "x " + scrollX + " y"+scrollY);
-                                    LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
+                                    if(percentScroll[0] % 5 == 0) {
+                                        if (screenConfigObjectHashMap != null && screenConfigObjectHashMap.size() > 0) {
+                                            ScreenConfigObject screenConfigObject = screenConfigObjectHashMap.get(activity.getClass().getSimpleName());
+                                            if(screenConfigObject == null) return;
+                                            long action_time = System.currentTimeMillis();
+                                            mobioSDKClient.track(ModelFactory.createBaseList(
+                                                    ModelFactory.createBase("screen", new Properties().putValue("percentage_scroll", percentScroll[0])
+                                                            .putValue("screen_name", screenConfigObject.getTitle())
+                                                            .putValue("direction", "vertical").putValue("unit", "percent")),
+                                                    "scroll", action_time, "digienty"), action_time);
+                                        }
+                                    }
                                 }});
                         }
                     });
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                        view.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-//                            @Override
-//                            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-//                                percentScroll[0] = (int) (((float) i1 / scrollRange[0]) * 100);
-//                                LogMobio.logD("AnalyticsLifecycleCallback", "percent " + percentScroll[0] + "%");
-//                            }
-//                        });
-//                    }
-                } else if (view instanceof EditText) {
-                    ((EditText) view).addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                            LogMobio.logD("Saving", view.toString() + " out text " + charSequence.toString());
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable editable) {
-
-                        }
-                    });
                 }
+//                else if (view instanceof EditText) {
+//                    ((EditText) view).addTextChangedListener(new TextWatcher() {
+//                        @Override
+//                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                            LogMobio.logD("Saving", view.toString() + " out text " + charSequence.toString());
+//                        }
+//
+//                        @Override
+//                        public void afterTextChanged(Editable editable) {
+//
+//                        }
+//                    });
+//                }
 
         }
     }
 
 
-    List<View> getAllViewCanScrollOrEdittext(View v) {
+    private List<View> getAllViewCanScrollOrEdittext(View v) {
         ArrayList<View> viewCanScroll = new ArrayList<>();
         ViewGroup viewgroup = (ViewGroup) v;
         for (int i = 0; i < viewgroup.getChildCount(); i++) {

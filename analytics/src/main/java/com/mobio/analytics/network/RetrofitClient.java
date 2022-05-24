@@ -1,9 +1,13 @@
 package com.mobio.analytics.network;
 
 import com.mobio.analytics.BuildConfig;
+import com.mobio.analytics.client.utility.LogMobio;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
+import java.util.zip.Deflater;
+
+import javax.inject.Inject;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -17,7 +21,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
 import okio.BufferedSink;
+import okio.DeflaterSink;
 import okio.GzipSink;
 import okio.Okio;
 import retrofit2.Retrofit;
@@ -82,15 +88,53 @@ public class RetrofitClient {
                     return true;
                 }
             });
-//            builder.addInterceptor(new GzipRequestInterceptor());
+            builder.addInterceptor(new ErrorInterceptor());
+//            builder.addInterceptor(new CompressionRequestInterceptor());
             return builder;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    static class GzipRequestInterceptor implements Interceptor {
-        @Override public Response intercept(Chain chain) throws IOException {
+    static class ErrorInterceptor implements Interceptor {
+        int maxLimit = 3;
+        int waitThreshold = 5000;
+
+        @Inject
+        public ErrorInterceptor() { }
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request request = chain.request();
+            Response response = null;
+            boolean responseOK = false;
+            int tryCount = 0;
+
+            while (!responseOK && tryCount < maxLimit) {
+                try {
+                    response = chain.proceed(request);
+                    responseOK = response.isSuccessful();
+                }catch (Exception e){
+                    LogMobio.logD("intercept", "Request is not successful - " + tryCount);
+                }finally{
+                    LogMobio.logD("intercept", "Request count - " + tryCount);
+                    tryCount++;
+//                    try {
+//                        Thread.sleep(waitThreshold);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+                }
+            }
+
+            // otherwise just pass the original response on
+            return response;
+        }
+    }
+
+    static class CompressionRequestInterceptor implements Interceptor {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
             Request originalRequest = chain.request();
             if (originalRequest.body() == null || originalRequest.header("Content-Encoding") != null) {
                 return chain.proceed(originalRequest);
@@ -98,25 +142,72 @@ public class RetrofitClient {
 
             Request compressedRequest = originalRequest.newBuilder()
                     .header("Content-Encoding", "gzip")
-                    .method(originalRequest.method(), gzip(originalRequest.body()))
+                    .method(originalRequest.method(), forceContentLength(gzip(originalRequest.body())))
                     .build();
+
+            LogMobio.logD("QuanLA", "size " + compressedRequest.body().contentLength());
             return chain.proceed(compressedRequest);
+        }
+
+        private RequestBody forceContentLength(final RequestBody requestBody) throws IOException {
+            final Buffer buffer = new Buffer();
+            requestBody.writeTo(buffer);
+            return new RequestBody() {
+                @Override
+                public MediaType contentType() {
+                    return requestBody.contentType();
+                }
+
+                @Override
+                public long contentLength() {
+                    return buffer.size();
+                }
+
+                @Override
+                public void writeTo(final BufferedSink sink) throws IOException {
+                    sink.write(buffer.snapshot());
+                }
+            };
         }
 
         private RequestBody gzip(final RequestBody body) {
             return new RequestBody() {
-                @Override public MediaType contentType() {
+                @Override
+                public MediaType contentType() {
                     return body.contentType();
                 }
 
-                @Override public long contentLength() {
+                @Override
+                public long contentLength() {
                     return -1; // We don't know the compressed length in advance!
                 }
 
-                @Override public void writeTo(BufferedSink sink) throws IOException {
-                    BufferedSink gzipSink = Okio.buffer(new GzipSink(sink));
+                @Override
+                public void writeTo(final BufferedSink sink) throws IOException {
+                    final BufferedSink gzipSink = Okio.buffer(new GzipSink(sink));
                     body.writeTo(gzipSink);
                     gzipSink.close();
+                }
+            };
+        }
+
+        private RequestBody deflate(final RequestBody body) {
+            return new RequestBody() {
+                @Override
+                public MediaType contentType() {
+                    return body.contentType();
+                }
+
+                @Override
+                public long contentLength() {
+                    return -1; // We don't know the compressed length in advance!
+                }
+
+                @Override
+                public void writeTo(final BufferedSink sink) throws IOException {
+                    final BufferedSink deflateSink = Okio.buffer(new DeflaterSink(sink, new Deflater()));
+                    body.writeTo(deflateSink);
+                    deflateSink.close();
                 }
             };
         }

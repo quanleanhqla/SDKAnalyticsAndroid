@@ -140,9 +140,6 @@ public class LoginActivity extends AppCompatActivity {
                         isEmailValid(userName)) {
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();
-
-                    MobioSDKClient.getInstance().track(MobioSDKClient.SDK_Mobile_Test_Click_Button_In_App, new Properties().putValue("button_name", "login button")
-                            .putValue("screen_name", LoginActivity.class.getSimpleName()).putValue("status", "success"));
                 } else {
                     if (TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)) {
                         Toast.makeText(LoginActivity.this, "Mail or password is null", Toast.LENGTH_SHORT).show();

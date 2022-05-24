@@ -405,8 +405,8 @@ public class MobioSDKClient {
     }
 
     public boolean sendv2(Properties value) {
+        Response<SendEventResponse> response = null;
         try {
-            Response<SendEventResponse> response = null;
             LogMobio.logD("Send event v2", "send = " + new Gson().toJson(value));
             String typeOfValue = Utils.getTypeOfData(value);
 
@@ -450,7 +450,7 @@ public class MobioSDKClient {
         }
     }
 
-    public void track(List<Event> eventList) {
+    public void track(List<Event> eventList, long actionTime) {
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -460,7 +460,7 @@ public class MobioSDKClient {
 
                 cacheValueTrack.getValueMap("track", Track.class)
                         .putValue("events", eventList)
-                        .putValue("action_time", System.currentTimeMillis());
+                        .putValue("action_time", actionTime);
                 processSend(cacheValueTrack);
             }
         });
@@ -830,17 +830,6 @@ public class MobioSDKClient {
                         LogMobio.logD("Deep link", "getDynamicLink:onFailure " + e);
                     }
                 });
-    }
-
-    void recordScreen(Properties eventData) {
-        createTrackCache();
-
-        Future<?> future = analyticsExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                processTrack(SDK_Mobile_Test_Time_Visit_App, eventData);
-            }
-        });
     }
 
     PackageInfo getPackageInfo(Context context) {

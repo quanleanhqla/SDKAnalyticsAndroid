@@ -109,12 +109,16 @@ public class HtmlController {
     private String assetPath;
     private WebView webView;
     private boolean closeActivity;
+    private boolean overlay;
+    private int position;
 
     public HtmlController(Activity activity, Push push, String assetPath, boolean closeActivity) {
         this.activity = activity;
         this.push = push;
         this.assetPath = assetPath;
         this.closeActivity = closeActivity;
+        this.overlay = push.getData().getBoolean("overlay", true);
+        this.position = push.getData().getInt("position", 0);
     }
 
     public void showHtmlView() {
@@ -130,6 +134,14 @@ public class HtmlController {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         containerLayout.setLayoutParams(layoutParams);
+        if(overlay) {
+            containerLayout.setBackgroundColor(Color.parseColor("#80000000"));
+            containerLayout.setClickable(true);
+        }
+        else {
+            containerLayout.setBackgroundColor(Color.TRANSPARENT);
+            containerLayout.setClickable(false);
+        }
         createWebview(containerLayout, assetPath, push);
         return containerLayout;
     }
@@ -179,7 +191,7 @@ public class HtmlController {
                 webView = new WebView(activity);
                 webView.setId(ViewCompat.generateViewId());
                 webView.setFocusableInTouchMode(true);
-                webView.setBackgroundColor(Color.parseColor("#80000000"));
+                webView.setBackgroundColor(Color.TRANSPARENT);
 //                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
                 webView.setVisibility(View.GONE);
 
@@ -212,6 +224,11 @@ public class HtmlController {
                     @Override
                     public void onDismissMessage() {
                         dismissMessage();
+                    }
+
+                    @Override
+                    public void onReceiveHeight(String height) {
+                        LogMobio.logD("QuanLA", "height " + height);
                     }
                 }), "sdk");
 
@@ -252,14 +269,31 @@ public class HtmlController {
                             HTML_ENCODING, null);
                 }
 
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT);
+                //0: center, 1:top, 2:bottom
+
+                RelativeLayout.LayoutParams layoutParams;
+                if(position == 0){
+                    layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT);
+                }
+                else {
+                    layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+                    if(position == 1){
+                        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                    }
+                    else {
+                        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                    }
+                }
+
                 webView.setLayoutParams(layoutParams);
                 webView.setOnKeyListener(new View.OnKeyListener() {
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (event.getAction() == KeyEvent.ACTION_DOWN) {
                             if (keyCode == KeyEvent.KEYCODE_BACK) {
+                                LogMobio.logD("QuanLA", "back");
                                 dismissMessage();
                                 return true;
                             }
@@ -326,7 +360,8 @@ public class HtmlController {
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
                 if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2)==1) {
-                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close"));
+                    long actionTime = System.currentTimeMillis();
+                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close", actionTime), actionTime);
                 }
                 dismissMessage();
                 return;
@@ -354,7 +389,8 @@ public class HtmlController {
                             webView.loadUrl("javascript:showPopup('cc');");
                         }
 
-                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "open"));
+                        long actionTime = System.currentTimeMillis();
+                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "open", actionTime), actionTime);
                     }
                 });
             }
@@ -373,17 +409,19 @@ public class HtmlController {
         boolean hasSecondPage = dataVM.getBoolean("hasSecondPage", false);
         int includedReport = dataVM.getInt("includedReport", 0);
 
+        long actionTime = System.currentTimeMillis();
+
         Properties value = createValueForBase("submit", buttonId, field, tags);
         Event.Base base = ModelFactory.createBase("button", value);
         Event event = new Event().putBase(base).putSource("popup_builder")
                 .putType("submit")
                 .putIncludedReport(includedReport)
-                .putActionTime(System.currentTimeMillis());
+                .putActionTime(actionTime);
 
         ArrayList<Event> events = new ArrayList<>();
         events.add(event);
 
-        MobioSDKClient.getInstance().track(events);
+        MobioSDKClient.getInstance().track(events, actionTime);
 
         if (!hasSecondPage) {
             dismissMessage();
@@ -410,6 +448,8 @@ public class HtmlController {
         String id = valueMap.getString("id");
         String name = valueMap.getString("name");
 
+        long action_time = System.currentTimeMillis();
+
         ArrayList<Event> listEvent = new ArrayList<>();
         if (listEvents != null && listEvents.size() > 0) {
             for (int i = 0; i < listEvents.size(); i++) {
@@ -432,7 +472,7 @@ public class HtmlController {
                         new Properties().putValue("action_time", actionTime)));
                 Event eventDynamic = new Event().putSource("popup_builder")
                         .putType("dynamic")
-                        .putActionTime(System.currentTimeMillis())
+                        .putActionTime(action_time)
                         .putDynamic(listDynamic);
                 listEvent.add(eventDynamic);
             }
@@ -447,7 +487,7 @@ public class HtmlController {
                     .putIncludedReport(includedReport);
             listEvent.add(event);
         }
-        MobioSDKClient.getInstance().track(listEvent);
+        MobioSDKClient.getInstance().track(listEvent, actionTime);
         if (!hasSecondPage) dismissMessage();
     }
 

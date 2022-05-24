@@ -301,7 +301,7 @@ public class Utils {
 
     public static ArrayList<Event> createListEvent(ArrayList<Event.Dynamic> dynamicEvents) {
         ArrayList<Event> listEvent = new ArrayList<>();
-        Event event = new Event().putSource("popup_builder")
+        Event event = new Event().putSource("digienty")
                 .putType("dynamic")
                 .putActionTime((long) dynamicEvents.get(0).getEventData().get("action_time"))
                 .putDynamic(dynamicEvents);

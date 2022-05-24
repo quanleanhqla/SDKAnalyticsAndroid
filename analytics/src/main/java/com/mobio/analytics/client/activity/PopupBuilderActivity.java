@@ -6,11 +6,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.app.DownloadManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Picture;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -169,6 +171,11 @@ public class PopupBuilderActivity extends AppCompatActivity {
             public void onDismissMessage() {
                 dismissMessage();
             }
+
+            @Override
+            public void onReceiveHeight(String height) {
+                LogMobio.logD("QuanLA", "height " + height);
+            }
         }), "sdk");
 
 
@@ -188,6 +195,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 LogMobio.logD("QuanLA", "onPageFinished");
                 Utils.hideKeyboard(PopupBuilderActivity.this);
+                view.loadUrl("javascript:sdk.receiveHeight(document.body.getBoundingClientRect().height)");
                 webView.requestFocus();
             }
         });
@@ -201,7 +209,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
         if (content_type.equals(Push.Alert.TYPE_POPUP)) {
             String popupUrl = data.getPopupUrl();
             if (popupUrl != null){
-                webView.loadUrl(popupUrl);
+                webView.loadUrl("https://www.google.com.vn");
             }
         } else if (content_type.equals(Push.Alert.TYPE_HTML)) {
             webView.loadDataWithBaseURL(assetPath,
@@ -210,10 +218,6 @@ public class PopupBuilderActivity extends AppCompatActivity {
                     HTML_MIME_TYPE,
                     HTML_ENCODING, null);
         }
-
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        webView.setLayoutParams(layoutParams);
         webView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -286,7 +290,8 @@ public class PopupBuilderActivity extends AppCompatActivity {
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
                 if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2)==1) {
-                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close"));
+                    long actionTime = System.currentTimeMillis();
+                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close", actionTime), actionTime);
                 }
                 dismissMessage();
                 return;
@@ -314,7 +319,8 @@ public class PopupBuilderActivity extends AppCompatActivity {
                             webView.loadUrl("javascript:showPopup('cc');");
                         }
 
-                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "open"));
+                        long actionTime = System.currentTimeMillis();
+                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "open", actionTime), actionTime);
                     }
                 });
             }
@@ -323,6 +329,8 @@ public class PopupBuilderActivity extends AppCompatActivity {
 
     private void processSubmitForm(Properties dataVM) {
         if (dataVM == null) return;
+
+        long actionTime = System.currentTimeMillis();
 
         Properties formData = dataVM.getValueMap("formData", Properties.class);
         String id = formData.getString("id");
@@ -338,12 +346,12 @@ public class PopupBuilderActivity extends AppCompatActivity {
         Event event = new Event().putBase(base).putSource("popup_builder")
                 .putType("submit")
                 .putIncludedReport(includedReport)
-                .putActionTime(System.currentTimeMillis());
+                .putActionTime(actionTime);
 
         ArrayList<Event> events = new ArrayList<>();
         events.add(event);
 
-        MobioSDKClient.getInstance().track(events);
+        MobioSDKClient.getInstance().track(events, actionTime);
 
         if (!hasSecondPage) {
             dismissMessage();
@@ -370,6 +378,8 @@ public class PopupBuilderActivity extends AppCompatActivity {
         String id = valueMap.getString("id");
         String name = valueMap.getString("name");
 
+        long action_time = System.currentTimeMillis();
+
         ArrayList<Event> listEvent = new ArrayList<>();
         if (listEvents != null && listEvents.size() > 0) {
             for (int i = 0; i < listEvents.size(); i++) {
@@ -390,9 +400,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
                 ArrayList<Event.Dynamic> listDynamic = new ArrayList<>();
                 listDynamic.add(new Event.Dynamic().putEventKey(eventKey).putEventData(
                         new Properties().putValue("action_time", actionTime)));
+
                 Event eventDynamic = new Event().putSource("popup_builder")
                         .putType("dynamic")
-                        .putActionTime(System.currentTimeMillis())
+                        .putActionTime(action_time)
                         .putDynamic(listDynamic);
                 listEvent.add(eventDynamic);
             }
@@ -407,7 +418,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
                     .putIncludedReport(includedReport);
             listEvent.add(event);
         }
-        MobioSDKClient.getInstance().track(listEvent);
+        MobioSDKClient.getInstance().track(listEvent, action_time);
         if (!hasSecondPage) dismissMessage();
     }
 

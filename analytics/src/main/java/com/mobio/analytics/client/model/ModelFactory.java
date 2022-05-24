@@ -98,20 +98,20 @@ public class ModelFactory {
         return network;
     }
 
-    private static App getApp(){
+    private static App getApp() {
         return new App().putManufacturer(Build.MANUFACTURER)
                 .putModel(Build.MODEL)
                 .putName(Build.DEVICE)
                 .putType("Android");
     }
 
-    private static Identity getIdentity(Context context){
+    private static Identity getIdentity(Context context) {
         return new Identity().putSdk(getSdk())
                 .putIdentityDetail(getIdentityDetail(context))
                 .putActionTime(System.currentTimeMillis());
     }
 
-    public static List<Event> createBaseList(Push push, String object, String type){
+    public static List<Event> createBaseList(Push push, String object, String type, long actionTime) {
         Event.Base base = new Event.Base()
                 .putObject(object)
                 .putValue(new Properties().putValue("journey", getJourney(push)));
@@ -120,7 +120,17 @@ public class ModelFactory {
         Event event = new Event().putBase(base)
                 .putSource("popup_builder")
                 .putType(type)
-                .putActionTime(System.currentTimeMillis());
+                .putActionTime(actionTime);
+        events.add(event);
+        return events;
+    }
+
+    public static List<Event> createBaseList(Event.Base base, String type, long actionTime, String source) {
+        ArrayList<Event> events = new ArrayList<>();
+        Event event = new Event().putBase(base)
+                .putSource(source)
+                .putType(type)
+                .putActionTime(actionTime);
         events.add(event);
         return events;
     }

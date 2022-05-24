@@ -21,8 +21,14 @@ public class JavaScriptInterface {
         onActionJavascript.onDismissMessage();
     }
 
+    @JavascriptInterface
+    public void receiveHeight(String height) {
+        onActionJavascript.onReceiveHeight(height);
+    }
+
     public interface OnActionJavascript {
         void onReceiveMessage(String data);
         void onDismissMessage();
+        void onReceiveHeight(String height);
     }
 }
