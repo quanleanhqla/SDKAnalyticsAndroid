@@ -52,6 +52,8 @@ public class PopupBuilderActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private RelativeLayout rlRoot;
     private Push push;
+    private boolean overlay;
+    private int position;
 
 
     private final String templateHtml = "<!DOCTYPE html>\n" +
@@ -112,18 +114,20 @@ public class PopupBuilderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup_builder);
 
-        webView = findViewById(R.id.web);
-        progressBar = findViewById(R.id.progress);
-        rlRoot = findViewById(R.id.rl_root);
+//        webView = findViewById(R.id.web);
+//        progressBar = findViewById(R.id.progress);
+//        rlRoot = findViewById(R.id.rl_root);
 
-        push = getDataPush();
-        if (push != null) {
-            createWebview("", push);
-        }
-
-//        if (getDataPush() != null) {
-//            new HtmlController(this, getDataPush(), "", true).showHtmlView();
+//        push = getDataPush();
+//        if (push != null) {
+//            overlay = push.getData().getBoolean("overlay", true);
+//            position = push.getData().getInt("position", 0);
+//            createWebview("", push);
 //        }
+
+        if (getDataPush() != null) {
+            new HtmlController(this, getDataPush(), "", true).showHtmlView();
+        }
     }
 
     public Push getDataPush() {
@@ -209,7 +213,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
         if (content_type.equals(Push.Alert.TYPE_POPUP)) {
             String popupUrl = data.getPopupUrl();
             if (popupUrl != null){
-                webView.loadUrl("https://www.google.com.vn");
+                webView.loadUrl(popupUrl);
             }
         } else if (content_type.equals(Push.Alert.TYPE_HTML)) {
             webView.loadDataWithBaseURL(assetPath,
