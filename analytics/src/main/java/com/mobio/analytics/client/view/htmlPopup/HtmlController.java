@@ -13,7 +13,6 @@ import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -22,7 +21,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -44,64 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HtmlController {
-    private final String FILE_URI_SCHEME_PREFIX = "file://";
-    private final String FILE_PATH_SEPARATOR = "/";
-    private final String HTML_MIME_TYPE = "text/html";
-    private final String HTML_ENCODING = "utf-8";
     private final int VIEW_ID = 20001;
-
-    private final String templateHtml = "<!DOCTYPE html>\n" +
-            "<html>\n" +
-            "<head>\n" +
-            "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=0\">\n" +
-            "    <style>\n" +
-            "                html {\n" +
-            "                    height: 100%;\n" +
-            "                }\n" +
-            "                body {\n" +
-            "                    min-height: 100%;\n" +
-            "                    position: relative;\n" +
-            "                    background: rgba(0,0,0,.2);\n" +
-            "                }\n" +
-            "                #m_modal {\n" +
-            "                    width: 100%;\n" +
-            "                    position: absolute;\n" +
-            "                    transform: translate(-50%, -50%);\n" +
-            "                    top: 50%;\n" +
-            "                    left: 50%;\n" +
-            "                    right: auto;\n" +
-            "                    bottom: auto;\n" +
-            "                    text-align: center;\n" +
-            "                    border-radius: 10px;\n" +
-            "                    background: #fff;\n" +
-            "                }\n" +
-            "                @media (min-width: 576px) {\n" +
-            "                    #m_modal {\n" +
-            "                    max-width: 300px;\n" +
-            "                    }\n" +
-            "                }\n" +
-            "\n" +
-            "                @media (min-width: 576px) {\n" +
-            "                    #m_modal {\n" +
-            "                    max-width: 500px;\n" +
-            "                    margin: 1.75rem auto;\n" +
-            "                    }\n" +
-            "                }\n" +
-            "\n" +
-            "                #m_modal img {\n" +
-            "\t                width: -webkit-fill-available !important;\n" +
-            "                }\n" +
-            "\n" +
-            "\n" +
-            "    </style>\n" +
-            "</head>\n" +
-            "\n" +
-            "<body>\n" +
-            "    <div id=\"m_modal\">\n" +
-            "    </div>\n" +
-            "</body>\n" +
-            "</html>";
-    private static final String keyWordSubstr = "<div id=\"m_modal\">";
     private static final int ID_OF_PROGRESSBAR = 336699;
 
     private Activity activity;
@@ -109,23 +50,27 @@ public class HtmlController {
     private String assetPath;
     private WebView webView;
     private boolean closeActivity;
-    private boolean overlay;
-    private int position;
+    private boolean overlay = true;
+    private int position = 0;
 
     public HtmlController(Activity activity, Push push, String assetPath, boolean closeActivity) {
         this.activity = activity;
         this.push = push;
         this.assetPath = assetPath;
         this.closeActivity = closeActivity;
-        this.overlay = push.getData().getBoolean("overlay", true);
-        this.position = push.getData().getInt("position", 0);
+        if(push.getData() != null) {
+            this.overlay = push.getData().getBoolean("overlay", true);
+            this.position = push.getData().getInt("position", 0);
+        }
     }
 
     public void showHtmlView() {
-        FrameLayout root = getWindowRoot(activity);
+        ViewGroup root = getWindowRoot(activity);
         if (root.findViewById(VIEW_ID) == null) {
             getWindowRoot(activity).addView(createContainer());
         }
+
+
     }
 
     private View createContainer() {
@@ -193,6 +138,7 @@ public class HtmlController {
                 webView.setFocusableInTouchMode(true);
                 webView.setBackgroundColor(Color.TRANSPARENT);
 //                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+                container.setVisibility(View.GONE);
                 webView.setVisibility(View.GONE);
 
                 WebSettings webSettings = webView.getSettings();
@@ -247,6 +193,7 @@ public class HtmlController {
                     public void onPageFinished(WebView view, String url) {
                         LogMobio.logD("QuanLA", "onPageFinished");
                         Utils.hideKeyboard(activity);
+                        container.setVisibility(View.VISIBLE);
                         webView.setVisibility(View.VISIBLE);
                         webView.requestFocus();
                     }
@@ -261,12 +208,6 @@ public class HtmlController {
                     if (data == null) return;
                     String popupUrl = data.getPopupUrl();
                     if (popupUrl != null) webView.loadUrl(popupUrl);
-                } else if (content_type.equals(Push.Alert.TYPE_HTML)) {
-                    webView.loadDataWithBaseURL(assetPath,
-                            genDynamicHtml(alert.getBodyHTML()),
-                            //alert.getBodyHTML(),
-                            HTML_MIME_TYPE,
-                            HTML_ENCODING, null);
                 }
 
                 //0: center, 1:top, 2:bottom
@@ -342,7 +283,7 @@ public class HtmlController {
             @SuppressLint("ResourceType")
             @Override
             public void run() {
-                FrameLayout root = getWindowRoot(activity);
+                ViewGroup root = getWindowRoot(activity);
                 if (root != null) {
                     root.removeView(root.findViewById(20001));
                 }
@@ -361,7 +302,7 @@ public class HtmlController {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
                 if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2)==1) {
                     long actionTime = System.currentTimeMillis();
-                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close", actionTime), actionTime);
+                    MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "close", actionTime), actionTime);
                 }
                 dismissMessage();
                 return;
@@ -390,7 +331,7 @@ public class HtmlController {
                         }
 
                         long actionTime = System.currentTimeMillis();
-                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "open", actionTime), actionTime);
+                        MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "open", actionTime), actionTime);
                     }
                 });
             }
@@ -499,17 +440,5 @@ public class HtmlController {
         if (field != null) value.putValue("input_fields", field);
 
         return value;
-    }
-
-    public String genDynamicHtml(String receiveHtml) {
-        Pattern word = Pattern.compile(keyWordSubstr);
-        Matcher match = word.matcher(templateHtml);
-        String html = templateHtml;
-        int endPos = 0;
-        while (match.find()) {
-            endPos = match.end();
-            LogMobio.logD("Found love at index ", html.substring(0, endPos) + receiveHtml + html.substring(endPos));
-        }
-        return html.substring(0, endPos) + receiveHtml + html.substring(endPos);
     }
 }

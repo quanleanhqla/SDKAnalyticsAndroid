@@ -2,7 +2,7 @@ package com.mobio.analytics.client.model.old;
 
 import com.google.gson.annotations.SerializedName;
 
-public class NetworkObject {
+public class  NetworkObject {
     @SerializedName("cellular")
     private boolean cellular;
 

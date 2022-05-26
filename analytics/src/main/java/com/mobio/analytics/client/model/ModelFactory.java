@@ -111,7 +111,7 @@ public class ModelFactory {
                 .putActionTime(System.currentTimeMillis());
     }
 
-    public static List<Event> createBaseList(Push push, String object, String type, long actionTime) {
+    public static List<Event> createBaseListForPopup(Push push, String object, String type, long actionTime) {
         Event.Base base = new Event.Base()
                 .putObject(object)
                 .putValue(new Properties().putValue("journey", getJourney(push)));

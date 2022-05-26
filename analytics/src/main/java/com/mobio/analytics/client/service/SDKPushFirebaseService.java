@@ -7,12 +7,9 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.model.ModelFactory;
-import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
-import com.mobio.analytics.client.model.digienty.ValueMap;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
-import com.mobio.analytics.client.utility.Utils;
 
 public class SDKPushFirebaseService extends FirebaseMessagingService {
     public SDKPushFirebaseService() {
@@ -42,7 +39,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
 
                 if(push.getAlert().getContentType().equals(Push.Alert.TYPE_POPUP)) {
                     long actionTime = System.currentTimeMillis();
-                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "receive", actionTime), actionTime);
+                    MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "receive", actionTime), actionTime);
                 }
 
                 if (SharedPreferencesUtils.getBool(this, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {

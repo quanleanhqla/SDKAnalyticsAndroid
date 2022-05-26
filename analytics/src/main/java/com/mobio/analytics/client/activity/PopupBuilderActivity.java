@@ -1,22 +1,17 @@
 package com.mobio.analytics.client.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.app.DownloadManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Picture;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -52,8 +47,6 @@ public class PopupBuilderActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private RelativeLayout rlRoot;
     private Push push;
-    private boolean overlay;
-    private int position;
 
 
     private final String templateHtml = "<!DOCTYPE html>\n" +
@@ -114,19 +107,13 @@ public class PopupBuilderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup_builder);
 
-//        webView = findViewById(R.id.web);
-//        progressBar = findViewById(R.id.progress);
-//        rlRoot = findViewById(R.id.rl_root);
+        webView = findViewById(R.id.web);
+        progressBar = findViewById(R.id.progress);
+        rlRoot = findViewById(R.id.rl_root);
 
-//        push = getDataPush();
-//        if (push != null) {
-//            overlay = push.getData().getBoolean("overlay", true);
-//            position = push.getData().getInt("position", 0);
-//            createWebview("", push);
-//        }
-
-        if (getDataPush() != null) {
-            new HtmlController(this, getDataPush(), "", true).showHtmlView();
+        push = getDataPush();
+        if (push != null) {
+            createWebview("", push);
         }
     }
 
@@ -142,8 +129,8 @@ public class PopupBuilderActivity extends AppCompatActivity {
     private void createWebview(String assetPath, Push push) {
         webView.setFocusableInTouchMode(true);
         webView.setVerticalScrollBarEnabled(true);
-        webView.setBackgroundColor(Color.parseColor("#80000000"));
-//                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+        rlRoot.setBackgroundColor(Color.parseColor("#80000000"));
+        webView.setBackgroundColor(Color.TRANSPARENT);
 
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -151,8 +138,6 @@ public class PopupBuilderActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setDomStorageEnabled(true);
-
-        LogMobio.logD("WebViewActivity", "UA: " + webView.getSettings().getUserAgentString());
 
         CookieManager cookieManager = CookieManager.getInstance();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -199,15 +184,16 @@ public class PopupBuilderActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 LogMobio.logD("QuanLA", "onPageFinished");
                 Utils.hideKeyboard(PopupBuilderActivity.this);
-                view.loadUrl("javascript:sdk.receiveHeight(document.body.getBoundingClientRect().height)");
                 webView.requestFocus();
             }
         });
 
         Push.Data data = push.getData();
         Push.Alert alert = push.getAlert();
-        if (alert == null) return;
-        if (data == null) return;
+        if (alert == null){
+            dismissMessage();
+            return;
+        }
 
         String content_type = alert.getContentType();
         if (content_type.equals(Push.Alert.TYPE_POPUP)) {
@@ -295,7 +281,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
                 if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2)==1) {
                     long actionTime = System.currentTimeMillis();
-                    MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "close", actionTime), actionTime);
+                    MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "close", actionTime), actionTime);
                 }
                 dismissMessage();
                 return;
@@ -324,7 +310,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
                         }
 
                         long actionTime = System.currentTimeMillis();
-                        MobioSDKClient.getInstance().track(ModelFactory.createBaseList(push, "popup", "open", actionTime), actionTime);
+                        MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "open", actionTime), actionTime);
                     }
                 });
             }
