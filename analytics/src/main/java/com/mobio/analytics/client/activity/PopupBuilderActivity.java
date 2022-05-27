@@ -161,10 +161,6 @@ public class PopupBuilderActivity extends AppCompatActivity {
                 dismissMessage();
             }
 
-            @Override
-            public void onReceiveHeight(String height) {
-                LogMobio.logD("QuanLA", "height " + height);
-            }
         }), "sdk");
 
 
@@ -303,10 +299,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
                     public void run() {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
                             webView.evaluateJavascript("handleReplacePersonalization('" + getProfileInfoToWebview(push) + "');", null);
-                            webView.evaluateJavascript("showPopup('cc');", null);
+                            webView.evaluateJavascript("showPopup({popup_position:'cc'});", null);
                         } else {
                             webView.loadUrl("javascript:handleReplacePersonalization('" + getProfileInfoToWebview(push) + "');");
-                            webView.loadUrl("javascript:showPopup('cc');");
+                            webView.loadUrl("javascript:showPopup({popup_position:'cc'});");
                         }
 
                         long actionTime = System.currentTimeMillis();

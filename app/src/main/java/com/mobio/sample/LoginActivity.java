@@ -2,15 +2,23 @@ package com.mobio.sample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.mobio.analytics.client.MobioSDKClient;
@@ -35,6 +43,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvLong;
     private TextView tvLat;
     private TextView tvAddress;
+
+    private RelativeLayout rlRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         tvLong = findViewById(R.id.tv_long);
         tvLat = findViewById(R.id.tv_lat);
         tvAddress = findViewById(R.id.tv_address);
-
+        rlRoot = findViewById(R.id.rl_root);
 
 //        try {
 //            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

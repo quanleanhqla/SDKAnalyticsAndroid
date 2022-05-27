@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +51,6 @@ public class HtmlController {
     private String assetPath;
     private WebView webView;
     private boolean closeActivity;
-    private boolean overlay = true;
     private int position = 0;
 
     public HtmlController(Activity activity, Push push, String assetPath, boolean closeActivity) {
@@ -58,8 +58,7 @@ public class HtmlController {
         this.push = push;
         this.assetPath = assetPath;
         this.closeActivity = closeActivity;
-        if(push.getData() != null) {
-            this.overlay = push.getData().getBoolean("overlay", true);
+        if (push.getData() != null) {
             this.position = push.getData().getInt("position", 0);
         }
     }
@@ -69,8 +68,6 @@ public class HtmlController {
         if (root.findViewById(VIEW_ID) == null) {
             getWindowRoot(activity).addView(createContainer());
         }
-
-
     }
 
     private View createContainer() {
@@ -79,14 +76,8 @@ public class HtmlController {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         containerLayout.setLayoutParams(layoutParams);
-        if(overlay) {
-            containerLayout.setBackgroundColor(Color.parseColor("#80000000"));
-            containerLayout.setClickable(true);
-        }
-        else {
-            containerLayout.setBackgroundColor(Color.TRANSPARENT);
-            containerLayout.setClickable(false);
-        }
+        containerLayout.setBackgroundColor(Color.TRANSPARENT);
+        containerLayout.setClickable(false);
         createWebview(containerLayout, assetPath, push);
         return containerLayout;
     }
@@ -137,6 +128,8 @@ public class HtmlController {
                 webView.setId(ViewCompat.generateViewId());
                 webView.setFocusableInTouchMode(true);
                 webView.setBackgroundColor(Color.TRANSPARENT);
+                webView.setVerticalScrollBarEnabled(false);
+                webView.setHorizontalScrollBarEnabled(false);
 //                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
                 container.setVisibility(View.GONE);
                 webView.setVisibility(View.GONE);
@@ -170,11 +163,6 @@ public class HtmlController {
                     @Override
                     public void onDismissMessage() {
                         dismissMessage();
-                    }
-
-                    @Override
-                    public void onReceiveHeight(String height) {
-                        LogMobio.logD("QuanLA", "height " + height);
                     }
                 }), "sdk");
 
@@ -213,20 +201,9 @@ public class HtmlController {
                 //0: center, 1:top, 2:bottom
 
                 RelativeLayout.LayoutParams layoutParams;
-                if(position == 0){
-                    layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT);
-                }
-                else {
-                    layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT);
-                    if(position == 1){
-                        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                    }
-                    else {
-                        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                    }
-                }
+
+                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
 
                 webView.setLayoutParams(layoutParams);
                 webView.setOnKeyListener(new View.OnKeyListener() {
@@ -234,7 +211,6 @@ public class HtmlController {
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (event.getAction() == KeyEvent.ACTION_DOWN) {
                             if (keyCode == KeyEvent.KEYCODE_BACK) {
-                                LogMobio.logD("QuanLA", "back");
                                 dismissMessage();
                                 return true;
                             }
@@ -300,7 +276,7 @@ public class HtmlController {
         String message = dataVM.getString("message");
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
-                if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2)==1) {
+                if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2) == 1) {
                     long actionTime = System.currentTimeMillis();
                     MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "close", actionTime), actionTime);
                 }
@@ -324,14 +300,40 @@ public class HtmlController {
                     public void run() {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
                             webView.evaluateJavascript("handleReplacePersonalization('" + getProfileInfoToWebview(push) + "');", null);
-                            webView.evaluateJavascript("showPopup('cc');", null);
+                            webView.evaluateJavascript("showPopup({popup_position:'cc'});", null);
                         } else {
                             webView.loadUrl("javascript:handleReplacePersonalization('" + getProfileInfoToWebview(push) + "');");
-                            webView.loadUrl("javascript:showPopup('cc');");
+                            webView.loadUrl("javascript:showPopup({popup_position:'cc'});");
                         }
 
                         long actionTime = System.currentTimeMillis();
                         MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "open", actionTime), actionTime);
+
+                        Properties size = dataVM.getValueMap("size", Properties.class);
+                        if (size != null) {
+
+                            int widthMobile = size.getInt("widthMobile", 0);
+                            int heightMobile = size.getInt("heightMobile", 0);
+                            RelativeLayout.LayoutParams layoutParams;
+
+                            if (heightMobile < Utils.dpFromPx(activity, Utils.getHeightOfScreen(activity))
+                                    && widthMobile < Utils.dpFromPx(activity, Utils.getWidthOfScreen(activity))) {
+
+                                layoutParams = new RelativeLayout.LayoutParams((int) Utils.pxFromDp(activity, widthMobile),
+                                        (int) Utils.pxFromDp(activity, heightMobile));
+                                if (position == 1) {
+                                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                                } else {
+                                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                                }
+                                layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                            }
+                            else {
+                                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT);
+                            }
+                            webView.setLayoutParams(layoutParams);
+                        }
                     }
                 });
             }
