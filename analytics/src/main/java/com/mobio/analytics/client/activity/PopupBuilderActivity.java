@@ -2,7 +2,9 @@ package com.mobio.analytics.client.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.TargetApi;
 import android.app.DownloadManager;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -107,13 +110,17 @@ public class PopupBuilderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup_builder);
 
-        webView = findViewById(R.id.web);
-        progressBar = findViewById(R.id.progress);
-        rlRoot = findViewById(R.id.rl_root);
+//        webView = findViewById(R.id.web);
+//        progressBar = findViewById(R.id.progress);
+//        rlRoot = findViewById(R.id.rl_root);
 
-        push = getDataPush();
-        if (push != null) {
-            createWebview("", push);
+//        push = getDataPush();
+//        if (push != null) {
+//            createWebview("", push);
+//        }
+
+        if (getDataPush() != null) {
+            new HtmlController(this, getDataPush(), "", true).showHtmlView();
         }
     }
 
@@ -165,6 +172,32 @@ public class PopupBuilderActivity extends AppCompatActivity {
 
 
         webView.setWebViewClient(new WebViewClient() {
+            @SuppressWarnings("deprecation")
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                final Uri uri = Uri.parse(url);
+                return handleUri(uri);
+            }
+
+            @TargetApi(Build.VERSION_CODES.N)
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                final Uri uri = request.getUrl();
+                return handleUri(uri);
+            }
+
+            private boolean handleUri(final Uri uri) {
+                if (uri.toString().startsWith("http://") || uri.toString().startsWith("https://")) {
+                    createButtonClose();
+                    return false;
+                } else {
+                    final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                    dismissMessage();
+                    return true;
+                }
+            }
+
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 progressBar.setVisibility(View.VISIBLE);
@@ -428,5 +461,11 @@ public class PopupBuilderActivity extends AppCompatActivity {
             LogMobio.logD("Found love at index ", html.substring(0, endPos) + receiveHtml + html.substring(endPos));
         }
         return html.substring(0, endPos) + receiveHtml + html.substring(endPos);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, 0);
     }
 }
