@@ -36,6 +36,8 @@ public class CustomizedExceptionHandler implements Thread.UncaughtExceptionHandl
 
         writeToFile(stacktrace);
 
+        LogMobio.logD("CustomizedExceptionHandler", stacktrace);
+
 
 //Used only to prevent from any code getting executed.
         // Not needed in this example
