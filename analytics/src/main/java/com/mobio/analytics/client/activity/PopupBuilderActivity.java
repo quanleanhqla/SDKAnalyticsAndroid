@@ -120,7 +120,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
 //        }
 
         if (getDataPush() != null) {
-            new HtmlController(this, getDataPush(), "", true).showHtmlView();
+            HtmlController.showHtmlPopup(this, getDataPush(), "", true);
         }
     }
 

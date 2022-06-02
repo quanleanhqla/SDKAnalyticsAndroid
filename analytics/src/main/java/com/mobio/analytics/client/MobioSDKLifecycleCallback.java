@@ -138,7 +138,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                     if (contentType == null) return;
                     if (contentType.equals(Push.Alert.TYPE_POPUP) || contentType.equals(Push.Alert.TYPE_HTML)) {
 //                        if (push.getData() != null && push.getData().getInt("position", 0) != 0) {
-                            new HtmlController(currentActivity, push, "", false).showHtmlView();
+                            HtmlController.showHtmlPopup(currentActivity, push, "", false);
 //                        } else {
 //                            startPopupActivity(currentActivity, push);
 //                        }

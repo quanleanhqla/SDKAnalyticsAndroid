@@ -22,6 +22,7 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mobio.analytics.client.crash.CustomizedExceptionHandler;
 import com.mobio.analytics.client.model.ModelFactory;
 import com.mobio.analytics.client.model.digienty.DataIdentity;
 import com.mobio.analytics.client.model.digienty.DataNotification;
@@ -147,6 +148,7 @@ public class MobioSDKClient {
         endPoint = builder.mEndPoint;
         configActivityMap = builder.mActivityMap;
 
+        initRecordCrashLog();
 
         saveNetworkProperties(merchantId, apiToken, domainURL, endPoint);
         initExecutors();
@@ -172,6 +174,11 @@ public class MobioSDKClient {
         createNotificationCache();
         createTrackCache();
         initNetworkReceiver();
+    }
+
+    private void initRecordCrashLog(){
+        Thread.setDefaultUncaughtExceptionHandler(new CustomizedExceptionHandler(
+                application));
     }
 
     private void saveNetworkProperties(String merchantId, String apiToken, String domainURL, String endPoint) {
@@ -352,7 +359,7 @@ public class MobioSDKClient {
     }
 
     public void showGlobalNotification(Push push, int id) {
-        new GlobalNotification(id, push, configActivityMap, application).show();
+        GlobalNotification.showGlobalNotification(id, push, configActivityMap, application);
     }
 
     public void track(String eventKey, Properties eventData) {

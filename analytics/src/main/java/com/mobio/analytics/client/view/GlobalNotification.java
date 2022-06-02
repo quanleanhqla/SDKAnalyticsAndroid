@@ -43,6 +43,10 @@ public class GlobalNotification {
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
+    public static void showGlobalNotification(int id, Push push, HashMap<String, ScreenConfigObject> configActivityMap, Context context){
+        new GlobalNotification(id, push, configActivityMap, context).show();
+    }
+
     private Intent createIntent(){
         Intent intent = new Intent();
         //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -85,11 +89,11 @@ public class GlobalNotification {
         return pendingIntent;
     }
 
-    public void show(){
+    private void show(){
         Intent intent = createIntent();
         String CHANNEL_ID = "Channel Analytics";// The id of the channel.
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.icon)
+                .setSmallIcon(R.drawable.ic_launcher)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
                         R.mipmap.icon))
                 .setContentTitle(push.getAlert().getTitle())

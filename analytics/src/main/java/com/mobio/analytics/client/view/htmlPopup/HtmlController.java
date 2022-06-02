@@ -122,7 +122,11 @@ public class HtmlController {
         }
     }
 
-    public void showHtmlView() {
+    public static void showHtmlPopup(Activity activity, Push push, String assetPath, boolean closeActivity){
+        new HtmlController(activity, push, assetPath, closeActivity).showHtmlView();
+    }
+
+    private void showHtmlView() {
         ViewGroup root = getWindowRoot(activity);
         if (root.findViewById(VIEW_ID) == null) {
             getWindowRoot(activity).addView(createContainer());
@@ -241,7 +245,15 @@ public class HtmlController {
 
                     private boolean handleUri(final Uri uri) {
                         if (uri.toString().startsWith("http://") || uri.toString().startsWith("https://")) {
-                            createButtonClose();
+                            webView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ViewGroup.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                            ViewGroup.LayoutParams.MATCH_PARENT);
+                                    webView.setLayoutParams(layoutParams);
+                                    createButtonClose(container);
+                                }
+                            });
                             return false;
                         } else {
                             final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -326,22 +338,6 @@ public class HtmlController {
         });
     }
 
-    private void createButtonClose() {
-        ImageView imageView = new ImageView(activity);
-        imageView.setImageResource(R.drawable.ic_circle_xmark_solid);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismissMessage();
-            }
-        });
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-        params.setMargins(20, 100, 20, 20);
-        getWindowRoot(activity).addView(imageView, params);
-    }
-
     private void download(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
         DownloadManager.Request request = new DownloadManager.Request(
                 Uri.parse(url));
@@ -423,32 +419,37 @@ public class HtmlController {
                         Properties size = dataVM.getValueMap("size", Properties.class);
                         if (size != null) {
 
-                            int widthMobile = size.getInt("widthMobile", 0);
-                            int heightMobile = size.getInt("heightMobile", 0);
-                            RelativeLayout.LayoutParams layoutParams;
+                            webView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    int widthMobile = size.getInt("widthMobile", 0);
+                                    int heightMobile = size.getInt("heightMobile", 0);
+                                    RelativeLayout.LayoutParams layoutParams;
 
-                            if (heightMobile < Utils.dpFromPx(activity, Utils.getHeightOfScreen(activity))
-                                    && widthMobile < Utils.dpFromPx(activity, Utils.getWidthOfScreen(activity))) {
+                                    if (heightMobile < Utils.dpFromPx(activity, Utils.getHeightOfScreen(activity))
+                                            && widthMobile < Utils.dpFromPx(activity, Utils.getWidthOfScreen(activity))) {
 
-                                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                        (int) Utils.pxFromDp(activity, heightMobile));
-                                if (position == 1) {
-                                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                                        layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                (int) Utils.pxFromDp(activity, heightMobile));
+                                        if (position == 1) {
+                                            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 
-                                } else if(position == 2){
-                                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                                        } else if(position == 2){
+                                            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                                        }
+                                        else if(position == 0){
+                                            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                    ViewGroup.LayoutParams.MATCH_PARENT);
+                                        }
+                                        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                                    }
+                                    else {
+                                        layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                ViewGroup.LayoutParams.MATCH_PARENT);
+                                    }
+                                    webView.setLayoutParams(layoutParams);
                                 }
-                                else if(position == 0){
-                                    layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                            ViewGroup.LayoutParams.MATCH_PARENT);
-                                }
-                                layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-                            }
-                            else {
-                                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                        ViewGroup.LayoutParams.MATCH_PARENT);
-                            }
-                            webView.setLayoutParams(layoutParams);
+                            });
                         }
                     }
                 });

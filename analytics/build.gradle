@@ -77,14 +77,14 @@ afterEvaluate {
 }
 
 task deleteJar(type: Delete) {
-    delete 'libs/jars/logmanagementlib.jar'
+    delete 'libs/jars/mobiosdk.jar'
 }
 
 task createJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('libs/jars/')
     include('classes.jar')
-    rename('classes.jar', 'logmanagementlib.jar')
+    rename('classes.jar', 'mobiosdk.jar')
 }
 
 createJar.dependsOn(deleteJar, build)
