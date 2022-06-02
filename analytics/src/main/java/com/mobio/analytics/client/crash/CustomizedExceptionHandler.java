@@ -54,7 +54,7 @@ public class CustomizedExceptionHandler implements Thread.UncaughtExceptionHandl
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
             Date date = new Date();
-            String filename = dateFormat.format(date) + ".STACKTRACE";
+            String filename = "Crash_" + dateFormat.format(date) + ".STACKTRACE";
 
             // Write the file into the folder
             File reportFile = new File(dir, filename);
