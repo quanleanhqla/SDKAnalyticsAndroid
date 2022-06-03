@@ -182,7 +182,7 @@ public class HtmlController {
         relativeLayout.setId(112233);
         relativeLayout.setBackgroundColor(Color.WHITE);
         RelativeLayout.LayoutParams rlParams = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 160);
+                ViewGroup.LayoutParams.MATCH_PARENT, Utils.getHeightOfScreen(activity) / 14);
         rlParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
         rlParams.setMargins(0, getHeightOfStatusBar(), 0, 0);
         relativeLayout.setLayoutParams(rlParams);
