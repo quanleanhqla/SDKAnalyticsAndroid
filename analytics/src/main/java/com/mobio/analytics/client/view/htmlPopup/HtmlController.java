@@ -9,13 +9,18 @@ import android.app.DownloadManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -27,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.core.view.ViewCompat;
 
@@ -122,7 +128,7 @@ public class HtmlController {
         }
     }
 
-    public static void showHtmlPopup(Activity activity, Push push, String assetPath, boolean closeActivity){
+    public static void showHtmlPopup(Activity activity, Push push, String assetPath, boolean closeActivity) {
         new HtmlController(activity, push, assetPath, closeActivity).showHtmlView();
     }
 
@@ -154,7 +160,8 @@ public class HtmlController {
 
     private void createButtonClose(ViewGroup container) {
         ImageView imageView = new ImageView(activity);
-        imageView.setImageResource(R.drawable.ic_circle_xmark_solid);
+        imageView.setImageResource(R.drawable.ic_close);
+        imageView.setClickable(true);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,8 +171,47 @@ public class HtmlController {
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-        params.setMargins(20, 100, 20, 20);
+        params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+        params.setMargins(20, 20, 20, 20);
         container.addView(imageView, params);
+    }
+
+    @SuppressLint("ResourceType")
+    private RelativeLayout createActionBar(ViewGroup container, String url) {
+        RelativeLayout relativeLayout = new RelativeLayout(activity);
+        relativeLayout.setId(112233);
+        relativeLayout.setBackgroundColor(Color.WHITE);
+        RelativeLayout.LayoutParams rlParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 160);
+        rlParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        rlParams.setMargins(0, getHeightOfStatusBar(), 0, 0);
+        relativeLayout.setLayoutParams(rlParams);
+
+        TextView tvUrl = new TextView(activity);
+        tvUrl.setId(332211);
+        tvUrl.setTextColor(Color.BLACK);
+        tvUrl.setText(url);
+        tvUrl.setSingleLine(true);
+        tvUrl.setEllipsize(TextUtils.TruncateAt.END);
+        tvUrl.setTypeface(Typeface.DEFAULT_BOLD);
+        tvUrl.setGravity(Gravity.CENTER);
+        RelativeLayout.LayoutParams tvParams = new RelativeLayout.LayoutParams(
+                400, ViewGroup.LayoutParams.WRAP_CONTENT);
+        tvParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        tvUrl.setLayoutParams(tvParams);
+        relativeLayout.addView(tvUrl);
+
+        View view = new View(activity);
+        view.setId(222211);
+        view.setBackgroundColor(Color.BLACK);
+        RelativeLayout.LayoutParams vParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 1);
+        vParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        view.setLayoutParams(vParams);
+        relativeLayout.addView(view);
+
+        container.addView(relativeLayout);
+        return relativeLayout;
     }
 
     private void showLoading(ViewGroup container) {
@@ -180,6 +226,14 @@ public class HtmlController {
 
     private void hideLoading(ViewGroup container) {
         container.removeView(container.findViewById(ID_OF_PROGRESSBAR));
+    }
+
+    private int getHeightOfStatusBar() {
+        Rect rectangle = new Rect();
+        Window window = activity.getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        int statusBarHeight = rectangle.top;
+        return statusBarHeight;
     }
 
     private void createWebview(ViewGroup container, String assetPath, Push push) {
@@ -248,10 +302,21 @@ public class HtmlController {
                             webView.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    ViewGroup.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                            ViewGroup.LayoutParams.MATCH_PARENT);
-                                    webView.setLayoutParams(layoutParams);
-                                    createButtonClose(container);
+                                    if(getWindowRoot(activity).findViewById(112233) == null) {
+                                        RelativeLayout actionBar = createActionBar(container, uri.toString());
+                                        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                ViewGroup.LayoutParams.MATCH_PARENT);
+                                        layoutParams.addRule(RelativeLayout.BELOW, actionBar.getId());
+                                        webView.setLayoutParams(layoutParams);
+                                        createButtonClose(actionBar);
+                                        LogMobio.logD("QuanLA", "1");
+                                    }
+                                    else {
+                                        LogMobio.logD("QuanLA", "2");
+                                        if(getWindowRoot(activity).findViewById(332211) instanceof TextView){
+                                            ((TextView) getWindowRoot(activity).findViewById(332211)).setText(uri.toString());
+                                        }
+                                    }
                                 }
                             });
                             return false;
@@ -294,8 +359,7 @@ public class HtmlController {
                     if (data == null) return;
                     String popupUrl = data.getPopupUrl();
                     if (popupUrl != null) webView.loadUrl(popupUrl);
-                }
-                else if (content_type.equals(Push.Alert.TYPE_HTML)) {
+                } else if (content_type.equals(Push.Alert.TYPE_HTML)) {
                     webView.loadDataWithBaseURL(assetPath,
                             genDynamicHtml(alert.getBodyHTML()),
                             //alert.getBodyHTML(),
@@ -411,7 +475,7 @@ public class HtmlController {
                             webView.loadUrl("javascript:showPopup({popup_position:'cc'});");
                         }
 
-                        LogMobio.logD("QuanLA", "activity "+activity.getClass().getSimpleName());
+                        LogMobio.logD("QuanLA", "activity " + activity.getClass().getSimpleName());
 
                         long actionTime = System.currentTimeMillis();
                         MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "open", actionTime), actionTime);
@@ -434,16 +498,14 @@ public class HtmlController {
                                         if (position == 1) {
                                             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 
-                                        } else if(position == 2){
+                                        } else if (position == 2) {
                                             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                                        }
-                                        else if(position == 0){
+                                        } else if (position == 0) {
                                             layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                     ViewGroup.LayoutParams.MATCH_PARENT);
                                         }
                                         layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-                                    }
-                                    else {
+                                    } else {
                                         layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                 ViewGroup.LayoutParams.MATCH_PARENT);
                                     }
