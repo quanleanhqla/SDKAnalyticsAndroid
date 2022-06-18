@@ -56,7 +56,6 @@ public class SendMoneyInActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onUserInteraction() {
-        LogMobio.logD("SendMoneyInActivity", "interaction");
         resetDisconnectTimer();
     }
 
@@ -282,7 +281,6 @@ public class SendMoneyInActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        LogMobio.logD("SendMoneyInActivity", "abc");
         //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Open from noti");
         resetDisconnectTimer();
     }

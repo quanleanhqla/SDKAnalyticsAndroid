@@ -93,7 +93,6 @@ public class GpsTracker extends Service implements LocationListener {
                 MIN_TIME_BW_UPDATES,
                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
 
-        LogMobio.logD("GPS Enabled", "GPS Enabled");
         if (locationManager != null) {
             location = locationManager
                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -111,7 +110,6 @@ public class GpsTracker extends Service implements LocationListener {
                 MIN_TIME_BW_UPDATES,
                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
 
-        LogMobio.logD("Network", "Network");
         if (locationManager != null) {
             location = locationManager
                     .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);

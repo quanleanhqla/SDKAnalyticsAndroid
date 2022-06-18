@@ -14,7 +14,6 @@ public class NotificationDismissedReceiver extends BroadcastReceiver {
             int notificationId = intent.getExtras().getInt("notificationId");
             /* Your code to handle the event here */
 
-            LogMobio.logD("QuanLA", notificationId + "");
             //todo
 
             boolean isDelete = intent.getBooleanExtra("type_delete", false);

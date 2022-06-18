@@ -60,7 +60,6 @@ public class SavingActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        LogMobio.logD("SavingActivity", "abc");
         //Analytics.getInstance().track(Analytics.DEMO_EVENT, Analytics.TYPE_CLICK,"Click Open from noti");
     }
 

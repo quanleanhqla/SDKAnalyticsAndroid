@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_root"
     android:paddingRight="8pt"
     android:paddingLeft="8pt"
     android:layout_width="match_parent"
@@ -109,14 +110,14 @@
 
     <Button
         android:id="@+id/btn_login"
-        android:textColor="#80FFFFFF"
-        android:textSize="8pt"
-        android:text="Đăng nhập"
+        android:layout_width="match_parent"
+        android:layout_height="24pt"
+        android:layout_below="@id/tv_forgot_password"
         android:layout_marginTop="17.5pt"
         android:background="@drawable/bgr_button_login"
-        android:layout_below="@id/tv_forgot_password"
-        android:layout_width="match_parent"
-        android:layout_height="24pt"/>
+        android:text="Đăng nhập"
+        android:textColor="#80FFFFFF"
+        android:textSize="8pt" />
 
     <RelativeLayout
         android:id="@+id/rl_touch_id"

@@ -160,7 +160,6 @@ public class MainActivity extends Activity implements LocationListener {
                 add = add + "\n" + obj.getLocality();
                 add = add + "\n" + obj.getSubThoroughfare();
 
-                LogMobio.logD("IGA", "Address" + add);
                 String finalAdd = add;
                 runOnUiThread(new Runnable() {
                     @Override
@@ -172,7 +171,6 @@ public class MainActivity extends Activity implements LocationListener {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            LogMobio.logD("LoginActivity", e.toString());
         }
     }
 

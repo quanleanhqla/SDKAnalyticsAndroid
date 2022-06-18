@@ -14,23 +14,37 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mobio.analytics.client.models.AppObject;
-import com.mobio.analytics.client.models.DataObject;
-import com.mobio.analytics.client.models.DeviceObject;
-import com.mobio.analytics.client.models.NotiResponseObject;
-import com.mobio.analytics.client.models.OsObject;
-import com.mobio.analytics.client.models.PropertiesObject;
-import com.mobio.analytics.client.models.ValueMap;
-import com.mobio.analytics.client.models.ScreenConfigObject;
+import com.mobio.analytics.client.crash.CustomizedExceptionHandler;
+import com.mobio.analytics.client.model.factory.ModelFactory;
+import com.mobio.analytics.client.model.digienty.DataIdentity;
+import com.mobio.analytics.client.model.digienty.DataNotification;
+import com.mobio.analytics.client.model.digienty.DataTrack;
+import com.mobio.analytics.client.model.digienty.Device;
+import com.mobio.analytics.client.model.digienty.Event;
+import com.mobio.analytics.client.model.digienty.Identity;
+import com.mobio.analytics.client.model.digienty.IdentityDetail;
+import com.mobio.analytics.client.model.digienty.Notification;
+import com.mobio.analytics.client.model.digienty.Properties;
+import com.mobio.analytics.client.model.digienty.Push;
+import com.mobio.analytics.client.model.digienty.Track;
+import com.mobio.analytics.client.model.old.ScreenConfigObject;
+import com.mobio.analytics.client.model.reponse.SendEventResponse;
 import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.receiver.NetworkChangeReceiver;
-import com.mobio.analytics.client.receiver.UninstallIntentReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
-import com.mobio.analytics.client.view.GlobalNotification;
+import com.mobio.analytics.client.view.notification.GlobalNotification;
+import com.mobio.analytics.client.view.notification.RichNotification;
+import com.mobio.analytics.client.view.popup.PermissionDialog;
 import com.mobio.analytics.network.RetrofitClient;
 
 import org.json.JSONException;
@@ -47,7 +61,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-
 
 import retrofit2.Response;
 
@@ -89,26 +102,31 @@ public class MobioSDKClient {
     private boolean shouldTrackDeepLink;
     private boolean shouldRecordScreen;
     private boolean shouldTrackScroll;
-    private DataObject cacheDataObject;
     private String apiToken;
     private String merchantId;
     private int intervalSecond;
     private String deviceToken;
-    private ArrayList<ValueMap> listDataWaitToSend;
+    private String sdkSource;
+    private String sdkName;
+    private String sdkCode;
+    private ArrayList<Properties> listDataWaitToSend;
     private String domainURL;
     private String endPoint;
     private HashMap<String, ScreenConfigObject> configActivityMap;
-    private ValueMap cacheValueMap;
 
-    private ArrayList<ValueMap> currentJsonEvent;
-    private ArrayList<ValueMap> currentJsonPush;
-    private ArrayList<ValueMap> pendingJsonPush;
-    private ArrayList<ValueMap> currentJsonJourney;
+    private DataTrack cacheValueTrack;
+    private DataIdentity cacheValueIdentity;
+    private DataNotification cacheValueNotification;
+
+    private ArrayList<Properties> currentJsonEvent;
+    private ArrayList<Properties> currentJsonPush;
+    private ArrayList<Properties> pendingJsonPush;
+    private ArrayList<Properties> currentJsonJourney;
 
     private AlarmManager alarmManager;
 
-    private final ExecutorService analyticsExecutor;
-    private final ScheduledExecutorService sendSyncScheduler;
+    private ExecutorService analyticsExecutor;
+    private ScheduledExecutorService sendSyncScheduler;
 
     public static MobioSDKClient getInstance() {
         synchronized (MobioSDKClient.class) {
@@ -133,22 +151,15 @@ public class MobioSDKClient {
         domainURL = builder.mDomainURL;
         endPoint = builder.mEndPoint;
         configActivityMap = builder.mActivityMap;
+        sdkName = builder.mSdkName;
+        sdkSource = builder.mSdkSource;
+        sdkCode = builder.mSdkCode;
 
-        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
-        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
-        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_BASE_URL, domainURL);
-        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_ENDPOINT, endPoint);
+        initRecordCrashLog();
+        saveSdkInfo(sdkName, sdkSource, sdkCode);
 
-        analyticsExecutor = Executors.newSingleThreadExecutor();
-        sendSyncScheduler = Executors.newScheduledThreadPool(1);
-//        sendSyncScheduler.scheduleWithFixedDelay(new Runnable() {
-//            @Override
-//            public void run() {
-//                //Todo
-//                autoSendSync();
-//
-//            }
-//        }, intervalSecond, intervalSecond, TimeUnit.SECONDS);
+        saveNetworkProperties(merchantId, apiToken, domainURL, endPoint);
+        initExecutors();
 
         mobioSDKLifecycleCallback = new MobioSDKLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
                 shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application, configActivityMap);
@@ -159,191 +170,288 @@ public class MobioSDKClient {
             alarmManager = (AlarmManager) application.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         }
 
-        AppObject appObject = Utils.getAppObject(application);
-        DeviceObject deviceObject = Utils.getDeviceObject();
-        OsObject osObject = Utils.getOsObject();
-        PropertiesObject propertiesObject = Utils.getProperties();
+        createIdentityCache();
+        createNotificationCache();
+        createTrackCache();
+        initNetworkReceiver();
+    }
 
-        cacheDataObject = new DataObject.Builder()
-                .withContext(Utils.getContextObject(application))
-                .withProfileInfoObject(Utils.getProfileCreateDeviceObject(application))
-                .withAnonymousId(Build.ID)
-                .withProperties(propertiesObject)
-                .withTraits(Utils.getTraitsObject())
-                .build();
+    private void initRecordCrashLog(){
+        Thread.setDefaultUncaughtExceptionHandler(new CustomizedExceptionHandler(
+                application));
+    }
 
-        String cacheStr = new Gson().toJson(cacheDataObject);
-        try {
-            JSONObject jsonObject = new JSONObject(cacheStr);
-            cacheValueMap = Utils.toMap(jsonObject);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            try {
-                cacheValueMap = new ValueMap().put("anonymousId", Build.ID)
-                        .put("context", new ValueMap().put("app", new ValueMap().put("build", appObject.getBuild())
-                                .put("name", appObject.getName())
-                                .put("namespace", appObject.getNamespace())
-                                .put("version", appObject.getVersion()))
-                                .put("device", new ValueMap().put("device_id", deviceObject.getDeviceId())
-                                        .put("id", deviceObject.getId())
-                                        .put("manufacturer", deviceObject.getManufacturer())
-                                        .put("model", deviceObject.getModel())
-                                        .put("name", deviceObject.getName())
-                                        .put("type", deviceObject.getType()))
-                                .put("os", new ValueMap().put("name", osObject.getName())
-                                        .put("version", osObject.getVersion()))
-                                .put("timezone", Utils.getTimeZone()))
-                        .put("profile_info", new ValueMap().put("source", "APP")
-                                .put("customer_id", Build.ID)
-                                .put("device_id", Build.ID)
-                                .put("push_id", new ValueMap().put("app_id", "ANDROID")
-                                        .put("is_logged", true)
-                                        .put("lang", "VI")
-                                        .put("last_access", Utils.getTimeUTC())
-                                        .put("os_type", 2)
-                                        .put("push_id", SharedPreferencesUtils.getString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN))))
-                        .put("properties", new ValueMap().put("build", propertiesObject.getBuild())
-                                .put("version", propertiesObject.getVersion()))
-                        .put("event_data", new ValueMap().put("action_time", Utils.getTimeUTC()));
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
+    private void saveSdkInfo(String sdkName, String sdkSource, String sdkCode){
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_SDK_CODE, sdkCode);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_SDK_NAME, sdkName);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_SDK_SOURCE, sdkSource);
+    }
 
+    private void saveNetworkProperties(String merchantId, String apiToken, String domainURL, String endPoint) {
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_BASE_URL, domainURL);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_ENDPOINT, endPoint);
+    }
+
+    private void initExecutors() {
+        analyticsExecutor = Executors.newSingleThreadExecutor();
+        sendSyncScheduler = Executors.newScheduledThreadPool(1);
+    }
+
+    private void createTrackCache() {
+        cacheValueTrack = ModelFactory.getDataTrack(application);
+    }
+
+    private void createIdentityCache() {
+        cacheValueIdentity = ModelFactory.getDataIdentity(application);
+    }
+
+    private void createNotificationCache() {
+        cacheValueNotification = ModelFactory.getDataNotification(application);
+    }
+
+    private void initNetworkReceiver() {
         NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         application.registerReceiver(networkChangeReceiver, intentFilter);
-
-        UninstallIntentReceiver uninstallIntentReceiver = new UninstallIntentReceiver();
-        IntentFilter intentFilter1 = new IntentFilter();
-        intentFilter1.addAction("android.intent.action.PACKAGE_ADDED");
-        intentFilter1.addAction("android.intent.action.QUERY_PACKAGE_RESTART");
-        intentFilter1.addAction("android.intent.action.PACKAGE_REPLACED");
-        intentFilter1.addAction("android.intent.action.PACKAGE_REMOVED");
-        application.registerReceiver(uninstallIntentReceiver, intentFilter1);
     }
 
     public void setDeviceToken(String deviceToken) {
         this.deviceToken = deviceToken;
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_DEVICE_TOKEN, deviceToken);
-        this.cacheDataObject.setProfileInfo(Utils.getProfileCreateDeviceObject(application));
-        ValueMap pushIdVM = (ValueMap) ((ValueMap) cacheValueMap.get("profile_info")).get("push_id");
-        if (pushIdVM != null) {
-            pushIdVM.put("push_id", deviceToken);
-            ((ValueMap) cacheValueMap.get("profile_info")).put("push_id", pushIdVM);
+
+        updateNotificationToken(deviceToken);
+    }
+
+    private void updateNotificationToken(String token) {
+        createNotificationCache();
+
+        cacheValueNotification.getNotification().getDetail().putToken(token);
+        analyticsExecutor.submit(() -> processSend(cacheValueNotification));
+    }
+
+    public void updateNotificationPermission(String permission) {
+        createNotificationCache();
+
+        cacheValueNotification.getNotification().getDetail().putPermission(permission);
+        analyticsExecutor.submit(() -> processSend(cacheValueNotification));
+    }
+
+    public String getCurrentNotiPermissionInValue() {
+        if (cacheValueIdentity != null) {
+            Identity currentIdentity = cacheValueIdentity.getValueMap("identity", Identity.class);
+
+            if (currentIdentity == null) return null;
+            IdentityDetail currentIdentityDetail = currentIdentity.getValueMap("identity_detail", IdentityDetail.class);
+
+            if (currentIdentityDetail == null) return null;
+            Notification currentNotification = currentIdentityDetail.getValueMap("notification", Notification.class);
+
+            if (currentNotification == null) return null;
+
+            return currentNotification.getString("permission");
         }
+
+        return null;
+    }
+
+    public void trackNotificationOnOff(Activity activity) {
+        if (!Utils.areNotificationsEnabled(activity)) {
+            if (activity != null) {
+                activity.runOnUiThread(() -> new PermissionDialog(activity).show());
+            }
+        } else {
+            createNotificationCache();
+
+            String permission = cacheValueNotification.getNotification().getDetail().getPermission();
+
+
+            if (permission == null) return;
+            if (!permission.equals(Notification.KEY_GRANTED)) {
+                updateNotificationPermission(Notification.KEY_GRANTED);
+            }
+        }
+
     }
 
     public void setCurrentJsonJourney(String journeyJson) {
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(journeyJson);
-            ValueMap vm = Utils.toMap(jsonObject);
-            if (vm.get("journeys") == null) {
-                return;
-            }
-
-            List<ValueMap> journeys = (List<ValueMap>) vm.get("journeys");
-            if (journeys != null && journeys.size() > 0) {
-                currentJsonJourney = new ArrayList<ValueMap>(journeys);
-            }
-
-            String jsonJourney = new Gson().toJson(currentJsonJourney, new TypeToken<ArrayList<ValueMap>>() {
-            }.getType());
-            SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_JOURNEY, jsonJourney);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        Properties vm = Properties.convertJsonStringtoProperties(journeyJson);
+        if (vm.get("journeys") == null) {
+            return;
         }
+
+        List<Properties> journeys = vm.getList("journeys", Properties.class);
+        if (journeys != null && journeys.size() > 0) {
+            currentJsonJourney = new ArrayList<Properties>(journeys);
+        }
+
+        String jsonJourney = new Gson().toJson(currentJsonJourney, new TypeToken<ArrayList<Properties>>() {
+        }.getType());
+        SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_JOURNEY, jsonJourney);
     }
 
     public void setBothEventAndPushJson(String event, String push) {
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(event);
-            ValueMap vm = Utils.toMap(jsonObject);
-            if (vm.get("events") == null) {
-                return;
-            }
+        Properties eventP = Properties.convertJsonStringtoProperties(event);
+        if (eventP.get("events") == null) {
+            return;
+        }
+        List<Properties> events = eventP.getList("events", Properties.class);
+        if (events != null && events.size() > 0) {
+            currentJsonEvent = new ArrayList<Properties>(events);
+        }
 
-            List<ValueMap> events = (List<ValueMap>) vm.get("events");
-            if (events != null && events.size() > 0) {
-                currentJsonEvent = new ArrayList<ValueMap>(events);
-            }
+        Properties pushP = Properties.convertJsonStringtoProperties(push);
+        if (pushP.get("pushes") == null) {
+            return;
+        }
+        List<Properties> pushes = pushP.getList("pushes", Properties.class);
+        if (pushP != null && pushP.size() > 0) {
+            currentJsonPush = new ArrayList<Properties>(pushes);
+        }
 
-            jsonObject = new JSONObject(push);
-            vm = Utils.toMap(jsonObject);
-            if (vm.get("pushes") == null) {
-                return;
-            }
-
-            List<ValueMap> pushes = (List<ValueMap>) vm.get("pushes");
-            if (pushes != null && pushes.size() > 0) {
-                currentJsonPush = new ArrayList<ValueMap>(pushes);
-            }
-
-            for (int i = 0; i < currentJsonEvent.size(); i++) {
-                ValueMap tempEvent = currentJsonEvent.get(i);
-                if (tempEvent != null) {
-                    List<ValueMap> childrens = (List<ValueMap>) tempEvent.get("children_node");
-                    if (childrens != null && childrens.size() > 0) {
-                        for (int j = 0; j < childrens.size() - 1; j++) {
-                            for (int k = 0; k < childrens.size() - j - 1; k++) {
-                                if ((long) childrens.get(k).get("expire") > (long) childrens.get(k + 1).get("expire")) {
-                                    ValueMap temp = childrens.get(k);
-                                    childrens.set(k, childrens.get(k + 1));
-                                    childrens.set(k + 1, temp);
-                                }
+        for (int i = 0; i < currentJsonEvent.size(); i++) {
+            Properties tempEvent = currentJsonEvent.get(i);
+            if (tempEvent != null) {
+                List<Properties> childrens = tempEvent.getList("children_node", Properties.class);
+                if (childrens != null && childrens.size() > 0) {
+                    for (int j = 0; j < childrens.size() - 1; j++) {
+                        for (int k = 0; k < childrens.size() - j - 1; k++) {
+                            if (childrens.get(k).getLong("expire", 0) > childrens.get(k + 1).getLong("expire", 0)) {
+                                Properties temp = childrens.get(k);
+                                childrens.set(k, childrens.get(k + 1));
+                                childrens.set(k + 1, temp);
                             }
                         }
-                        tempEvent.put("children_node", childrens);
-                        currentJsonEvent.set(i, tempEvent);
                     }
+                    tempEvent.put("children_node", childrens);
+                    currentJsonEvent.set(i, tempEvent);
                 }
             }
-
-            String jsonEvent = new Gson().toJson(currentJsonEvent, new TypeToken<ArrayList<ValueMap>>() {
-            }.getType());
-            SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_EVENT, jsonEvent);
-
-            String jsonPush = new Gson().toJson(currentJsonPush, new TypeToken<ArrayList<ValueMap>>() {
-            }.getType());
-            SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_PUSH, jsonPush);
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+
+        String jsonEvent = new Gson().toJson(currentJsonEvent, new TypeToken<ArrayList<Properties>>() {
+        }.getType());
+        SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_EVENT, jsonEvent);
+
+        String jsonPush = new Gson().toJson(currentJsonPush, new TypeToken<ArrayList<Properties>>() {
+        }.getType());
+        SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_PUSH, jsonPush);
     }
 
-    public void showGlobalPopup(NotiResponseObject notiResponseObject) {
+    public void showGlobalPopup(Push push) {
         if (mobioSDKLifecycleCallback != null) {
-            mobioSDKLifecycleCallback.showPopup(notiResponseObject);
+            mobioSDKLifecycleCallback.showPopup(push);
         }
     }
 
-    private void showListAdsPopup(ArrayList<NotiResponseObject> notiResponseObjectArrayList) {
-        if (mobioSDKLifecycleCallback != null) {
-            mobioSDKLifecycleCallback.showPopup(notiResponseObjectArrayList);
-        }
+    public void showGlobalNotification(Push push, int id) {
+//        GlobalNotification.showGlobalNotification(id, push, configActivityMap, application);
+        RichNotification.showRichNotification(application, push, id, configActivityMap);
     }
 
-    public void showGlobalNotification(NotiResponseObject notiResponseObject, int id) {
-        new GlobalNotification(id, notiResponseObject, configActivityMap, application).show();
-    }
+    public void track(String eventKey, Properties eventData) {
+        createTrackCache();
 
-    public void track(String eventKey, ValueMap traits) {
         analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                if (traits != null && cacheValueMap != null) {
-                    traits.put("action_time", Utils.getTimeUTC());
-                    cacheValueMap.put("event_data", traits);
-                    cacheValueMap.put("event_key", eventKey);
-                    cacheValueMap.put("type", "track");
-                    processSync(cacheValueMap);
+                if (eventData != null) {
+                    processTrack(eventKey, eventData);
                 }
             }
         });
+    }
 
+    private void processTrack(String eventKey, Properties eventData) {
+        long actionTime = System.currentTimeMillis();
+        eventData.put("action_time", actionTime);
+        cacheValueTrack.getValueMap("track", Track.class)
+                .putEvents(Utils.createListEvent(Utils.createDynamicListEvent(eventKey, eventData)))
+                .putActionTime(actionTime);
+
+        if (!checkEventExistInJourneyWeb(eventKey, eventData)) {
+            processCommonPushBeforeSync(eventKey, eventData);
+        }
+
+        processSend(cacheValueTrack);
+    }
+
+    private void updateAllCacheValue(SendEventResponse sendEventResponse) {
+
+        String d_id = sendEventResponse.getData().getdId();
+        if (d_id != null) {
+            if (SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_D_ID) == null) {
+                SharedPreferencesUtils.editString(application, SharedPreferencesUtils.KEY_D_ID, d_id);
+
+                Track track = cacheValueTrack.getTrack();
+                Device device = track.getDevice();
+                device.putDId(d_id);
+
+                Identity identity = cacheValueIdentity.getIdentity();
+                IdentityDetail identityDetail = identity.getDetail();
+                identityDetail.putDId(d_id);
+
+                Notification notification = cacheValueNotification.getNotification();
+                IdentityDetail deviceNoti = notification.getDevice();
+                deviceNoti.putDId(d_id);
+            }
+        }
+    }
+
+    public boolean sendv2(Properties value) {
+        Response<SendEventResponse> response = null;
+        try {
+            String typeOfValue = Utils.getTypeOfData(value);
+
+            if (typeOfValue == null) return false;
+            switch (typeOfValue) {
+                case "track":
+                    response = RetrofitClient.getInstance().getMyApi().sendEvent(value).execute();
+                    break;
+                case "identity":
+                    response = RetrofitClient.getInstance().getMyApi().sendDevice(value).execute();
+                    break;
+                case "notification":
+                    response = RetrofitClient.getInstance().getMyApi().sendNotification(value).execute();
+                    break;
+            }
+
+            if (response == null) return false;
+            if (response.code() != 200) {
+                JSONObject jObjError = new JSONObject(response.errorBody().string());
+                return false;
+            } else {
+                SendEventResponse sendEventResponse = response.body();
+                if (sendEventResponse != null) {
+                    updateAllCacheValue(sendEventResponse);
+                }
+                return true;
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void track(List<Event> eventList, long actionTime) {
+        analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                createTrackCache();
+
+                if (eventList == null || eventList.size() == 0) return;
+
+                cacheValueTrack.getValueMap("track", Track.class)
+                        .putValue("events", eventList)
+                        .putValue("action_time", actionTime);
+                processSend(cacheValueTrack);
+            }
+        });
     }
 
     public String getVersionCode() {
@@ -363,32 +471,25 @@ public class MobioSDKClient {
             try {
                 map.put(field.getName(), field.get(obj));
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return map;
     }
 
-    public ArrayList<ValueMap> getListFromSharePref(String key) {
+    public ArrayList<Properties> getListFromSharePref(String key) {
         String strJson = SharedPreferencesUtils.getString(application, key);
-        JSONObject jsonObject = null;
-        try {
-            if (strJson != null) {
-                jsonObject = new JSONObject(strJson);
-                ValueMap vm = Utils.toMap(jsonObject);
-                if (vm.get(key) != null) {
-                    return new ArrayList<>((List<ValueMap>) vm.get(key));
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+        Properties vm = Properties.convertJsonStringtoProperties(strJson);
+        if (vm == null) return new ArrayList<>();
+        if (vm.get(key) != null) {
+            return new ArrayList<>(vm.getList(key, Properties.class));
         }
         return new ArrayList<>();
     }
 
-    public void updateListSharePref(ArrayList<ValueMap> list, String key) {
-        ValueMap vm = new ValueMap().put(key, list);
-        String jsonEvent = new Gson().toJson(vm, new TypeToken<ValueMap>() {
+    public void updateListSharePref(ArrayList<Properties> list, String key) {
+        Properties vm = new Properties().putValue(key, list);
+        String jsonEvent = new Gson().toJson(vm, new TypeToken<Properties>() {
         }.getType());
         SharedPreferencesUtils.editString(application, key, jsonEvent);
     }
@@ -402,8 +503,7 @@ public class MobioSDKClient {
                     int countNoti = pendingJsonPush.size();
                     long maxInterval = 60 * 1000;
                     long minInterval = 2 * 1000;
-                    long diff = maxInterval - minInterval;
-                    long intervel = diff / countNoti + minInterval;
+                    long intervel = Utils.getTimeInterval(maxInterval, minInterval, countNoti);
                     long now = System.currentTimeMillis();
 
                     for (int i = 0; i < countNoti; i++) {
@@ -420,20 +520,14 @@ public class MobioSDKClient {
         });
     }
 
-    private void processEventBeforeSync(ValueMap dataObject) {
+    private void processCommonPushBeforeSync(String eventKey, Properties eventData) {
         pendingJsonPush = getListFromSharePref(SharedPreferencesUtils.KEY_PENDING_PUSH);
-        String eventKey = (String) dataObject.get("event_key");
-        ValueMap eventData = (ValueMap) dataObject.get("event_data");
-        String actionTime = null;
-        if (eventData != null) {
-            actionTime = (String) ((ValueMap) dataObject.get("event_data")).get("action_time");
-        }
 
-        if (eventKey == null || actionTime == null) {
+        if (eventKey == null) {
             return;
         }
 
-        if (currentJsonEvent == null || currentJsonEvent.size() == 0) {
+        if (currentJsonEvent == null || currentJsonEvent.size() == 0 || currentJsonPush == null || currentJsonPush.size() == 0) {
             return;
         }
 
@@ -441,13 +535,13 @@ public class MobioSDKClient {
         boolean eventKeyEqual = false; //check case tất cả eventkey không thoả mãn thì show pendingpush
 
         for (int i = 0; i < currentJsonEvent.size(); i++) {
-            ValueMap tempEvent = currentJsonEvent.get(i);
-            String tpEventKey = (String) tempEvent.get("event_key");
+            Properties tempEvent = currentJsonEvent.get(i);
+            String tpEventKey = tempEvent.getString("event_key");
 
             if (tpEventKey == null || !tpEventKey.equals(eventKey) || tpEventKey.equals("")) {
                 continue;
             }
-            ValueMap tpEventData = (ValueMap) tempEvent.get("event_data");
+            Properties tpEventData = tempEvent.getValueMap("event_data", Properties.class);
             if (tpEventData == null) {
                 return;
             }
@@ -455,7 +549,7 @@ public class MobioSDKClient {
             String eventStr = new Gson().toJson(eventData);
             if (Utils.compareTwoJson(edStr, eventStr)) {
                 eventKeyEqual = true;
-                List<ValueMap> childrens = (List<ValueMap>) tempEvent.get("children_node");
+                List<Properties> childrens = tempEvent.getList("children_node", Properties.class);
 
                 if (childrens == null || childrens.size() <= 0) {
                     return;
@@ -463,45 +557,43 @@ public class MobioSDKClient {
 
                 boolean runFirstPushDone = false;
                 for (int j = 0; j < childrens.size(); j++) {
-                    ValueMap tempChildren = childrens.get(j);
+                    Properties tempChildren = childrens.get(j);
                     if (tempChildren == null) {
                         return;
                     }
-                    boolean complete = (boolean) tempChildren.get("complete");
+                    boolean complete = tempChildren.getBoolean("complete", false);
 
-                    String type = (String) tempChildren.get("type");
+                    String type = tempChildren.getString("type");
                     if (type == null) return;
                     if (!complete) {
                         checkEvent = true;
-                        String childrenId = (String) tempChildren.get("id");
+                        String childrenId = tempChildren.getString("id");
                         for (int k = 0; k < currentJsonPush.size(); k++) {
-                            ValueMap tempPush = currentJsonPush.get(k);
+                            Properties tempPush = currentJsonPush.get(k);
                             if (tempPush == null) {
                                 return;
                             }
-                            String pushId = (String) tempPush.get("node_id");
+                            String pushId = tempPush.getString("node_id");
                             if (pushId == null) {
                                 return;
                             }
                             if (pushId.equals(childrenId)) {
                                 if (!runFirstPushDone) {
-                                    ValueMap noti = (ValueMap) tempPush.get("noti_response");
-                                    String notiStr = new Gson().toJson(noti);
-                                    NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
-                                    notiResponseObject.setPushId(pushId);
-                                    showPushInApp(notiResponseObject);
+                                    Properties noti = tempPush.getValueMap("noti_response", Properties.class);
+                                    showPushInApp(noti);
                                 } else {
                                     if (pendingJsonPush.size() == 0) {
                                         pendingJsonPush.add(tempPush);
                                     } else {
-                                        if ((long) tempPush.get("expire") <= (long) pendingJsonPush.get(0).get("expire")) {
+                                        if (tempPush.getLong("expire", 0) <= pendingJsonPush.get(0).getLong("expire", 0)) {
                                             pendingJsonPush.add(0, tempPush);
-                                        } else if ((long) tempPush.get("expire") >= (long) pendingJsonPush.get(pendingJsonPush.size() - 1).get("expire")) {
+                                        } else if (tempPush.getLong("expire", 0)
+                                                >= pendingJsonPush.get(pendingJsonPush.size() - 1).getLong("expire", 0)) {
                                             pendingJsonPush.add(tempPush);
                                         } else {
                                             for (int l = 0; l < pendingJsonPush.size(); l++) {
-                                                if ((long) tempPush.get("expire") >= (long) pendingJsonPush.get(l).get("expire")
-                                                        && (long) tempPush.get("expire") <= (long) pendingJsonPush.get(l + 1).get("expire")) {
+                                                if (tempPush.getLong("expire", 0) >= pendingJsonPush.get(l).getLong("expire", 0)
+                                                        && tempPush.getLong("expire", 0) <= pendingJsonPush.get(l + 1).getLong("expire", 0)) {
                                                     pendingJsonPush.add(l + 1, tempPush);
                                                     break;
                                                 }
@@ -524,76 +616,73 @@ public class MobioSDKClient {
         }
 
         if ((!eventKeyEqual || !checkEvent) && pendingJsonPush.size() > 0) {
-            ValueMap tempPush = pendingJsonPush.get(0);
-            ValueMap noti = (ValueMap) tempPush.get("noti_response");
+            Properties tempPush = pendingJsonPush.get(0);
+            Properties noti = tempPush.getValueMap("noti_response", Properties.class);
             List<String> eventsCanShow = (List<String>) tempPush.get("events_to_show");
             if (eventsCanShow != null && eventsCanShow.contains(eventKey)) {
-                String pushId = (String) tempPush.get("node_id");
-                String notiStr = new Gson().toJson(noti);
-                NotiResponseObject notiResponseObject = new Gson().fromJson(notiStr, NotiResponseObject.class);
-                notiResponseObject.setPushId(pushId);
-                showPushInApp(notiResponseObject);
+                showPushInApp(noti);
+                pendingJsonPush.remove(0);
             }
-            pendingJsonPush.remove(0);
             updateListSharePref(pendingJsonPush, SharedPreferencesUtils.KEY_PENDING_PUSH);
+
         }
     }
 
-    private void showPushInApp(NotiResponseObject notiResponseObject) {
+    public void showPushInApp(Properties noti) {
+        String contentType;
+
+        if (noti == null) return;
+
+        Push.Alert alert = new Push.Alert()
+                .putBody(noti.getString("content"))
+                .putTitle(noti.getString("title"))
+                .putDestinationScreen(noti.getString("des_screen"))
+                .putFromScreen(noti.getString("source_screen"));
+
+        int type = noti.getInt("type", 0);
+        if (type == 0) {
+            contentType = Push.Alert.TYPE_TEXT;
+        } else if (type == 1) {
+            contentType = Push.Alert.TYPE_HTML;
+            alert.putBodyHTML(noti.getString("data"));
+        } else {
+            contentType = Push.Alert.TYPE_POPUP;
+            alert.putPopupUrl(noti.getString("data"));
+        }
+
+        alert.putContentType(contentType);
+        Push push = new Push().putAlert(alert);
+
+        showPushInApp(push);
+    }
+
+    private void showPushInApp(Push push) {
         if (SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.KEY_APP_FOREGROUD)) {
-            showGlobalPopup(notiResponseObject);
+            showGlobalPopup(push);
         } else {
             int randomId = (int) (Math.random() * 10000);
-            showGlobalNotification(notiResponseObject, randomId);
+            showGlobalNotification(push, randomId);
         }
     }
 
-    public boolean sendSync(ValueMap dataObject) {
-        String url = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_BASE_URL);
-        String endpoint = SharedPreferencesUtils.getString(application, SharedPreferencesUtils.KEY_ENDPOINT);
-        try {
-            ValueMap bodyMap = new ValueMap().put("data", dataObject);
-            LogMobio.logD("Analytics", "send = " + new Gson().toJson(bodyMap));
-            Response<Void> response = RetrofitClient.getInstance(url).getMyApi().sendSync(Utils.getHeader(application.getApplicationContext()), bodyMap, endpoint).execute();
-            LogMobio.logD(TAG, "code = " + response.code());
-            if (response.code() != 200) {
-                JSONObject jObjError = new JSONObject(response.errorBody().string());
-                LogMobio.logD(TAG, "body = " + jObjError.toString());
-                return false;
-            } else {
-                return true;
-            }
-        } catch (IOException | JSONException e) {
-            LogMobio.logD(TAG, "api dies ");
-            e.printStackTrace();
-            return false;
-        } catch (Exception e) {
-            LogMobio.logD(TAG, "api dies hard");
-            e.printStackTrace();
-            return false;
-        }
-    }
+    private boolean checkEventExistInJourneyWeb(String eventKey, Properties eventData) {
 
-    private boolean checkEventExistInJourneyWeb(ValueMap data) {
-        String eventKey = (String) data.get("event_key");
-        ValueMap eventData = (ValueMap) data.get("event_data");
-
-        if (currentJsonJourney.size() == 0) {
+        if (currentJsonJourney == null || currentJsonJourney.size() == 0) {
             return false;
         }
 
-        for (ValueMap journey : currentJsonJourney) {
+        for (Properties journey : currentJsonJourney) {
             String statusJb = (String) journey.get("status");
             if (statusJb == null) continue;
             if (statusJb.equals("todo")) {
-                List<ValueMap> listEvent = (List<ValueMap>) journey.get("events");
+                List<Properties> listEvent = journey.getList("events", Properties.class);
                 if (listEvent == null || listEvent.size() == 0) {
                     continue;
                 }
-                for (ValueMap event : listEvent) {
-                    String mkey = (String) event.get("event_key");
-                    ValueMap mData = (ValueMap) event.get("event_data");
-                    String statusEvent = (String) event.get("status");
+                for (Properties event : listEvent) {
+                    String mkey = event.getString("event_key");
+                    Properties mData = (Properties) event.get("event_data");
+                    String statusEvent = event.getString("status");
 
                     if (mkey == null || mData == null || statusEvent == null) continue;
                     String edStr = new Gson().toJson(mData);
@@ -602,59 +691,49 @@ public class MobioSDKClient {
                             && Utils.compareTwoJson(edStr, eventStr)
                             && statusEvent.equals("pending")) {
                         event.put("status", "done");
-                        if(listEvent.indexOf(event)+1 < listEvent.size()){
-                            ValueMap eventNext = listEvent.get(listEvent.indexOf(event)+1);
+                        if (listEvent.indexOf(event) + 1 < listEvent.size()) {
+                            Properties eventNext = listEvent.get(listEvent.indexOf(event) + 1);
                             eventNext.put("status", "pending");
-                            listEvent.set(listEvent.indexOf(event)+1, eventNext);
+                            listEvent.set(listEvent.indexOf(event) + 1, eventNext);
                         }
                         listEvent.set(listEvent.indexOf(event), event);
                         journey.put("events", listEvent);
                         currentJsonJourney.set(currentJsonJourney.indexOf(journey), journey);
                         updateListSharePref(currentJsonJourney, SharedPreferencesUtils.KEY_JOURNEY);
-                        LogMobio.logD("QuanLA", "journey true"+currentJsonJourney);
                         return true;
                     }
                 }
             }
         }
-        LogMobio.logD("QuanLA", "journey false"+currentJsonJourney);
         return false;
     }
 
-    private void processSync(ValueMap dataObject) {
-        //        if(isAppropriateTimeToShow()){
-        if (!checkEventExistInJourneyWeb(dataObject)) {
-            LogMobio.logD("QuanLA", "1");
-            processEventBeforeSync(dataObject); // 2 list json
-        }
-        //        }
-        LogMobio.logD("QuanLA", "2");
+    private void processSend(Properties data) {
+        listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.KEY_SEND_QUEUE);
 
-        listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.KEY_EVENT_QUEUE);
-
-        if (Utils.isOnline(application)) {
-            if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
-                for (ValueMap vm : listDataWaitToSend) {
-                    if (sendSync(vm)) {
-                        listDataWaitToSend.remove(vm);
-                        updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_EVENT_QUEUE);
-                    }
-                }
-            }
-            if (!sendSync(dataObject)) {
-                addEventQueue(dataObject);
-            }
-        } else {
-            addEventQueue(dataObject);
+//        if (Utils.isOnline(application)) {
+//            if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
+//                for (Properties vm : listDataWaitToSend) {
+//                    if (sendv2(vm)) {
+//                        listDataWaitToSend.remove(vm);
+//                        updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_SEND_QUEUE);
+//                    }
+//                }
+//            }
+        if (!sendv2(data)) {
+            addSendQueue(data);
         }
+//        } else {
+//            addSendQueue(data);
+//        }
     }
 
-    private void addEventQueue(ValueMap vm) {
+    private void addSendQueue(Properties vm) {
         if (listDataWaitToSend == null) {
             listDataWaitToSend = new ArrayList<>();
         }
         listDataWaitToSend.add(vm);
-        updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_EVENT_QUEUE);
+        updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.KEY_SEND_QUEUE);
     }
 
     private boolean isAppropriateTimeToShow() {
@@ -667,83 +746,71 @@ public class MobioSDKClient {
         int second = now.get(Calendar.SECOND);
         int millis = now.get(Calendar.MILLISECOND);
 
-        LogMobio.logD("QuanLA", "" + hour + ":" + minute + ":" + second + ":" + millis);
-
         return hour == 8 || hour == 13;
     }
 
-    public void identify(ValueMap profile) {
-        if (cacheValueMap != null) {
-            Future<?> future = analyticsExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    ValueMap profileParam = (ValueMap) profile.clone();
-                    profileParam.put("action_time", Utils.getTimeUTC());
+    public void identify() {
+        Future<?> future = analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                processIdentity();
+            }
+        });
+    }
 
-                    cacheValueMap.put("type", "identify");
-                    cacheValueMap.put("event_key", SDK_Mobile_Test_Identify_App);
-                    ValueMap profileVM = (ValueMap) ((ValueMap) cacheValueMap.get("profile_info")).remove("source").clone();
-                    cacheValueMap.put("profile_info", profile);
-
-
-                    cacheValueMap.put("event_data", profileParam);
-                    ((ValueMap) cacheValueMap.get("profile_info")).put("customer_id", Build.ID);
-                    ((ValueMap) cacheValueMap.get("profile_info")).put("source", "APP");
-                    ((ValueMap) cacheValueMap.get("profile_info")).put("device_id", Build.ID);
-                    ((ValueMap) cacheValueMap.get("profile_info")).put("push_id", profileVM.get("push_id"));
-                    //cacheValueMap.get("context").put("traits", profile.put("action_time", Utils.getTimeUTC()));
-                    processSync(cacheValueMap);
-                    //listDataWaitToSend.add(cacheDataObject);
-                }
-            });
-        }
+    private void processIdentity() {
+        createIdentityCache();
+        processSend(cacheValueIdentity);
     }
 
     public void trackDeepLink(Activity activity) {
         Intent intent = activity.getIntent();
         if (intent == null || intent.getData() == null) {
-            LogMobio.logD(TAG, "deeplink 1");
             return;
         }
 
         Uri referrer = Utils.getReferrer(activity);
         if (referrer != null) {
             //Todo save this link
-            LogMobio.logD(TAG, "deep link " + referrer.toString());
-            LogMobio.logD(TAG, "deep link "+referrer.getAuthority());
-            LogMobio.logD(TAG, "deep link "+ referrer.getUserInfo());
         }
 
         Uri uri = intent.getData();
-        LogMobio.logD(TAG, uri.toString());
         try {
             for (String parameter : uri.getQueryParameterNames()) {
                 String value = uri.getQueryParameter(parameter);
                 if (value != null && !value.trim().isEmpty()) {
                     //Todo save
-                    LogMobio.logD(TAG, "parameter: " + parameter + " value: " + value);
                 }
             }
         } catch (Exception e) {
-            LogMobio.logE(TAG, e.toString());
+            e.printStackTrace();
         }
 
-        //analytics.track("Deep Link Opened");
-    }
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(intent)
+                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+                        }
 
-    void recordScreen(ValueMap traits) {
-        if (cacheValueMap != null) {
-            Future<?> future = analyticsExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    traits.put("action_time", Utils.getTimeUTC());
-                    cacheValueMap.put("event_data", traits);
-                    cacheValueMap.put("event_key", SDK_Mobile_Test_Time_Visit_App);
-                    cacheValueMap.put("type", "screen");
-                    processSync(cacheValueMap);
-                }
-            });
-        }
+
+                        // Handle the deep link. For example, open the linked
+                        // content, or apply promotional credit to the user's
+                        // account.
+                        // ...
+
+                        // ...
+                    }
+                })
+                .addOnFailureListener(activity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                    }
+                });
     }
 
     PackageInfo getPackageInfo(Context context) {
@@ -761,8 +828,6 @@ public class MobioSDKClient {
         String currentVersionName = packageInfo.versionName;
         int currentVersionCode = packageInfo.versionCode;
 
-        LogMobio.logD(TAG, "currentVersionName " + currentVersionName);
-        LogMobio.logD(TAG, "currentVersionCode " + currentVersionCode);
 
         // Get the previous recorded version.
         String previousVersionName = SharedPreferencesUtils.getString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME);
@@ -773,8 +838,8 @@ public class MobioSDKClient {
             SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_NAME, currentVersionName);
             SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.KEY_VERSION_CODE, currentVersionCode);
             //track(DEMO_EVENT, TYPE_APP_LIFECYCLE,"Application updated");
-            track(MobioSDKClient.SDK_Mobile_Test_Open_Update_App, new ValueMap().put("build", currentVersionName)
-                    .put("version", String.valueOf(currentVersionCode)));
+            track(MobioSDKClient.SDK_Mobile_Test_Open_Update_App, new Properties().putValue("build", currentVersionName)
+                    .putValue("version", String.valueOf(currentVersionCode)));
         }
     }
 
@@ -800,6 +865,9 @@ public class MobioSDKClient {
         private String mDeviceToken;
         private String mDomainURL;
         private String mEndPoint;
+        private String mSdkSource;
+        private String mSdkName;
+        private String mSdkCode;
         private HashMap<String, ScreenConfigObject> mActivityMap;
 
         public Builder() {
@@ -862,6 +930,21 @@ public class MobioSDKClient {
 
         public Builder withEndPoint(String endPoint) {
             mEndPoint = endPoint;
+            return this;
+        }
+
+        public Builder withSdkName(String sdkName) {
+            mSdkName = sdkName;
+            return this;
+        }
+
+        public Builder withSdkSource(String sdkSource) {
+            mSdkSource = sdkSource;
+            return this;
+        }
+
+        public Builder withSdkCode(String sdkCode) {
+            mSdkCode = sdkCode;
             return this;
         }
 

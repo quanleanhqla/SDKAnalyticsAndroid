@@ -1,33 +1,26 @@
 package com.mobio.analytics.client.view.popup;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.view.View;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.mobio.analytics.R;
-import com.mobio.analytics.client.models.NotiResponseObject;
-import com.mobio.analytics.client.models.ScreenConfigObject;
+import com.mobio.analytics.client.model.digienty.Push;
+import com.mobio.analytics.client.model.old.NotiResponseObject;
 import com.mobio.analytics.client.utility.LogMobio;
 
-import java.util.HashMap;
+import java.util.Objects;
 
 public class CustomDialog extends BaseDialog{
-    private NotiResponseObject notiResponseObject;
-    private Class des;
+    private Push push;
+    private Class<?> des;
 
-    public CustomDialog(Activity activity, NotiResponseObject notiResponseObject, Class des) {
+    public CustomDialog(Activity activity, Push push, Class<?> des) {
         this.activity = activity;
-        this.notiResponseObject = notiResponseObject;
+        this.push = push;
         this.des = des;
+    }
+
+    public static void showCustomDialog(Activity activity, Push push, Class<?> des){
+        new CustomDialog(activity, push, des).show();
     }
 
     @Override
@@ -50,17 +43,19 @@ public class CustomDialog extends BaseDialog{
 
     @Override
     void doDismiss() {
-        LogMobio.logD("QuanLA", "close popup "+notiResponseObject.getPushId());
+
     }
 
     @Override
     String getDetail() {
-        return notiResponseObject.getContent();
+        return push.getAlert().getContentType().equals(Push.Alert.TYPE_TEXT)
+                ? push.getAlert().getBody()
+                : push.getAlert().getBodyHTML() ;
     }
 
     @Override
     String getTitle() {
-        return notiResponseObject.getTitle();
+        return push.getAlert().getTitle();
     }
 
     @Override

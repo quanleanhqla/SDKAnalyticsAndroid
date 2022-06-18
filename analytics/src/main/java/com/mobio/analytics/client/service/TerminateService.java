@@ -8,7 +8,8 @@ import android.os.Build;
 import android.os.IBinder;
 
 import com.mobio.analytics.client.MobioSDKClient;
-import com.mobio.analytics.client.models.ValueMap;
+import com.mobio.analytics.client.model.digienty.Properties;
+import com.mobio.analytics.client.model.digienty.ValueMap;
 import com.mobio.analytics.client.receiver.AlarmReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
@@ -26,7 +27,6 @@ public class TerminateService extends Service {
     public void onCreate() {
         super.onCreate();
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        LogMobio.logD("TerminateService", "onCreate");
     }
 
     @Override
@@ -37,9 +37,8 @@ public class TerminateService extends Service {
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        LogMobio.logD("TerminateService", "onTaskRemoved");
         try {
-            ArrayList<ValueMap> pendingJsonPush = MobioSDKClient.getInstance().getListFromSharePref(SharedPreferencesUtils.KEY_PENDING_PUSH);
+            ArrayList<Properties> pendingJsonPush = MobioSDKClient.getInstance().getListFromSharePref(SharedPreferencesUtils.KEY_PENDING_PUSH);
             if (pendingJsonPush.size() > 0) {
                 int countNoti = pendingJsonPush.size();
                 long maxInterval = 60 * 1000;

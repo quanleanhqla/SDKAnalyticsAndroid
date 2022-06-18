@@ -6,6 +6,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
+import com.mobio.analytics.client.MobioSDKClient;
+import com.mobio.analytics.client.model.digienty.Notification;
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
+
 public class PermissionDialog extends BaseDialog{
 
     public PermissionDialog(Activity activity) {
@@ -29,12 +33,12 @@ public class PermissionDialog extends BaseDialog{
 
     @Override
     void close() {
-
+        denyPermission();
     }
 
     @Override
     void cancel() {
-
+        denyPermission();
     }
 
     @Override
@@ -44,7 +48,6 @@ public class PermissionDialog extends BaseDialog{
 
     @Override
     void doDismiss() {
-
     }
 
     private void addPermissionNoti() {
@@ -62,5 +65,12 @@ public class PermissionDialog extends BaseDialog{
             intent.setData(Uri.parse("package:" + activity.getPackageName()));
         }
         activity.startActivity(intent);
+    }
+
+    private void denyPermission(){
+        String permisson = MobioSDKClient.getInstance().getCurrentNotiPermissionInValue();
+        if(permisson == null || !permisson.equals(Notification.KEY_DENIED)) {
+            MobioSDKClient.getInstance().updateNotificationPermission(Notification.KEY_DENIED);
+        }
     }
 }

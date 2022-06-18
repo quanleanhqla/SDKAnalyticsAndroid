@@ -3,28 +3,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mobio.analytics">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application>
+
         <activity
-            android:name=".client.activities.TransparentDeeplinkHandleActivity"
-            android:exported="true" />
+            android:name=".client.activity.PopupBuilderActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Translucent" />
+        <activity
+            android:name=".client.activity.TransparentDeeplinkHandleActivity"
+            android:exported="true">
+
+        </activity>
 
         <service
             android:name=".client.service.ClickNotificationService"
-            android:exported="false"/>
+            android:exported="false" />
         <service
             android:name=".client.service.TerminateService"
             android:stopWithTask="false" />
-        <service
-            android:name=".client.service.NotificationService"
-            android:enabled="true"
-            android:exported="true" />
 
         <receiver
             android:name=".client.receiver.NotificationDismissedReceiver"
@@ -38,26 +45,12 @@
                 <action android:name="ACTION_LAUNCH_NOTI" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".client.receiver.NetworkChangeReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name=".client.receiver.UninstallIntentReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter android:priority="999">
-                <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.QUERY_PACKAGE_RESTART" />
-
-                <data android:scheme="package" />
             </intent-filter>
         </receiver>
     </application>

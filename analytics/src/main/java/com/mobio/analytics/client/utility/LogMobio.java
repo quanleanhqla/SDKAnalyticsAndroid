@@ -3,7 +3,7 @@ package com.mobio.analytics.client.utility;
 import android.util.Log;
 
 public class LogMobio {
-    private final static boolean shouldLog = false;
+    private final static boolean shouldLog = true;
 
     public static void logV(String tag, String content){
         if(shouldLog) {
