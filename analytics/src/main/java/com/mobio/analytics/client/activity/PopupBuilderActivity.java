@@ -2,19 +2,28 @@ package com.mobio.analytics.client.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+<<<<<<< HEAD
 import android.annotation.SuppressLint;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+<<<<<<< HEAD
 import android.graphics.Typeface;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+<<<<<<< HEAD
 import android.text.TextUtils;
 import android.view.Gravity;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,32 +37,56 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+<<<<<<< HEAD
 import android.widget.TextView;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
 import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.MobioSDKClient;
+<<<<<<< HEAD
 import com.mobio.analytics.client.model.factory.ModelFactory;
+=======
+import com.mobio.analytics.client.model.ModelFactory;
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.Utils;
+<<<<<<< HEAD
+=======
+import com.mobio.analytics.client.view.htmlPopup.HtmlController;
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import com.mobio.analytics.client.view.htmlPopup.JavaScriptInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Stack;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PopupBuilderActivity extends AppCompatActivity {
     private final String HTML_MIME_TYPE = "text/html";
     private final String HTML_ENCODING = "utf-8";
+<<<<<<< HEAD
     private static final int ID_OF_URL_BAR = 112233;
     private static final int ID_OF_URL_TEXTVIEW = 332211;
     private static final int ID_OF_URL_LINE = 222211;
     public static final String M_KEY_PUSH = "m_key_push";
+=======
+    public static final String M_KEY_PUSH = "m_key_push";
+    private WebView webView;
+    private ProgressBar progressBar;
+    private RelativeLayout rlRoot;
+    private Push push;
+
+
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     private final String templateHtml = "<!DOCTYPE html>\n" +
             "<html>\n" +
             "<head>\n" +
@@ -106,6 +139,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
             "</body>\n" +
             "</html>";
     private static final String keyWordSubstr = "<div id=\"m_modal\">";
+<<<<<<< HEAD
     private static final String POSITION_CENTER = "cc";
     private static final String POSITION_TOP = "tc";
     private static final String POSITION_BOTTOM = "bc";
@@ -116,12 +150,15 @@ public class PopupBuilderActivity extends AppCompatActivity {
     private RelativeLayout rlRoot;
     private Push push;
     private String position;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup_builder);
 
+<<<<<<< HEAD
         webView = findViewById(R.id.web);
         progressBar = findViewById(R.id.progress);
         rlRoot = findViewById(R.id.rl_root);
@@ -138,6 +175,20 @@ public class PopupBuilderActivity extends AppCompatActivity {
 //        if (getDataPush() != null) {
 //            HtmlController.showHtmlPopup(this, getDataPush(), "", true);
 //        }
+=======
+//        webView = findViewById(R.id.web);
+//        progressBar = findViewById(R.id.progress);
+//        rlRoot = findViewById(R.id.rl_root);
+
+//        push = getDataPush();
+//        if (push != null) {
+//            createWebview("", push);
+//        }
+
+        if (getDataPush() != null) {
+            HtmlController.showHtmlPopup(this, getDataPush(), "", true);
+        }
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     public Push getDataPush() {
@@ -152,7 +203,11 @@ public class PopupBuilderActivity extends AppCompatActivity {
     private void createWebview(String assetPath, Push push) {
         webView.setFocusableInTouchMode(true);
         webView.setVerticalScrollBarEnabled(true);
+<<<<<<< HEAD
         rlRoot.setBackgroundColor(Color.TRANSPARENT);
+=======
+        rlRoot.setBackgroundColor(Color.parseColor("#80000000"));
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         webView.setBackgroundColor(Color.TRANSPARENT);
 
         WebSettings webSettings = webView.getSettings();
@@ -176,6 +231,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
             @Override
             public void onReceiveMessage(String data) {
                 processReceivedMessage(data);
+<<<<<<< HEAD
+=======
+                LogMobio.logD("QuanLA", "data " + data);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             }
 
             @Override
@@ -203,6 +262,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
 
             private boolean handleUri(final Uri uri) {
                 if (uri.toString().startsWith("http://") || uri.toString().startsWith("https://")) {
+<<<<<<< HEAD
                     webView.post(new Runnable() {
                         @SuppressLint("ResourceType")
                         @Override
@@ -222,6 +282,9 @@ public class PopupBuilderActivity extends AppCompatActivity {
                             }
                         }
                     });
+=======
+                    createButtonClose();
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                     return false;
                 } else {
                     final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -234,6 +297,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 progressBar.setVisibility(View.VISIBLE);
+<<<<<<< HEAD
+=======
+                LogMobio.logD("QuanLA", "onPageStarted");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 view.loadUrl("javascript:(function() {" +
                         "window.parent.addEventListener ('message', function(event) {" +
                         " sdk.receiveMessage(JSON.stringify(event.data));});" +
@@ -243,6 +310,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 progressBar.setVisibility(View.GONE);
+<<<<<<< HEAD
+=======
+                LogMobio.logD("QuanLA", "onPageFinished");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 Utils.hideKeyboard(PopupBuilderActivity.this);
                 webView.requestFocus();
             }
@@ -255,7 +326,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
             return;
         }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         String content_type = alert.getContentType();
         if (content_type.equals(Push.Alert.TYPE_POPUP)) {
             String popupUrl = data.getPopupUrl();
@@ -290,6 +364,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
             }
         });
         if (content_type.equals(Push.Alert.TYPE_HTML)) {
+<<<<<<< HEAD
             createButtonClose(rlRoot);
         }
     }
@@ -297,6 +372,15 @@ public class PopupBuilderActivity extends AppCompatActivity {
     private void createButtonClose(ViewGroup container) {
         ImageView imageView = new ImageView(this);
         imageView.setImageResource(R.drawable.ic_close);
+=======
+            createButtonClose();
+        }
+    }
+
+    private void createButtonClose() {
+        ImageView imageView = new ImageView(this);
+        imageView.setImageResource(R.drawable.ic_circle_xmark_solid);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -306,6 +390,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+<<<<<<< HEAD
         params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
         params.setMargins(20, 20, 20, 20);
         container.addView(imageView, params);
@@ -346,6 +431,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
 
         container.addView(relativeLayout);
         return relativeLayout;
+=======
+        params.setMargins(20, 100, 20, 20);
+        rlRoot.addView(imageView, params);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
 
@@ -365,6 +454,11 @@ public class PopupBuilderActivity extends AppCompatActivity {
                         url, contentDisposition, mimetype));
         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         dm.enqueue(request);
+<<<<<<< HEAD
+=======
+
+        LogMobio.logD("QuanLA", "downloading");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     private void dismissMessage() {
@@ -408,6 +502,7 @@ public class PopupBuilderActivity extends AppCompatActivity {
 
                         long actionTime = System.currentTimeMillis();
                         MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "open", actionTime), actionTime);
+<<<<<<< HEAD
 
                         Properties size = dataVM.getValueMap("size", Properties.class);
                         if (size != null) {
@@ -437,6 +532,8 @@ public class PopupBuilderActivity extends AppCompatActivity {
                                 }
                             });
                         }
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                     }
                 });
             }
@@ -555,6 +652,10 @@ public class PopupBuilderActivity extends AppCompatActivity {
         int endPos = 0;
         while (match.find()) {
             endPos = match.end();
+<<<<<<< HEAD
+=======
+            LogMobio.logD("Found love at index ", html.substring(0, endPos) + receiveHtml + html.substring(endPos));
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         }
         return html.substring(0, endPos) + receiveHtml + html.substring(endPos);
     }

@@ -26,12 +26,20 @@ import android.widget.ScrollView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+<<<<<<< HEAD
+=======
+import androidx.core.content.ContextCompat;
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.mobio.analytics.client.activity.PopupBuilderActivity;
+<<<<<<< HEAD
 import com.mobio.analytics.client.model.factory.ModelFactory;
+=======
+import com.mobio.analytics.client.model.ModelFactory;
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.model.digienty.Properties;
@@ -115,7 +123,11 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         Class<?> des = null;
         for (int i = 0; i < screenConfigObjectHashMap.values().size(); i++) {
             ScreenConfigObject screenConfigObject = (ScreenConfigObject) screenConfigObjectHashMap.values().toArray()[i];
+<<<<<<< HEAD
             if (screenConfigObject.getTitle().equals(push.getAlert().getDesScreen())) {
+=======
+            if (screenConfigObject.getTitle().equals(push.getDesScreen())) {
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 des = screenConfigObject.getClassName();
                 break;
             }
@@ -125,6 +137,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 
     public void showPopup(Push push) {
         if (currentActivity != null) {
+<<<<<<< HEAD
             currentActivity.runOnUiThread(() -> {
                 Push.Alert alert = push.getAlert();
                 if (alert == null) return;
@@ -141,6 +154,25 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                     }
                 } else {
                     CustomDialog.showCustomDialog(currentActivity, push, findDes(push));
+=======
+            currentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Push.Alert alert = push.getAlert();
+                    if (alert == null) return;
+
+                    String contentType = alert.getContentType();
+                    if (contentType == null) return;
+                    if (contentType.equals(Push.Alert.TYPE_POPUP) || contentType.equals(Push.Alert.TYPE_HTML)) {
+//                        if (push.getData() != null && push.getData().getInt("position", 0) != 0) {
+                            HtmlController.showHtmlPopup(currentActivity, push, "", false);
+//                        } else {
+//                            startPopupActivity(currentActivity, push);
+//                        }
+                    } else {
+                        new CustomDialog(currentActivity, push, findDes(push)).show();
+                    }
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 }
             });
         }
@@ -173,6 +205,10 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
             currentActivity = activity;
         }
         if (numStarted == 0) {
+<<<<<<< HEAD
+=======
+            LogMobio.logD(TAG, "app went to foreground");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             mobioSDKClient.identify();
             SharedPreferencesUtils.editBool(activity, SharedPreferencesUtils.KEY_APP_FOREGROUD, true);
             if (shouldTrackApplicationLifecycleEvents) {
@@ -180,8 +216,13 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                         .putValue("version", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.KEY_VERSION_NAME)));
             }
 
+<<<<<<< HEAD
             mobioSDKClient.trackNotificationOnOff(activity);
             requestAppPermissions(activity);
+=======
+            mobioSDKClient.trackNotificationOnOff(currentActivity);
+            requestAppPermissions();
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         }
         numStarted++;
 
@@ -230,6 +271,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
         if (shouldTrackScrollEvent) {
             trackScrollEvent(activity);
         }
+<<<<<<< HEAD
     }
 
     private boolean isActivityValid(Activity activity){
@@ -240,6 +282,8 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
             }
         }
         return false;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     private void trackScrollEvent(Activity activity) {
@@ -255,6 +299,10 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                             int scrollviewHeight = view.getMeasuredHeight();
                             // handle viewWidth here...
 
+<<<<<<< HEAD
+=======
+                            LogMobio.logD("AnalyticsLifecycleCallback", "height " + viewHeight + "\n scrollviewHeight " + scrollviewHeight);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
                             scrollRange[0] = viewHeight - scrollviewHeight;
 
@@ -294,6 +342,27 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                     }
                 });
             }
+<<<<<<< HEAD
+=======
+//                else if (view instanceof EditText) {
+//                    ((EditText) view).addTextChangedListener(new TextWatcher() {
+//                        @Override
+//                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                            LogMobio.logD("Saving", view.toString() + " out text " + charSequence.toString());
+//                        }
+//
+//                        @Override
+//                        public void afterTextChanged(Editable editable) {
+//
+//                        }
+//                    });
+//                }
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
         }
     }
@@ -355,16 +424,28 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
     public void onActivityDestroyed(@NonNull Activity activity) {
     }
 
+<<<<<<< HEAD
     private void requestAppPermissions(Activity activity) {
+=======
+    private void requestAppPermissions() {
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
 
+<<<<<<< HEAD
         if (Utils.hasWritePermissions(activity)) {
             return;
         }
 
         ActivityCompat.requestPermissions(activity,
+=======
+        if (Utils.hasWritePermissions(currentActivity)) {
+            return;
+        }
+
+        ActivityCompat.requestPermissions(currentActivity,
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 new String[]{
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 }, 999); // your request code

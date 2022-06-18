@@ -23,7 +23,11 @@ import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobio.analytics.client.crash.CustomizedExceptionHandler;
+<<<<<<< HEAD
 import com.mobio.analytics.client.model.factory.ModelFactory;
+=======
+import com.mobio.analytics.client.model.ModelFactory;
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import com.mobio.analytics.client.model.digienty.DataIdentity;
 import com.mobio.analytics.client.model.digienty.DataNotification;
 import com.mobio.analytics.client.model.digienty.DataTrack;
@@ -42,8 +46,12 @@ import com.mobio.analytics.client.receiver.NetworkChangeReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
+<<<<<<< HEAD
 import com.mobio.analytics.client.view.notification.GlobalNotification;
 import com.mobio.analytics.client.view.notification.RichNotification;
+=======
+import com.mobio.analytics.client.view.GlobalNotification;
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import com.mobio.analytics.client.view.popup.PermissionDialog;
 import com.mobio.analytics.network.RetrofitClient;
 
@@ -106,9 +114,12 @@ public class MobioSDKClient {
     private String merchantId;
     private int intervalSecond;
     private String deviceToken;
+<<<<<<< HEAD
     private String sdkSource;
     private String sdkName;
     private String sdkCode;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     private ArrayList<Properties> listDataWaitToSend;
     private String domainURL;
     private String endPoint;
@@ -156,10 +167,24 @@ public class MobioSDKClient {
         sdkCode = builder.mSdkCode;
 
         initRecordCrashLog();
+<<<<<<< HEAD
         saveSdkInfo(sdkName, sdkSource, sdkCode);
 
         saveNetworkProperties(merchantId, apiToken, domainURL, endPoint);
         initExecutors();
+=======
+
+        saveNetworkProperties(merchantId, apiToken, domainURL, endPoint);
+        initExecutors();
+//        sendSyncScheduler.scheduleWithFixedDelay(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Todo
+//                autoSendSync();
+//
+//            }
+//        }, intervalSecond, intervalSecond, TimeUnit.SECONDS);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
         mobioSDKLifecycleCallback = new MobioSDKLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
                 shouldTrackDeepLink, shouldRecordScreen, shouldTrackScroll, application, configActivityMap);
@@ -181,18 +206,22 @@ public class MobioSDKClient {
                 application));
     }
 
+<<<<<<< HEAD
     private void saveSdkInfo(String sdkName, String sdkSource, String sdkCode){
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_SDK_CODE, sdkCode);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_SDK_NAME, sdkName);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_SDK_SOURCE, sdkSource);
     }
 
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     private void saveNetworkProperties(String merchantId, String apiToken, String domainURL, String endPoint) {
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_MERCHANT_ID, merchantId);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_API_TOKEN, apiToken);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_BASE_URL, domainURL);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.KEY_ENDPOINT, endPoint);
     }
+<<<<<<< HEAD
 
     private void initExecutors() {
         analyticsExecutor = Executors.newSingleThreadExecutor();
@@ -211,6 +240,26 @@ public class MobioSDKClient {
         cacheValueNotification = ModelFactory.getDataNotification(application);
     }
 
+=======
+
+    private void initExecutors() {
+        analyticsExecutor = Executors.newSingleThreadExecutor();
+        sendSyncScheduler = Executors.newScheduledThreadPool(1);
+    }
+
+    private void createTrackCache() {
+        cacheValueTrack = ModelFactory.getDataTrack(application);
+    }
+
+    private void createIdentityCache() {
+        cacheValueIdentity = ModelFactory.getDataIdentity(application);
+    }
+
+    private void createNotificationCache() {
+        cacheValueNotification = ModelFactory.getDataNotification(application);
+    }
+
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     private void initNetworkReceiver() {
         NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -226,6 +275,7 @@ public class MobioSDKClient {
     }
 
     private void updateNotificationToken(String token) {
+<<<<<<< HEAD
         createNotificationCache();
 
         cacheValueNotification.getNotification().getDetail().putToken(token);
@@ -239,6 +289,33 @@ public class MobioSDKClient {
         analyticsExecutor.submit(() -> processSend(cacheValueNotification));
     }
 
+=======
+        LogMobio.logD("Send", "updateNotificationToken");
+        createNotificationCache();
+
+        cacheValueNotification.getNotification().getDetail().putToken(token);
+        analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                processSend(cacheValueNotification);
+            }
+        });
+    }
+
+    public void updateNotificationPermission(String permission) {
+        LogMobio.logD("Send", "updateNotificationPermission");
+        createNotificationCache();
+
+        cacheValueNotification.getNotification().getDetail().putPermission(permission);
+        analyticsExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                processSend(cacheValueNotification);
+            }
+        });
+    }
+
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     public String getCurrentNotiPermissionInValue() {
         if (cacheValueIdentity != null) {
             Identity currentIdentity = cacheValueIdentity.getValueMap("identity", Identity.class);
@@ -260,13 +337,26 @@ public class MobioSDKClient {
     public void trackNotificationOnOff(Activity activity) {
         if (!Utils.areNotificationsEnabled(activity)) {
             if (activity != null) {
+<<<<<<< HEAD
                 activity.runOnUiThread(() -> new PermissionDialog(activity).show());
+=======
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new PermissionDialog(activity).show();
+                    }
+                });
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             }
         } else {
             createNotificationCache();
 
             String permission = cacheValueNotification.getNotification().getDetail().getPermission();
 
+<<<<<<< HEAD
+=======
+            LogMobio.logD("Send", " " + permission);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
             if (permission == null) return;
             if (!permission.equals(Notification.KEY_GRANTED)) {
@@ -347,8 +437,12 @@ public class MobioSDKClient {
     }
 
     public void showGlobalNotification(Push push, int id) {
+<<<<<<< HEAD
 //        GlobalNotification.showGlobalNotification(id, push, configActivityMap, application);
         RichNotification.showRichNotification(application, push, id, configActivityMap);
+=======
+        GlobalNotification.showGlobalNotification(id, push, configActivityMap, application);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     public void track(String eventKey, Properties eventData) {
@@ -403,6 +497,10 @@ public class MobioSDKClient {
     public boolean sendv2(Properties value) {
         Response<SendEventResponse> response = null;
         try {
+<<<<<<< HEAD
+=======
+            LogMobio.logD("Send event v2", "send = " + new Gson().toJson(value));
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             String typeOfValue = Utils.getTypeOfData(value);
 
             if (typeOfValue == null) return false;
@@ -419,20 +517,41 @@ public class MobioSDKClient {
             }
 
             if (response == null) return false;
+<<<<<<< HEAD
             if (response.code() != 200) {
                 JSONObject jObjError = new JSONObject(response.errorBody().string());
+=======
+
+            LogMobio.logD("Send event v2", "code = " + response.code());
+
+            if (response.code() != 200) {
+                JSONObject jObjError = new JSONObject(response.errorBody().string());
+                LogMobio.logD("Send event v2", "response error body = " + jObjError.toString());
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 return false;
             } else {
                 SendEventResponse sendEventResponse = response.body();
                 if (sendEventResponse != null) {
+<<<<<<< HEAD
+=======
+                    LogMobio.logD("Send event v2", "response body = " + sendEventResponse.toString());
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                     updateAllCacheValue(sendEventResponse);
                 }
                 return true;
             }
         } catch (IOException | JSONException e) {
+<<<<<<< HEAD
             e.printStackTrace();
             return false;
         } catch (Exception e) {
+=======
+            LogMobio.logD("Send event v2", "api dies ");
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            LogMobio.logD("Send event v2", "api dies hard");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             e.printStackTrace();
             return false;
         }
@@ -635,9 +754,14 @@ public class MobioSDKClient {
 
         Push.Alert alert = new Push.Alert()
                 .putBody(noti.getString("content"))
+<<<<<<< HEAD
                 .putTitle(noti.getString("title"))
                 .putDestinationScreen(noti.getString("des_screen"))
                 .putFromScreen(noti.getString("source_screen"));
+=======
+                .putTitle(noti.getString("title"));
+        Push push = new Push().putDestinationScreen(noti.getString("des_screen")).putFromScreen(noti.getString("source_screen"));
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
         int type = noti.getInt("type", 0);
         if (type == 0) {
@@ -651,7 +775,11 @@ public class MobioSDKClient {
         }
 
         alert.putContentType(contentType);
+<<<<<<< HEAD
         Push push = new Push().putAlert(alert);
+=======
+        push.putAlert(alert);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
         showPushInApp(push);
     }
@@ -750,6 +878,10 @@ public class MobioSDKClient {
     }
 
     public void identify() {
+<<<<<<< HEAD
+=======
+        LogMobio.logD("QuanLA", "identify()");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         Future<?> future = analyticsExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -766,20 +898,37 @@ public class MobioSDKClient {
     public void trackDeepLink(Activity activity) {
         Intent intent = activity.getIntent();
         if (intent == null || intent.getData() == null) {
+<<<<<<< HEAD
+=======
+            LogMobio.logD(TAG, "deeplink null");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             return;
         }
 
         Uri referrer = Utils.getReferrer(activity);
         if (referrer != null) {
             //Todo save this link
+<<<<<<< HEAD
         }
 
         Uri uri = intent.getData();
+=======
+            LogMobio.logD(TAG, "deeplink " + referrer.toString());
+            LogMobio.logD(TAG, "deeplink " + referrer.getAuthority());
+        }
+
+        Uri uri = intent.getData();
+        LogMobio.logD(TAG, "deeplink " + uri.toString());
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         try {
             for (String parameter : uri.getQueryParameterNames()) {
                 String value = uri.getQueryParameter(parameter);
                 if (value != null && !value.trim().isEmpty()) {
                     //Todo save
+<<<<<<< HEAD
+=======
+                    LogMobio.logD(TAG, "deeplink parameter: " + parameter + " value: " + value);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 }
             }
         } catch (Exception e) {
@@ -795,6 +944,10 @@ public class MobioSDKClient {
                         Uri deepLink = null;
                         if (pendingDynamicLinkData != null) {
                             deepLink = pendingDynamicLinkData.getLink();
+<<<<<<< HEAD
+=======
+                            LogMobio.logD("deeplink", "dynamic " + deepLink);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                         }
 
 
@@ -809,6 +962,10 @@ public class MobioSDKClient {
                 .addOnFailureListener(activity, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+<<<<<<< HEAD
+=======
+                        LogMobio.logD("Deep link", "getDynamicLink:onFailure " + e);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                     }
                 });
     }

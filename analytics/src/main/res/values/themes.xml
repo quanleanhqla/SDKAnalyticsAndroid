@@ -21,6 +21,10 @@
         <!--on below line we are adding a window translucent as true-->
         <item name="android:windowIsTranslucent">true</item>
         <!--on below line we are adding a window animationstyle-->
+<<<<<<< HEAD
         <item name="android:windowAnimationStyle">@null</item>
+=======
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     </style>
 </resources>

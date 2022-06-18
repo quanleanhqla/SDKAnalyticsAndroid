@@ -115,6 +115,7 @@ public class RetrofitClient {
                     response = chain.proceed(request);
                     responseOK = response.isSuccessful();
                 }catch (Exception e){
+<<<<<<< HEAD
                     e.printStackTrace();
                 }finally{
 //                    if(!responseOK){
@@ -125,6 +126,17 @@ public class RetrofitClient {
 //                        }
 //                    }
                     tryCount++;
+=======
+                    LogMobio.logD("intercept", "Request is not successful - " + tryCount);
+                }finally{
+                    LogMobio.logD("intercept", "Request count - " + tryCount);
+                    tryCount++;
+//                    try {
+//                        Thread.sleep(waitThreshold);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 }
             }
 
@@ -146,6 +158,10 @@ public class RetrofitClient {
                     .method(originalRequest.method(), forceContentLength(gzip(originalRequest.body())))
                     .build();
 
+<<<<<<< HEAD
+=======
+            LogMobio.logD("QuanLA", "size " + compressedRequest.body().contentLength());
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             return chain.proceed(compressedRequest);
         }
 

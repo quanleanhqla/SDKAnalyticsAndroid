@@ -95,11 +95,19 @@ public class Utils {
         return new ViewDimension(dpWidth, dpHeight);
     }
 
+<<<<<<< HEAD
     public static int getHeightOfScreen(Context context) {
         return getScreenDimension(context).height;
     }
 
     public static int getWidthOfScreen(Context context) {
+=======
+    public static int getHeightOfScreen(Context context){
+        return getScreenDimension(context).height;
+    }
+
+    public static int getWidthOfScreen(Context context){
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         return getScreenDimension(context).width;
     }
 
@@ -129,6 +137,7 @@ public class Utils {
         }
     }
 
+<<<<<<< HEAD
     public static String getTypeOfData(Properties valueMap) {
         if (valueMap.containsKey("identity")) {
             return "identity";
@@ -139,6 +148,18 @@ public class Utils {
         }
 
         if (valueMap.containsKey("notification")) {
+=======
+    public static String getTypeOfData(Properties valueMap){
+        if(valueMap.containsKey("identity")){
+            return "identity";
+        }
+
+        if(valueMap.containsKey("track")){
+            return "track";
+        }
+
+        if(valueMap.containsKey("notification")){
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             return "notification";
         }
 
@@ -199,11 +220,20 @@ public class Utils {
         return ip;
     }
 
+<<<<<<< HEAD
     public static String getMD5(String data) {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             messageDigest.update(data.getBytes());
             byte[] digest = messageDigest.digest();
+=======
+    public static String getMD5(String data)
+    {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            messageDigest.update(data.getBytes());
+            byte[] digest=messageDigest.digest();
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             StringBuffer sb = new StringBuffer();
             for (byte b : digest) {
                 sb.append(Integer.toHexString((int) (b & 0xff)));
@@ -230,11 +260,40 @@ public class Utils {
     public static String getIMEIDeviceId(Context context) {
 
         String deviceId;
+<<<<<<< HEAD
         deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         return deviceId;
     }
 
     public static Class<?> getClassFromName(String name) {
+=======
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+//        } else {
+//            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+//                    return "";
+//                }
+//            }
+//            assert mTelephony != null;
+//            if (mTelephony.getDeviceId() != null) {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                    deviceId = mTelephony.getImei();
+//                } else {
+//                    deviceId = mTelephony.getDeviceId();
+//                }
+//            } else {
+//                deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+//            }
+//        }
+        LogMobio.logD("deviceId", deviceId);
+        return deviceId;
+    }
+
+    public static Class<?> getClassFromName(String name){
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         Class<?> act = null;
         try {
             act = Class.forName(name);
@@ -251,7 +310,11 @@ public class Utils {
         try {
             ActivityInfo[] list = pManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES).activities;
             for (ActivityInfo activityInfo : list) {
+<<<<<<< HEAD
                 //todo save list activity
+=======
+                LogMobio.logD("QuanLa", "ActivityInfo name = " + activityInfo.name);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -321,7 +384,11 @@ public class Utils {
         return (netInfo != null && netInfo.isConnected());
     }
 
+<<<<<<< HEAD
     public static boolean isBluetoothEnable() {
+=======
+    public static boolean isBluetoothEnable(){
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             // Device does not support Bluetooth
@@ -332,7 +399,11 @@ public class Utils {
         }
     }
 
+<<<<<<< HEAD
     public static String getLocale(Context context) {
+=======
+    public static String getLocale(Context context){
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         //Locale current = context.getResources().getConfiguration().locale;
         return Locale.getDefault().getLanguage();
     }

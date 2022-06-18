@@ -410,6 +410,10 @@ public class MobioApplication extends Application {
                     @Override
                     public void onComplete(@NonNull Task<String> task) {
                         if (!task.isSuccessful()) {
+<<<<<<< HEAD
+=======
+                            LogMobio.logD("Firbase ", "Fetching FCM registration token failed" + task.getException());
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                             return;
                         }
 
@@ -419,6 +423,10 @@ public class MobioApplication extends Application {
                         MobioSDKClient.getInstance().setDeviceToken(token);
                         mFirebaseAnalytics.setUserProperty("token_id", token);
 
+<<<<<<< HEAD
+=======
+                        LogMobio.logD("Firbase ", token);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
                     }
                 });

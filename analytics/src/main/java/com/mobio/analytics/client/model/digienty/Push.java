@@ -11,6 +11,11 @@ public class Push extends Properties {
     private static final String KEY_DATA = "data";
     private static final String KEY_ALERT = "alert";
     private static final String KEY_BADGE = "badge";
+<<<<<<< HEAD
+=======
+    private static final String KEY_SCREEN_TO = "des_screen";
+    private static final String KEY_SCREEN_FROM = "_from_screen";
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
     public Push() {}
 
@@ -48,6 +53,25 @@ public class Push extends Properties {
         return putValue(KEY_BADGE, badge);
     }
 
+<<<<<<< HEAD
+=======
+    public Push putDestinationScreen(String screen){
+        return putValue(KEY_SCREEN_TO, screen);
+    }
+
+    public String getDesScreen(){
+        return getString(KEY_SCREEN_TO);
+    }
+
+    public Push putFromScreen(String screen){
+        return putValue(KEY_SCREEN_FROM, screen);
+    }
+
+    public String getFromScreen(){
+        return getString(KEY_SCREEN_FROM);
+    }
+
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     public static Push convertJsonStringtoPush(String json) {
         if (json == null) return null;
         JSONObject jsonObject = null;
@@ -209,8 +233,11 @@ public class Push extends Properties {
         private static final String KEY_TITLE = "title";
         private static final String KEY_BODY = "body";
         private static final String KEY_BODY_HTML = "body_html";
+<<<<<<< HEAD
         private static final String KEY_SCREEN_TO = "des_screen";
         private static final String KEY_SCREEN_FROM = "from_screen";
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
         public static final String TYPE_POPUP = "popup";
         public static final String TYPE_HTML = "html";
@@ -287,6 +314,7 @@ public class Push extends Properties {
         public String getContentType(){
             return getString(KEY_CONTENT_TYPE);
         }
+<<<<<<< HEAD
 
         public Alert putDestinationScreen(String screen){
             return putValue(KEY_SCREEN_TO, screen);
@@ -303,5 +331,7 @@ public class Push extends Properties {
         public String getFromScreen(){
             return getString(KEY_SCREEN_FROM);
         }
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 }

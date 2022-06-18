@@ -1,7 +1,10 @@
 package com.mobio.sample;
 
 import androidx.appcompat.app.AppCompatActivity;
+<<<<<<< HEAD
 import androidx.core.text.HtmlCompat;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,7 +14,10 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+<<<<<<< HEAD
 import android.text.Html;
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -112,6 +118,17 @@ public class LoginActivity extends AppCompatActivity {
         tvLat = findViewById(R.id.tv_lat);
         tvAddress = findViewById(R.id.tv_address);
         rlRoot = findViewById(R.id.rl_root);
+<<<<<<< HEAD
+=======
+
+//        try {
+//            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     private void showCustomUI() {
@@ -130,6 +147,11 @@ public class LoginActivity extends AppCompatActivity {
                 String userName = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
 
+<<<<<<< HEAD
+=======
+                LogMobio.logD("LoginActivity", "userName" + userName);
+                LogMobio.logD("LoginActivity", "password" + password);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
                 if (!TextUtils.isEmpty(userName) &&
                         !TextUtils.isEmpty(password) &&

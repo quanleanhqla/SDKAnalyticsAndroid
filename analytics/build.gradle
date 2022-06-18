@@ -21,7 +21,11 @@ android {
             minifyEnabled false
             buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
             buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
+<<<<<<< HEAD
             buildConfigField "String", "API_URL", "\"https://api-uat.mobio.vn/digienty/web/api/v1.1/\""
+=======
+            buildConfigField "String", "API_URL", "\"https://t1.mobio.vn/digienty/web/api/v1.1/\""
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             //..
         }

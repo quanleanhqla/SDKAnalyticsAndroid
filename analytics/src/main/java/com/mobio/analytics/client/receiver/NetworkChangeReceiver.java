@@ -24,6 +24,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             if (status == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED) {
                 /// TODO: 13/06/2022 handle no network
             } else {
+<<<<<<< HEAD
+=======
+                LogMobio.logD("QuanLA", "Network reciever connect");
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 ArrayList<Properties> listDataWaitToSend = MobioSDKClient.getInstance().getListFromSharePref(SharedPreferencesUtils.KEY_SEND_QUEUE);
                 if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
                     for (Properties vm : listDataWaitToSend) {

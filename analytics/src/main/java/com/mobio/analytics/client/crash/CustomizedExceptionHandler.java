@@ -36,6 +36,10 @@ public class CustomizedExceptionHandler implements Thread.UncaughtExceptionHandl
 
         writeToFile(stacktrace);
 
+<<<<<<< HEAD
+=======
+        LogMobio.logD("CustomizedExceptionHandler", stacktrace);
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
 
 //Used only to prevent from any code getting executed.
@@ -64,7 +68,11 @@ public class CustomizedExceptionHandler implements Thread.UncaughtExceptionHandl
             fileWriter.flush();
             fileWriter.close();
         } catch (Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            LogMobio.logD("ExceptionHandler", e.getMessage());
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         }
     }
 

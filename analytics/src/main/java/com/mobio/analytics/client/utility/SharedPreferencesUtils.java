@@ -29,9 +29,12 @@ public class SharedPreferencesUtils {
     public static final String KEY_SEND_QUEUE = "key_send_queue";
     public static final String KEY_JOURNEY = "key_journey";
     public static final String KEY_D_ID = "d_id";
+<<<<<<< HEAD
     public static final String KEY_SDK_CODE = "sdk_code";
     public static final String KEY_SDK_SOURCE = "sdk_source";
     public static final String KEY_SDK_NAME = "sdk_name";
+=======
+>>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
     private static SharedPreferences getSharedPreferences(Context context){
         return context.getSharedPreferences(KEY_SP, Context.MODE_PRIVATE);
