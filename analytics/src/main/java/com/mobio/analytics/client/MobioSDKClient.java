@@ -407,13 +407,13 @@ public class MobioSDKClient {
             if (typeOfValue == null) return false;
             switch (typeOfValue) {
                 case "track":
-                    response = RetrofitClient.getInstance().getMyApi().sendEvent(value).execute();
+                    response = RetrofitClient.getInstance(application).getMyApi().sendEvent(value).execute();
                     break;
                 case "identity":
-                    response = RetrofitClient.getInstance().getMyApi().sendDevice(value).execute();
+                    response = RetrofitClient.getInstance(application).getMyApi().sendDevice(value).execute();
                     break;
                 case "notification":
-                    response = RetrofitClient.getInstance().getMyApi().sendNotification(value).execute();
+                    response = RetrofitClient.getInstance(application).getMyApi().sendNotification(value).execute();
                     break;
             }
 

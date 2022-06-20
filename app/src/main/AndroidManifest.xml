@@ -109,7 +109,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".AppPushFirebaseService">
+        <service android:name=".AppPushFirebaseService"
+            android:exported="false"
+            >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

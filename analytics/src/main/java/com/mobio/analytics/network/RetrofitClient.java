@@ -1,7 +1,11 @@
 package com.mobio.analytics.network;
 
+import android.content.Context;
+
 import com.mobio.analytics.BuildConfig;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
+import com.mobio.analytics.client.utility.Utils;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -33,18 +37,18 @@ public class RetrofitClient {
     private static RetrofitClient instance = null;
     private Api myApi;
 
-    private RetrofitClient() {
+    private RetrofitClient(Context context) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BuildConfig.API_URL)
+                .baseUrl(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_BASE_URL))
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(getUnsafeOkHttpClient().build())
                 .build();
         myApi = retrofit.create(Api.class);
     }
 
-    public static synchronized RetrofitClient getInstance() {
+    public static synchronized RetrofitClient getInstance(Context context) {
         if (instance == null) {
-            instance = new RetrofitClient();
+            instance = new RetrofitClient(context);
         }
         return instance;
     }

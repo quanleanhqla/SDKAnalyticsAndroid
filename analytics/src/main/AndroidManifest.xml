@@ -30,6 +30,7 @@
             android:name=".client.service.ClickNotificationService"
             android:exported="false" />
         <service
+            android:exported="false"
             android:name=".client.service.TerminateService"
             android:stopWithTask="false" />
 
