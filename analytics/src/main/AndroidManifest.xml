@@ -21,18 +21,9 @@
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Translucent" />
         <activity
-<<<<<<< HEAD
             android:name=".client.activity.TransparentDeeplinkHandleActivity"
             android:exported="true">
 
-=======
-            android:name=".client.activity.PopupBuilderActivity"
-            android:theme="@style/Theme.AppCompat.Translucent"
-            android:exported="true" />
-        <activity
-            android:name=".client.activity.TransparentDeeplinkHandleActivity"
-            android:exported="true" >
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         </activity>
 
         <service

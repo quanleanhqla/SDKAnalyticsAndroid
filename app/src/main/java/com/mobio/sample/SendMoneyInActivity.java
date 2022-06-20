@@ -24,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
-import com.mobio.analytics.client.utility.LogMobio;
 
 import java.util.StringTokenizer;
 
@@ -204,7 +203,7 @@ public class SendMoneyInActivity extends AppCompatActivity implements View.OnCli
         public void run() {
             stopDisconnectTimer();
             if(com.mobio.analytics.client.utility.SharedPreferencesUtils.getBool(SendMoneyInActivity.this,
-                    com.mobio.analytics.client.utility.SharedPreferencesUtils.KEY_APP_FOREGROUD)){
+                    com.mobio.analytics.client.utility.SharedPreferencesUtils.M_KEY_APP_FOREGROUD)){
                 showPopup();
             }
             else {

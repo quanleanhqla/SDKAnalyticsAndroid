@@ -23,21 +23,26 @@ public class MobioApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        HashMap<String, ScreenConfigObject> screenConfigObjectHashMap = new HashMap<>();
-        screenConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {10}, LoginActivity.class, true));
-        screenConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home", "HomeActivity", new int[] {10}, HomeActivity.class, false));
-        screenConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer", "SendMoneyInActivity", new int[] {10}, SendMoneyInActivity.class, false));
+        HashMap<String, ScreenConfigObject> activityConfigObjectHashMap = new HashMap<>();
+        activityConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {5, 10, 15}, LoginActivity.class, true));
+        activityConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home", "HomeActivity", new int[] {5, 10}, HomeActivity.class, false));
+        activityConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer", "SendMoneyInActivity", new int[] {10}, SendMoneyInActivity.class, false));
+        activityConfigObjectHashMap.put("TestActivity", new ScreenConfigObject("Test", "TestActivity", new int[] {10}, TestActivity.class, false));
+
+        HashMap<String, ScreenConfigObject> fragmentConfigObjectHashMap = new HashMap<>();
+        fragmentConfigObjectHashMap.put("FragmentA", new ScreenConfigObject("A", "FragmentA", new int[] {5}, FragmentA.class, false));
+        fragmentConfigObjectHashMap.put("FragmentB", new ScreenConfigObject("B", "FragmentB", new int[] {10}, FragmentB.class, false));
 
         MobioSDKClient.Builder builder = new MobioSDKClient.Builder()
-                .withSdkCode("m-android-uat-1")
-                .withSdkName("SDK_ANDROID")
-                .withSdkSource("UATMobioBank")
+                .withSdkCode("m-android-test-1")
+                .withSdkSource("MobioBank")
                 .withApplication(this)
                 .shouldTrackDeepLink(true)
                 .shouldTrackScroll(false)
                 .shouldTrackAppLifeCycle(true)
                 .shouldTrackScreenLifeCycle(true)
-                .withActivityMap(screenConfigObjectHashMap)
+                .withActivityMap(activityConfigObjectHashMap)
+                .withFragmentMap(fragmentConfigObjectHashMap)
                 .withIntervalSecond(10)
                 .shouldRecordScreen(true)
                 .withDomainURL("https://api-test1.mobio.vn/dynamic-event/api/v1.0/")
@@ -410,10 +415,6 @@ public class MobioApplication extends Application {
                     @Override
                     public void onComplete(@NonNull Task<String> task) {
                         if (!task.isSuccessful()) {
-<<<<<<< HEAD
-=======
-                            LogMobio.logD("Firbase ", "Fetching FCM registration token failed" + task.getException());
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                             return;
                         }
 
@@ -423,11 +424,7 @@ public class MobioApplication extends Application {
                         MobioSDKClient.getInstance().setDeviceToken(token);
                         mFirebaseAnalytics.setUserProperty("token_id", token);
 
-<<<<<<< HEAD
-=======
-                        LogMobio.logD("Firbase ", token);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
-
+                        LogMobio.logD("MobioApplication","token "+ token);
                     }
                 });
     }

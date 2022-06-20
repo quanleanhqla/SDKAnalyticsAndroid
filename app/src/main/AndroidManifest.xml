@@ -16,6 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AnalyticsSDK">
         <activity
+            android:name=".TestActivity"
+            android:exported="true" >
+        </activity>
+        <activity
             android:name=".KotlinActivity"
             android:exported="true" />
         <activity
@@ -53,19 +57,20 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https"/>
+
+                <data android:scheme="https" />
                 <data
                     android:host="www.test38.mobio.vn"
-                    android:pathPrefix="/app/mobiobank/home"/>
+                    android:pathPrefix="/app/mobiobank/home" />
                 <!-- note that the leading "/" is required for pathPrefix -->
             </intent-filter>
-
             <intent-filter android:label="Demo Analytics">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https"/>
+
+                <data android:scheme="https" />
                 <data
                     android:host="mobio.page.link"
                     android:pathPrefix="/haha/home"
@@ -77,21 +82,20 @@
             android:name=".SavingActivity"
             android:exported="true"
             android:launchMode="singleTop" />
-
         <activity
             android:name=".LoginActivity"
+            android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:launchMode="singleTop"
-            android:configChanges="orientation|keyboardHidden"
             android:theme="@style/CustomTheme">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <intent-filter
-                android:label="Demo Analytics">
+            <intent-filter android:label="Demo Analytics">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -105,7 +109,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.mobio.analytics.client.service.SDKPushFirebaseService">
+        <service android:name=".AppPushFirebaseService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

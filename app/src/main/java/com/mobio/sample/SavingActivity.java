@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.Button;
 
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
-import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 
 public class SavingActivity extends AppCompatActivity implements View.OnClickListener {
@@ -45,7 +44,7 @@ public class SavingActivity extends AppCompatActivity implements View.OnClickLis
         @Override
         public void run() {
             if(com.mobio.analytics.client.utility.SharedPreferencesUtils.getBool(SavingActivity.this,
-                    com.mobio.analytics.client.utility.SharedPreferencesUtils.KEY_APP_FOREGROUD)){
+                    com.mobio.analytics.client.utility.SharedPreferencesUtils.M_KEY_APP_FOREGROUD)){
             }
             else {
                 int reqCode = 1;
@@ -121,9 +120,9 @@ public class SavingActivity extends AppCompatActivity implements View.OnClickLis
                 handler.removeCallbacks(timeOutRunable);
             }
         }
-        SharedPreferencesUtils.editString(this, SharedPreferencesUtils.KEY_USER_NAME, null);
-        SharedPreferencesUtils.editString(this, SharedPreferencesUtils.KEY_PASSWORD, null);
-        SharedPreferencesUtils.editBool(this, SharedPreferencesUtils.KEY_STATE_LOGIN, false);
+        SharedPreferencesUtils.editString(this, SharedPreferencesUtils.M_KEY_USER_NAME, null);
+        SharedPreferencesUtils.editString(this, SharedPreferencesUtils.M_KEY_PASSWORD, null);
+        SharedPreferencesUtils.editBool(this, SharedPreferencesUtils.M_KEY_STATE_LOGIN, false);
         startActivity(new Intent(SavingActivity.this, LoginActivity.class));
         finish();
     }

@@ -23,9 +23,9 @@ public class ProfileBaseObject {
 
     public ProfileBaseObject(Context context) {
         this.customerId = Build.ID;
-        this.pushId = new PushObject(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_DEVICE_TOKEN)
+        this.pushId = new PushObject(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_DEVICE_TOKEN)
                 , true, Utils.getTimeUTC(), "VI");
-        this.name = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_USER_NAME);
+        this.name = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_USER_NAME);
         this.deviceId = Build.ID;
     }
 

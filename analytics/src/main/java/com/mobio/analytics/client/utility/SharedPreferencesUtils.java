@@ -3,41 +3,35 @@ package com.mobio.analytics.client.utility;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
 //42d4c8ab69ac7166
 //42d4c8ab69ac7166
 
 public class SharedPreferencesUtils {
-    private static final String KEY_SP = "keysp";
-    public static final String KEY_FIRST_START_APP = "keyfirststartapp";
-    public static final String KEY_VERSION_CODE = "keyversioncode";
-    public static final String KEY_VERSION_NAME = "keyversionname";
-    public static final String KEY_APP_FOREGROUD = "keyappforegroud";
-    public static final String KEY_STATE_LOGIN = "key_state_login";
-    public static final String KEY_USER_NAME = "key_username";
-    public static final String KEY_PASSWORD = "key_password";
-    public static final String KEY_API_TOKEN = "key_api_token";
-    public static final String KEY_MERCHANT_ID = "key_merchant_id";
-    public static final String KEY_DEVICE_TOKEN = "key_device_token";
-    public static final String KEY_BASE_URL = "key_base_url";
-    public static final String KEY_ENDPOINT = "key_endpoint";
-    public static final String KEY_EVENT = "key_event";
-    public static final String KEY_PUSH = "key_push";
-    public static final String KEY_PENDING_PUSH = "key_pending_push";
-    public static final String KEY_SEND_QUEUE = "key_send_queue";
-    public static final String KEY_JOURNEY = "key_journey";
-    public static final String KEY_D_ID = "d_id";
-<<<<<<< HEAD
-    public static final String KEY_SDK_CODE = "sdk_code";
-    public static final String KEY_SDK_SOURCE = "sdk_source";
-    public static final String KEY_SDK_NAME = "sdk_name";
-=======
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
+    private static final String M_KEY_SP = "keysp";
+    public static final String M_KEY_FIRST_START_APP = "keyfirststartapp";
+    public static final String M_KEY_VERSION_CODE = "keyversioncode";
+    public static final String M_KEY_VERSION_NAME = "keyversionname";
+    public static final String M_KEY_APP_FOREGROUD = "keyappforegroud";
+    public static final String M_KEY_STATE_LOGIN = "key_state_login";
+    public static final String M_KEY_USER_NAME = "key_username";
+    public static final String M_KEY_PASSWORD = "key_password";
+    public static final String M_KEY_API_TOKEN = "key_api_token";
+    public static final String M_KEY_MERCHANT_ID = "key_merchant_id";
+    public static final String M_KEY_DEVICE_TOKEN = "key_device_token";
+    public static final String M_KEY_BASE_URL = "key_base_url";
+    public static final String M_KEY_ENDPOINT = "key_endpoint";
+    public static final String M_KEY_EVENT = "key_event";
+    public static final String M_KEY_PUSH = "key_push";
+    public static final String M_KEY_PENDING_PUSH = "key_pending_push";
+    public static final String M_KEY_SEND_QUEUE = "key_send_queue";
+    public static final String M_KEY_JOURNEY = "key_journey";
+    public static final String M_KEY_D_ID = "d_id";
+    public static final String M_KEY_SDK_CODE = "sdk_code";
+    public static final String M_KEY_SDK_SOURCE = "sdk_source";
+    public static final String M_KEY_SDK_NAME = "sdk_name";
 
     private static SharedPreferences getSharedPreferences(Context context){
-        return context.getSharedPreferences(KEY_SP, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(M_KEY_SP, Context.MODE_PRIVATE);
     }
 
     public static void editString(Context context, String key, String value){

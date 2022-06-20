@@ -7,36 +7,26 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
-<<<<<<< HEAD
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-=======
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Rect;
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
-<<<<<<< HEAD
-=======
-import android.util.DisplayMetrics;
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-<<<<<<< HEAD
-=======
-import android.view.Window;
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
+import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -51,11 +41,7 @@ import androidx.core.view.ViewCompat;
 import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.MobioSDKClient;
-<<<<<<< HEAD
 import com.mobio.analytics.client.model.factory.ModelFactory;
-=======
-import com.mobio.analytics.client.model.ModelFactory;
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.model.digienty.Push;
@@ -70,7 +56,6 @@ import java.util.regex.Pattern;
 public class HtmlController {
     private final int VIEW_ID = 20001;
     private static final int ID_OF_PROGRESSBAR = 336699;
-<<<<<<< HEAD
     private static final int ID_OF_URL_BAR = 112233;
     private static final int ID_OF_URL_TEXTVIEW = 332211;
     private static final int ID_OF_URL_LINE = 222211;
@@ -80,19 +65,6 @@ public class HtmlController {
     public static final String POSITION_CENTER = "cc";
     private static final String POSITION_TOP = "tc";
     private static final String POSITION_BOTTOM = "bc";
-=======
-    private final String HTML_MIME_TYPE = "text/html";
-    private final String HTML_ENCODING = "utf-8";
-    public static final String M_KEY_PUSH = "m_key_push";
-
-    private Activity activity;
-    private Push push;
-    private String assetPath;
-    private WebView webView;
-    private boolean closeActivity;
-    private int position = 0;
-
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     private final String templateHtml = "<!DOCTYPE html>\n" +
             "<html>\n" +
             "<head>\n" +
@@ -146,7 +118,6 @@ public class HtmlController {
             "</html>";
     private static final String keyWordSubstr = "<div id=\"m_modal\">";
 
-<<<<<<< HEAD
     private Activity activity;
     private Push push;
     private String assetPath;
@@ -154,20 +125,14 @@ public class HtmlController {
     private boolean closeActivity;
     private String position;
 
-=======
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     public HtmlController(Activity activity, Push push, String assetPath, boolean closeActivity) {
         this.activity = activity;
         this.push = push;
         this.assetPath = assetPath;
         this.closeActivity = closeActivity;
         if (push.getData() != null) {
-<<<<<<< HEAD
             this.position = push.getData().getString("position");
             if(position == null) position = POSITION_CENTER;
-=======
-            this.position = push.getData().getInt("position", 0);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         }
     }
 
@@ -187,16 +152,10 @@ public class HtmlController {
         containerLayout.setId(VIEW_ID);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
-<<<<<<< HEAD
         layoutParams.setMargins(0, getHeightOfStatusBar(), 0, getHeightOfNavigationBar());
         containerLayout.setLayoutParams(layoutParams);
         containerLayout.setBackgroundColor(Color.TRANSPARENT);
         if(!position.equals(POSITION_CENTER)) containerLayout.setClickable(true);
-=======
-        containerLayout.setLayoutParams(layoutParams);
-        containerLayout.setBackgroundColor(Color.TRANSPARENT);
-        containerLayout.setClickable(position != 1 && position != 2);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         createWebview(containerLayout, assetPath, push);
         return containerLayout;
     }
@@ -211,10 +170,6 @@ public class HtmlController {
     private void createButtonClose(ViewGroup container) {
         ImageView imageView = new ImageView(activity);
         imageView.setImageResource(R.drawable.ic_close);
-<<<<<<< HEAD
-=======
-        imageView.setClickable(true);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -232,27 +187,15 @@ public class HtmlController {
     @SuppressLint("ResourceType")
     private RelativeLayout createActionBar(ViewGroup container, String url) {
         RelativeLayout relativeLayout = new RelativeLayout(activity);
-<<<<<<< HEAD
         relativeLayout.setId(ID_OF_URL_BAR);
-=======
-        relativeLayout.setId(112233);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         relativeLayout.setBackgroundColor(Color.WHITE);
         RelativeLayout.LayoutParams rlParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, Utils.getHeightOfScreen(activity) / 14);
         rlParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-<<<<<<< HEAD
         relativeLayout.setLayoutParams(rlParams);
 
         TextView tvUrl = new TextView(activity);
         tvUrl.setId(ID_OF_URL_TEXTVIEW);
-=======
-        rlParams.setMargins(0, getHeightOfStatusBar(), 0, 0);
-        relativeLayout.setLayoutParams(rlParams);
-
-        TextView tvUrl = new TextView(activity);
-        tvUrl.setId(332211);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         tvUrl.setTextColor(Color.BLACK);
         tvUrl.setText(url);
         tvUrl.setSingleLine(true);
@@ -266,17 +209,10 @@ public class HtmlController {
         relativeLayout.addView(tvUrl);
 
         View view = new View(activity);
-<<<<<<< HEAD
         view.setId(ID_OF_URL_LINE);
         view.setBackgroundColor(Color.BLACK);
         RelativeLayout.LayoutParams vParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 3);
-=======
-        view.setId(222211);
-        view.setBackgroundColor(Color.BLACK);
-        RelativeLayout.LayoutParams vParams = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 1);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         vParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         view.setLayoutParams(vParams);
         relativeLayout.addView(view);
@@ -300,7 +236,6 @@ public class HtmlController {
     }
 
     private int getHeightOfStatusBar() {
-<<<<<<< HEAD
         int height;
         Resources myResources = activity.getResources();
         int idStatusBarHeight = myResources.getIdentifier( "status_bar_height", "dimen", "android");
@@ -319,13 +254,6 @@ public class HtmlController {
             return resources.getDimensionPixelSize(resourceId);
         }
         return 0;
-=======
-        Rect rectangle = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
-        int statusBarHeight = rectangle.top;
-        return statusBarHeight;
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     private void createWebview(ViewGroup container, String assetPath, Push push) {
@@ -338,13 +266,8 @@ public class HtmlController {
                 webView.setFocusableInTouchMode(true);
                 webView.setBackgroundColor(Color.TRANSPARENT);
 //                webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-<<<<<<< HEAD
 //                container.setVisibility(View.GONE);
 //                webView.setVisibility(View.GONE);
-=======
-                container.setVisibility(View.GONE);
-                webView.setVisibility(View.GONE);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
 
                 WebSettings webSettings = webView.getSettings();
                 webSettings.setJavaScriptEnabled(true);
@@ -353,11 +276,6 @@ public class HtmlController {
                 webSettings.setDisplayZoomControls(false);
                 webSettings.setDomStorageEnabled(true);
 
-<<<<<<< HEAD
-=======
-                LogMobio.logD("WebViewActivity", "UA: " + webView.getSettings().getUserAgentString());
-
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 CookieManager cookieManager = CookieManager.getInstance();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     cookieManager.setAcceptThirdPartyCookies(webView, true);
@@ -371,14 +289,9 @@ public class HtmlController {
                 webView.addJavascriptInterface(new JavaScriptInterface(new JavaScriptInterface.OnActionJavascript() {
                     @Override
                     public void onReceiveMessage(String data) {
-<<<<<<< HEAD
                         if(data != null) {
                             processReceivedMessage(data);
                         }
-=======
-                        processReceivedMessage(data);
-                        LogMobio.logD("QuanLA", "data " + data);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                     }
 
                     @Override
@@ -389,6 +302,22 @@ public class HtmlController {
 
 
                 webView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            LogMobio.logD("HtmlController", "onReceivedError "+error.getErrorCode());
+                        }
+                        dismissMessage();
+                    }
+
+                    @Override
+                    public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            LogMobio.logD("HtmlController", "onReceivedHttpError "+errorResponse.getStatusCode());
+                        }
+//                        dismissMessage();
+                    }
+
                     @SuppressWarnings("deprecation")
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -408,30 +337,17 @@ public class HtmlController {
                             webView.post(new Runnable() {
                                 @Override
                                 public void run() {
-<<<<<<< HEAD
                                     if(getWindowRoot(activity).findViewById(ID_OF_URL_BAR) == null) {
-=======
-                                    if(getWindowRoot(activity).findViewById(112233) == null) {
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                                         RelativeLayout actionBar = createActionBar(container, uri.toString());
                                         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                 ViewGroup.LayoutParams.MATCH_PARENT);
                                         layoutParams.addRule(RelativeLayout.BELOW, actionBar.getId());
                                         webView.setLayoutParams(layoutParams);
                                         createButtonClose(actionBar);
-<<<<<<< HEAD
                                     }
                                     else {
                                         if(getWindowRoot(activity).findViewById(ID_OF_URL_TEXTVIEW) instanceof TextView){
                                             ((TextView) getWindowRoot(activity).findViewById(ID_OF_URL_TEXTVIEW)).setText(uri.toString());
-=======
-                                        LogMobio.logD("QuanLA", "1");
-                                    }
-                                    else {
-                                        LogMobio.logD("QuanLA", "2");
-                                        if(getWindowRoot(activity).findViewById(332211) instanceof TextView){
-                                            ((TextView) getWindowRoot(activity).findViewById(332211)).setText(uri.toString());
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                                         }
                                     }
                                 }
@@ -447,10 +363,6 @@ public class HtmlController {
 
                     @Override
                     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-<<<<<<< HEAD
-=======
-                        LogMobio.logD("QuanLA", "onPageStarted");
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                         view.loadUrl("javascript:(function() {" +
                                 "window.parent.addEventListener ('message', function(event) {" +
                                 " sdk.receiveMessage(JSON.stringify(event.data));});" +
@@ -459,16 +371,9 @@ public class HtmlController {
 
                     @Override
                     public void onPageFinished(WebView view, String url) {
-<<<<<<< HEAD
                         Utils.hideKeyboard(activity);
 //                        container.setVisibility(View.VISIBLE);
 //                        webView.setVisibility(View.VISIBLE);
-=======
-                        LogMobio.logD("QuanLA", "onPageFinished");
-                        Utils.hideKeyboard(activity);
-                        container.setVisibility(View.VISIBLE);
-                        webView.setVisibility(View.VISIBLE);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                         webView.requestFocus();
                     }
                 });
@@ -480,24 +385,6 @@ public class HtmlController {
                     return;
                 }
 
-<<<<<<< HEAD
-=======
-                String content_type = alert.getContentType();
-                if (content_type.equals(Push.Alert.TYPE_POPUP)) {
-                    if (data == null) return;
-                    String popupUrl = data.getPopupUrl();
-                    if (popupUrl != null) webView.loadUrl(popupUrl);
-                } else if (content_type.equals(Push.Alert.TYPE_HTML)) {
-                    webView.loadDataWithBaseURL(assetPath,
-                            genDynamicHtml(alert.getBodyHTML()),
-                            //alert.getBodyHTML(),
-                            HTML_MIME_TYPE,
-                            HTML_ENCODING, null);
-                }
-
-                //0: center, 1:top, 2:bottom
-
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 RelativeLayout.LayoutParams layoutParams;
                 layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT);
@@ -523,7 +410,6 @@ public class HtmlController {
                         }
                     }
                 });
-<<<<<<< HEAD
 
                 String content_type = alert.getContentType();
                 if (content_type.equals(Push.Alert.TYPE_POPUP)) {
@@ -537,8 +423,6 @@ public class HtmlController {
                             HTML_MIME_TYPE,
                             HTML_ENCODING, null);
                 }
-=======
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 container.addView(webView);
                 if (content_type.equals(Push.Alert.TYPE_HTML)) {
                     createButtonClose(container);
@@ -563,11 +447,6 @@ public class HtmlController {
                         url, contentDisposition, mimetype));
         DownloadManager dm = (DownloadManager) activity.getSystemService(DOWNLOAD_SERVICE);
         dm.enqueue(request);
-<<<<<<< HEAD
-=======
-
-        LogMobio.logD("QuanLA", "downloading");
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     private void dismissMessage() {
@@ -577,11 +456,7 @@ public class HtmlController {
             public void run() {
                 ViewGroup root = getWindowRoot(activity);
                 if (root != null) {
-<<<<<<< HEAD
                     root.removeView(root.findViewById(VIEW_ID));
-=======
-                    root.removeView(root.findViewById(20001));
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 }
 
                 if (closeActivity) {
@@ -615,10 +490,6 @@ public class HtmlController {
             }
 
             if (message.equals("MO_POPUP_LOADED")) {
-<<<<<<< HEAD
-=======
-                LogMobio.logD("QuanLA", "LOADED");
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                 webView.post(new Runnable() {
                     @Override
                     public void run() {
@@ -630,11 +501,6 @@ public class HtmlController {
                             webView.loadUrl("javascript:showPopup({popup_position:'cc'});");
                         }
 
-<<<<<<< HEAD
-=======
-                        LogMobio.logD("QuanLA", "activity " + activity.getClass().getSimpleName());
-
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                         long actionTime = System.currentTimeMillis();
                         MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "open", actionTime), actionTime);
 
@@ -644,11 +510,13 @@ public class HtmlController {
                             webView.post(new Runnable() {
                                 @Override
                                 public void run() {
-<<<<<<< HEAD
-                                    if(position.equals(POSITION_CENTER)) return;
+                                    if(position.equals(POSITION_CENTER)){
+                                        return;
+                                    }
+
+                                    RelativeLayout.LayoutParams layoutParams;
 
                                     int heightMobile = size.getInt("heightMobile", 0);
-                                    RelativeLayout.LayoutParams layoutParams;
 
                                     if (heightMobile < Utils.dpFromPx(activity, Utils.getHeightOfScreen(activity))) {
 
@@ -665,32 +533,6 @@ public class HtmlController {
                                         layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
                                         webView.setLayoutParams(layoutParams);
                                     }
-=======
-                                    int widthMobile = size.getInt("widthMobile", 0);
-                                    int heightMobile = size.getInt("heightMobile", 0);
-                                    RelativeLayout.LayoutParams layoutParams;
-
-                                    if (heightMobile < Utils.dpFromPx(activity, Utils.getHeightOfScreen(activity))
-                                            && widthMobile < Utils.dpFromPx(activity, Utils.getWidthOfScreen(activity))) {
-
-                                        layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                (int) Utils.pxFromDp(activity, heightMobile));
-                                        if (position == 1) {
-                                            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-
-                                        } else if (position == 2) {
-                                            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                                        } else if (position == 0) {
-                                            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                    ViewGroup.LayoutParams.MATCH_PARENT);
-                                        }
-                                        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-                                    } else {
-                                        layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                ViewGroup.LayoutParams.MATCH_PARENT);
-                                    }
-                                    webView.setLayoutParams(layoutParams);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
                                 }
                             });
                         }
@@ -811,10 +653,6 @@ public class HtmlController {
         int endPos = 0;
         while (match.find()) {
             endPos = match.end();
-<<<<<<< HEAD
-=======
-            LogMobio.logD("Found love at index ", html.substring(0, endPos) + receiveHtml + html.substring(endPos));
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         }
         return html.substring(0, endPos) + receiveHtml + html.substring(endPos);
     }

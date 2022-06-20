@@ -33,7 +33,7 @@ public class ModelFactory {
     private static Device getDevice(Context context){
         return new Device().putChannel("app")
                 .putType("mobile")
-                .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_D_ID))
+                .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_D_ID))
                 .putTId(Utils.getIMEIDeviceId(context))
                 .putUId("");
     }
@@ -41,7 +41,7 @@ public class ModelFactory {
     private static IdentityDetail getIdentityDetail(Context context){
         return new IdentityDetail().putChannel("app")
                 .putType("mobile")
-                .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_D_ID))
+                .putDId(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_D_ID))
                 .putTId(Utils.getIMEIDeviceId(context))
                 .putUId("")
                 .putOs(getOs())
@@ -53,9 +53,9 @@ public class ModelFactory {
     }
 
     private static Sdk getSdk(Context context){
-        return new Sdk().putCode(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_SDK_CODE))
-                .putSource(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_SDK_SOURCE))
-                .putName(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_SDK_NAME))
+        return new Sdk().putCode(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_SDK_CODE))
+                .putSource(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_SDK_SOURCE))
+                .putName("SDK_ANDROID")
                 .putBuild(BuildConfig.VERSION_CODE+"")
                 .putVersion(BuildConfig.VERSION_NAME);
     }
@@ -70,7 +70,7 @@ public class ModelFactory {
 
     public static DataNotification getDataNotification(Context context){
         return new DataNotification().putNotification(new Notification().putSdk(getSdk(context))
-                .putDetail(new Notification.Detail().putToken(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_DEVICE_TOKEN))
+                .putDetail(new Notification.Detail().putToken(SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_DEVICE_TOKEN))
                                                     .putPermission(Utils.areNotificationsEnabled(context) ? Notification.KEY_GRANTED : Notification.KEY_DENIED))
                 .putActionTime(System.currentTimeMillis())
                 .putDevice(getIdentityDetail(context)));

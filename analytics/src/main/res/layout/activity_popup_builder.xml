@@ -9,10 +9,6 @@
     tools:context=".client.activity.PopupBuilderActivity">
 
     <WebView
-<<<<<<< HEAD
-=======
-        android:visibility="gone"
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         android:id="@+id/web"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

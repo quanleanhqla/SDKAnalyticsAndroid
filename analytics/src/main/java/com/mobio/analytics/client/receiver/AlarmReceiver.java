@@ -20,7 +20,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
         else {
             if(intent.getAction().equals("ACTION_LAUNCH_NOTI")) {
-                String strPendingPush = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_PENDING_PUSH);
+                String strPendingPush = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_PENDING_PUSH);
                 Properties tempP = Properties.convertJsonStringtoProperties(strPendingPush);
                 List<Properties> listPendingNoti = tempP.getList("key_pending_push", Properties.class);
                 if(listPendingNoti == null || listPendingNoti.size() == 0) return;
@@ -33,7 +33,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 Properties pendingPush = new Properties().putValue("key_pending_push", listPendingNoti);
                 String jsonEvent = new Gson().toJson(pendingPush, new TypeToken<Properties>() {
                 }.getType());
-                SharedPreferencesUtils.editString(context, SharedPreferencesUtils.KEY_PENDING_PUSH, jsonEvent);
+                SharedPreferencesUtils.editString(context, SharedPreferencesUtils.M_KEY_PENDING_PUSH, jsonEvent);
 
             }
         }

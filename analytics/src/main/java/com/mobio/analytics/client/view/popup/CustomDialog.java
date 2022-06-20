@@ -44,10 +44,6 @@ public class CustomDialog extends BaseDialog{
     @Override
     void doDismiss() {
 
-<<<<<<< HEAD
-=======
-        LogMobio.logD("QuanLA", "close popup "+ push.getAlert().getPopupId());
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
     }
 
     @Override

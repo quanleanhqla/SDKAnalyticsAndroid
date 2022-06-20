@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -32,18 +31,13 @@ import androidx.core.content.ContextCompat;
 import com.mobio.analytics.BuildConfig;
 import com.mobio.analytics.client.model.digienty.Event;
 import com.mobio.analytics.client.model.digienty.Properties;
-import com.mobio.analytics.client.model.digienty.Push;
-import com.mobio.analytics.client.model.digienty.ValueMap;
 import com.mobio.analytics.client.model.old.ViewDimension;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -95,19 +89,11 @@ public class Utils {
         return new ViewDimension(dpWidth, dpHeight);
     }
 
-<<<<<<< HEAD
     public static int getHeightOfScreen(Context context) {
         return getScreenDimension(context).height;
     }
 
     public static int getWidthOfScreen(Context context) {
-=======
-    public static int getHeightOfScreen(Context context){
-        return getScreenDimension(context).height;
-    }
-
-    public static int getWidthOfScreen(Context context){
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         return getScreenDimension(context).width;
     }
 
@@ -137,7 +123,6 @@ public class Utils {
         }
     }
 
-<<<<<<< HEAD
     public static String getTypeOfData(Properties valueMap) {
         if (valueMap.containsKey("identity")) {
             return "identity";
@@ -148,18 +133,6 @@ public class Utils {
         }
 
         if (valueMap.containsKey("notification")) {
-=======
-    public static String getTypeOfData(Properties valueMap){
-        if(valueMap.containsKey("identity")){
-            return "identity";
-        }
-
-        if(valueMap.containsKey("track")){
-            return "track";
-        }
-
-        if(valueMap.containsKey("notification")){
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             return "notification";
         }
 
@@ -220,20 +193,11 @@ public class Utils {
         return ip;
     }
 
-<<<<<<< HEAD
     public static String getMD5(String data) {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             messageDigest.update(data.getBytes());
             byte[] digest = messageDigest.digest();
-=======
-    public static String getMD5(String data)
-    {
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            messageDigest.update(data.getBytes());
-            byte[] digest=messageDigest.digest();
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             StringBuffer sb = new StringBuffer();
             for (byte b : digest) {
                 sb.append(Integer.toHexString((int) (b & 0xff)));
@@ -260,40 +224,11 @@ public class Utils {
     public static String getIMEIDeviceId(Context context) {
 
         String deviceId;
-<<<<<<< HEAD
         deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         return deviceId;
     }
 
     public static Class<?> getClassFromName(String name) {
-=======
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-//        } else {
-//            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-//                    return "";
-//                }
-//            }
-//            assert mTelephony != null;
-//            if (mTelephony.getDeviceId() != null) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                    deviceId = mTelephony.getImei();
-//                } else {
-//                    deviceId = mTelephony.getDeviceId();
-//                }
-//            } else {
-//                deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-//            }
-//        }
-        LogMobio.logD("deviceId", deviceId);
-        return deviceId;
-    }
-
-    public static Class<?> getClassFromName(String name){
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         Class<?> act = null;
         try {
             act = Class.forName(name);
@@ -310,11 +245,7 @@ public class Utils {
         try {
             ActivityInfo[] list = pManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES).activities;
             for (ActivityInfo activityInfo : list) {
-<<<<<<< HEAD
                 //todo save list activity
-=======
-                LogMobio.logD("QuanLa", "ActivityInfo name = " + activityInfo.name);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -367,9 +298,9 @@ public class Utils {
 
     public static Map<String, String> getHeader(Context context) {
         //String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdmYzBhMzNjLWJhZjUtMTFlNy1hN2MyLTAyNDJhYzE4MDAwMyIsInVzZXJuYW1lIjoiYWRtaW5AcGluZ2NvbXNob3AiLCJmdWxsbmFtZSI6Ik5ndXlcdTFlYzVuIFZcdTAxMDNuIEEiLCJwaG9uZV9udW1iZXIiOiIrODQzMjM0NTY3ODkiLCJlbWFpbCI6InRoYWl0dEBtb2Jpby52biIsIm1lcmNoYW50X2lkIjoiMWI5OWJkY2YtZDU4Mi00ZjQ5LTk3MTUtMWI2MWRmZmYzOTI0IiwiaXNfYWRtaW4iOjEsImlzX21vYmlvIjoyLCJhdmF0YXIiOiJodHRwczovL3QxLm1vYmlvLnZuL3N0YXRpYy8xYjk5YmRjZi1kNTgyLTRmNDktOTcxNS0xYjYxZGZmZjM5MjQvZWMwYTEwZWUtMjg3NC00NGUzLTgwMzQtZmE4OWYyODczZGMyLmJpbiIsImlhdCI6MTYzNDYxMTkyMC45ODQxNzg1LCJpc19zdWJfYnJhbmQiOmZhbHNlLCJ1c2VfY2FsbGNlbnRlciI6MywibWVyY2hhbnRfbmFtZSI6IlBpbmdjb21TaG9wIiwibWVyY2hhbnRfYXZhdGFyIjoiaHR0cHM6Ly90MS5tb2Jpby52bi9zdGF0aWMvMWI5OWJkY2YtZDU4Mi00ZjQ5LTk3MTUtMWI2MWRmZmYzOTI0LzFlNDhhYmM3LTUyNzctNGYxYy1hZjU5LTA3ZThlZDQwMmU0Ny5qcGciLCJtZXJjaGFudF90eXBlIjoxLCJ4cG9pbnRfc3RhdHVzIjozLCJyb2xlX2dyb3VwIjoib3duZXIiLCJtZXJjaGFudF9jb2RlIjoiUElOR0NPTVNIT1AiLCJ0eXBlIjpbXSwiZXhwIjoxNjM0Njk4MzIxLjA2NDk0N30.eACtwpF7GPCE4O2V9n8SzA0FPToUwngbe1g92lDzm2Y";
-        String token = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_API_TOKEN);
+        String token = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_API_TOKEN);
         //String merchantID = "1b99bdcf-d582-4f49-9715-1b61dfff3924";
-        String merchantID = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.KEY_MERCHANT_ID);
+        String merchantID = SharedPreferencesUtils.getString(context, SharedPreferencesUtils.M_KEY_MERCHANT_ID);
         Map<String, String> header = new HashMap<>();
         header.put("Authorization", token);
         header.put("X-Merchant-Id", merchantID);
@@ -384,11 +315,7 @@ public class Utils {
         return (netInfo != null && netInfo.isConnected());
     }
 
-<<<<<<< HEAD
     public static boolean isBluetoothEnable() {
-=======
-    public static boolean isBluetoothEnable(){
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             // Device does not support Bluetooth
@@ -399,11 +326,7 @@ public class Utils {
         }
     }
 
-<<<<<<< HEAD
     public static String getLocale(Context context) {
-=======
-    public static String getLocale(Context context){
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8
         //Locale current = context.getResources().getConfiguration().locale;
         return Locale.getDefault().getLanguage();
     }

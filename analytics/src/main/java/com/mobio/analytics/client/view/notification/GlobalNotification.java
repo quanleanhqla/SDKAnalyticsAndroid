@@ -16,10 +16,6 @@ import com.google.gson.Gson;
 import com.mobio.analytics.R;
 import com.mobio.analytics.client.activity.TransparentDeeplinkHandleActivity;
 import com.mobio.analytics.client.model.digienty.Push;
-<<<<<<< HEAD:analytics/src/main/java/com/mobio/analytics/client/view/notification/GlobalNotification.java
-=======
-import com.mobio.analytics.client.model.old.NotiResponseObject;
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8:analytics/src/main/java/com/mobio/analytics/client/view/GlobalNotification.java
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.service.ClickNotificationService;
@@ -27,7 +23,6 @@ import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.Utils;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 public class GlobalNotification {
     private int id;
@@ -54,18 +49,10 @@ public class GlobalNotification {
         Intent intent = new Intent();
         //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setComponent(new ComponentName(context, ClickNotificationService.class));
-<<<<<<< HEAD:analytics/src/main/java/com/mobio/analytics/client/view/notification/GlobalNotification.java
         intent.setAction(ClickNotificationService.ACTION_CLICK);
         intent.putExtra(ClickNotificationService.EXTRA_PARAM_DES, classDes);
         intent.putExtra(ClickNotificationService.EXTRA_PARAM_ID, id);
         intent.putExtra(ClickNotificationService.EXTRA_PARAM_PUSH, new Gson().toJson(push));
-=======
-        intent.setAction(ClickNotificationService.ACTION_FOO);
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM1, classDes);
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM2, Utils.getMD5(push.toString()));
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM3, id);
-        intent.putExtra(ClickNotificationService.EXTRA_PARAM4, new Gson().toJson(push));
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8:analytics/src/main/java/com/mobio/analytics/client/view/GlobalNotification.java
         return intent;
     }
 
@@ -74,11 +61,7 @@ public class GlobalNotification {
         Class<?> classInitial = null;
         for (int i = 0; i < configActivityMap.values().size(); i++) {
             ScreenConfigObject screenConfigObject = (ScreenConfigObject) configActivityMap.values().toArray()[i];
-<<<<<<< HEAD:analytics/src/main/java/com/mobio/analytics/client/view/notification/GlobalNotification.java
             if (screenConfigObject.getTitle().equals(push.getAlert().getDesScreen())) {
-=======
-            if (screenConfigObject.getTitle().equals(push.getDesScreen())) {
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8:analytics/src/main/java/com/mobio/analytics/client/view/GlobalNotification.java
                 classDes = screenConfigObject.getClassName();
                 break;
             }
@@ -136,10 +119,6 @@ public class GlobalNotification {
 //        .put("push_id", notiResponseObject.getPushId())
 //        .put("device", "Android"));
 
-<<<<<<< HEAD:analytics/src/main/java/com/mobio/analytics/client/view/notification/GlobalNotification.java
-=======
-        LogMobio.logD("QuanLA", "show noti "+Utils.getMD5(push.toString())+"\nid "+id);
->>>>>>> 54b8c3df2c3c49a849d06d7e38d9f17cba2587b8:analytics/src/main/java/com/mobio/analytics/client/view/GlobalNotification.java
     }
 
 }
