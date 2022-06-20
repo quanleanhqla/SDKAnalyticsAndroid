@@ -42,16 +42,16 @@
 
         <TextView
             android:id="@+id/tv_name"
-            android:textStyle="bold"
-            android:layout_marginTop="2pt"
-            android:layout_below="@id/tv_hello"
-            android:textColor="@color/white"
-            android:text="Oliver"
-            android:layout_marginLeft="8pt"
-            android:layout_toRightOf="@id/rl_profile"
-            android:textSize="7.5pt"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_hello"
+            android:layout_marginLeft="8pt"
+            android:layout_marginTop="2pt"
+            android:layout_toRightOf="@id/rl_profile"
+            android:text="Oliver"
+            android:textColor="@color/white"
+            android:textSize="7.5pt"
+            android:textStyle="bold" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -197,23 +197,33 @@
             app:type="0"/>
     </LinearLayout>
 
-    <ScrollView
+    <TextView
+        android:layout_centerHorizontal="true"
         android:layout_above="@id/ll_tab"
-        android:layout_below="@id/ll_second_row"
-        android:id="@+id/sv_scroll"
-        android:layout_width="match_parent"
+        android:id="@+id/tv_did"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
+    </TextView>
+
+    <ScrollView
+        android:visibility="gone"
+        android:id="@+id/sv_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ll_tab"
+        android:layout_below="@id/ll_second_row">
+
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Tổng cục Thống kê cho biết khoảng 1,3 triệu lao động đã về quê tránh dịch, tính từ tháng 7 đến 15/9. Số liệu Tổng cục Thống kê công bố sáng 12/10 cho hay trong số 1,3 triệu lao động nêu trên, khoảng 324.000 người trở về từ Hà Nội, 292.000 người về từ TP HCM và 450.000 người trở về từ các tỉnh, thành khác phía Nam. Lao động rời thành phố lớn, trung tâm công nghiệp về các vùng quê diễn ra liên tục từ tháng 7 đến nay. Tuy nhiên, số liệu thống kê lần này chưa tính đến dòng người về quê từ đầu tháng 10, khi TP HCM và các tỉnh phía Nam nới lỏng giãn cách.
 Thống kê 930.000 người từ 15 tuổi trở lên đã trở về địa phương, khoảng 34% đang có việc làm; 38% mất việc, không tìm được việc làm do cách ly, giãn cách và số còn lại không có nhu cầu làm việc do e ngại dịch bệnh.
 Thu nhập bình quân trong tháng của người lao động vì thế xuống mức thấp nhất trong vòng mười năm qua, giảm 877.000 đồng, xuống còn 5,2 triệu đồng. Lao động khu vực dịch vụ vẫn chịu ảnh hưởng nặng nhất khi thu nhập bình quân còn khoảng 6,2 triệu đồng, giảm một triệu đồng so với quý trước. Lao động ngành công nghiệp và xây dựng giảm 906.000 đồng, xuống còn 5,8 triệu đồng.
 
 Ngược lại, nông lâm nghiệp và thủy sản ổn định cả về tốc độ tăng trưởng lẫn thu nhập bình quân. Đây là khu vực giảm ít nhất khoảng 340.000 đồng, đạt 3,4 triệu đồng mỗi tháng. Người làm công ăn lương thu nhập mỗi tháng còn 6 triệu đồng, giảm 795.000 đồng so với quý trước.
 
-Tỷ lệ thiếu việc làm trong độ tuổi lao động của quý này đã tăng lên mức cao nhất trong vòng mười năm qua, khoảng 1,8 triệu người. Trong đó, tỷ lệ thiếu việc làm ở thành thị khoảng 5,3%, cao hơn so với nông thôn, khoảng 3,9%. Điều này khác với xu hướng thị trường lao động thường được quan sát ở nước ta với tình trạng thiếu việc làm ở khu vực nông thôn thường nghiêm trọng hơn so với thành thị."
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+Tỷ lệ thiếu việc làm trong độ tuổi lao động của quý này đã tăng lên mức cao nhất trong vòng mười năm qua, khoảng 1,8 triệu người. Trong đó, tỷ lệ thiếu việc làm ở thành thị khoảng 5,3%, cao hơn so với nông thôn, khoảng 3,9%. Điều này khác với xu hướng thị trường lao động thường được quan sát ở nước ta với tình trạng thiếu việc làm ở khu vực nông thôn thường nghiêm trọng hơn so với thành thị." />
     </ScrollView>
 
     <LinearLayout

@@ -27,6 +27,7 @@ import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.utility.GpsTracker;
 import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
 
 import java.io.IOException;
@@ -133,6 +134,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(userName) &&
                         !TextUtils.isEmpty(password) &&
                         isEmailValid(userName)) {
+                    SharedPreferencesUtils.editString(LoginActivity.this, SharedPreferencesUtils.M_KEY_USER_NAME, userName);
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();
                 } else {

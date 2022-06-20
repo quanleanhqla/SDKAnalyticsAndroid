@@ -10,12 +10,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
+
 public class HomeActivity extends AppCompatActivity {
     private CombineView cvSendMoney;
     private CombineView cvAccount;
     private boolean isShowMoney;
     private ImageView imvShowMoney;
     private TextView tvMoney;
+    private TextView tvDid;
+    private TextView tvName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,8 @@ public class HomeActivity extends AppCompatActivity {
         imvShowMoney = findViewById(R.id.imv_show_balance);
         cvSendMoney = findViewById(R.id.cv_send_money);
         cvAccount = findViewById(R.id.cv_account);
+        tvDid = findViewById(R.id.tv_did);
+        tvName = findViewById(R.id.tv_name);
         isShowMoney = true;
 
         cvSendMoney.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +72,9 @@ public class HomeActivity extends AppCompatActivity {
                 isShowMoney = !isShowMoney;
             }
         });
+
+        tvDid.setText(SharedPreferencesUtils.getString(this, SharedPreferencesUtils.M_KEY_D_ID));
+        tvName.setText(SharedPreferencesUtils.getString(this, SharedPreferencesUtils.M_KEY_USER_NAME));
     }
 
     private void showCustomUI() {
