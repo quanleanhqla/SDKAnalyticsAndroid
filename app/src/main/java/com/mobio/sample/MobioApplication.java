@@ -34,7 +34,7 @@ public class MobioApplication extends Application {
         fragmentConfigObjectHashMap.put("FragmentB", new ScreenConfigObject("B", "FragmentB", new int[] {10}, FragmentB.class, false));
 
         MobioSDKClient.Builder builder = new MobioSDKClient.Builder()
-                .withSdkCode("m-android-test-1")
+                .withSdkCode("m-android-1")
                 .withSdkSource("MobioBank")
                 .withApplication(this)
                 .shouldTrackDeepLink(true)
@@ -45,7 +45,7 @@ public class MobioApplication extends Application {
                 .withFragmentMap(fragmentConfigObjectHashMap)
                 .withIntervalSecond(10)
                 .shouldRecordScreen(true)
-                .withDomainURL("https://t1.mobio.vn/digienty/web/api/v1.1/")
+                .withDomainURL("https://api.mobio.vn/digienty/web/api/v1.1/")
                 .withEndPoint("sync")
                 .withApiToken("Basic f5e27185-b53d-4aee-a9b7-e0579c24d29d")
                 .withMerchantId("1b99bdcf-d582-4f49-9715-1b61dfff3924");
