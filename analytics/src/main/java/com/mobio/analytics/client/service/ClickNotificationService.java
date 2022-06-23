@@ -75,10 +75,6 @@ public class ClickNotificationService extends IntentService {
         }
     }
 
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
     private void handleActionClick(Class<?> des,  int reqId, String pushStr) {
 
         clearAndCloseNotification(reqId);
@@ -110,12 +106,8 @@ public class ClickNotificationService extends IntentService {
         sendBroadcast(it);
     }
 
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
     private void handleActionClose(String strPush) {
-        // TODO: Handle action Baz
+        // TODO: Handle action Close
     }
 
     private void handleActionClickLeft(String pushStr, int id) {

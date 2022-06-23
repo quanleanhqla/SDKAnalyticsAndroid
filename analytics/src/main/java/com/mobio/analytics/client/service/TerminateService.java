@@ -41,7 +41,7 @@ public class TerminateService extends Service {
                 int countNoti = pendingJsonPush.size();
                 long maxInterval = 60 * 1000;
                 long minInterval = 2 * 1000;
-                long intervel = Utils.getTimeInterval(maxInterval, minInterval, countNoti);
+                long interval = Utils.getTimeInterval(maxInterval, minInterval, countNoti);
                 long now = System.currentTimeMillis();
 
                 for (int i = 0; i < countNoti; i++) {
@@ -50,7 +50,7 @@ public class TerminateService extends Service {
 
                     PendingIntent alarmIntent = PendingIntent.getBroadcast(this, i, intent, PendingIntent.FLAG_IMMUTABLE);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        alarmManager.setExact(AlarmManager.RTC,  now + intervel * (i+1), alarmIntent);
+                        alarmManager.setExact(AlarmManager.RTC,  now + interval * (i+1), alarmIntent);
                     }
                 }
             }

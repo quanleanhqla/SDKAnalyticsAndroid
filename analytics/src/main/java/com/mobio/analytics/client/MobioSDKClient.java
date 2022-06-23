@@ -399,7 +399,7 @@ public class MobioSDKClient {
     }
 
     public boolean sendv2(Properties value) {
-        LogMobio.logD("MobioSDKClient", "send "+value.toString());
+        LogMobio.logD("MobioSDKClient", "send "+new Gson().toJson(value));
         Response<SendEventResponse> response = null;
         try {
             String typeOfValue = Utils.getTypeOfData(value);
@@ -427,7 +427,7 @@ public class MobioSDKClient {
                 SendEventResponse sendEventResponse = response.body();
                 if (sendEventResponse != null) {
                     updateAllCacheValue(sendEventResponse);
-                    LogMobio.logD("MobioSDKClient", "response "+sendEventResponse.toString());
+                    LogMobio.logD("MobioSDKClient", "response "+new Gson().toJson(sendEventResponse));
                 }
                 return true;
             }

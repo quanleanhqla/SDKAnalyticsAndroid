@@ -31,10 +31,8 @@ public class TransparentDeeplinkHandleActivity extends AppCompatActivity {
     }
 
     private void handleActionClick(Class<?> des, int reqId, String pushStr) {
-        // TODO: Handle action Foo
         clearAndCloseNotification(reqId);
 
-        // TODO: Handle action Foo
         Push push = Push.convertJsonStringtoPush(pushStr);
         Push.Alert alert = push.getAlert();
         if(alert == null) return;
