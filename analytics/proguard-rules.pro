@@ -21,5 +21,9 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class com.mobio.analytics.client.MobioSDKClient
+-keepclassmembers class com.mobio.analytics.client.MobioSDKClient { *; }
+-keep class com.mobio.analytics.client.utility.LogMobio
+-keep class com.mobio.analytics.client.model.old.ScreenConfigObject
+-keep class com.mobio.analytics.client.utility.SharedPreferencesUtils
 
 -keep public class com.mobio.analytics.client.model.digienty.*
