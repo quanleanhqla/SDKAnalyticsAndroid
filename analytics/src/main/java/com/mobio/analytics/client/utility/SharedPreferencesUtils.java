@@ -17,6 +17,7 @@ public class SharedPreferencesUtils {
     public static final String M_KEY_PASSWORD = "key_password";
     public static final String M_KEY_API_TOKEN = "key_api_token";
     public static final String M_KEY_MERCHANT_ID = "key_merchant_id";
+    public static final String M_KEY_ENVIRONMENT = "key_environment";
     public static final String M_KEY_DEVICE_TOKEN = "key_device_token";
     public static final String M_KEY_BASE_URL = "key_base_url";
     public static final String M_KEY_ENDPOINT = "key_endpoint";

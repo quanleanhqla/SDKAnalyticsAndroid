@@ -116,6 +116,9 @@ public class RetrofitClient {
 
             while (!responseOK && tryCount < maxLimit) {
                 try {
+                    if(response != null) {
+                        response.close();
+                    }
                     response = chain.proceed(request);
                     responseOK = response.isSuccessful();
                 }catch (Exception e){
@@ -129,11 +132,27 @@ public class RetrofitClient {
 //                        }
 //                    }
                     tryCount++;
+                    LogMobio.logD("RetrofitClient", "retry "+tryCount);
+                    if (response != null) {
+                        LogMobio.logD("RetrofitClient", "code "+response.code());
+                    }
                 }
             }
 
             // otherwise just pass the original response on
             return response;
+
+//            int retryCount = 0;
+//            Request request = chain.request();
+//            okhttp3.Response response = chain.proceed(request);
+//            while (!response.isSuccessful() && retryCount < maxLimit) {
+//                retryCount++;
+//                response.close();
+//                response = chain.proceed(request);
+//            }
+//            if (retryCount > 0) {
+//                LogMobio.logD("ErrorInterceptor", "retryCount:" + retryCount);
+//            }
         }
     }
 

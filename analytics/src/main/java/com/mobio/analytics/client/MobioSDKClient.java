@@ -67,19 +67,19 @@ import retrofit2.Response;
 public class MobioSDKClient {
     private static final String TAG = MobioSDKClient.class.getName();
     public static final String DEMO_EVENT = "android_event";
-    public static final String SDK_Mobile_Test_Click_Button_In_App = "sdk_mobile_test_click_button_in_app";
-    public static final String SDK_Mobile_Test_Identify_App = "sdk_mobile_test_identify_app";
-    public static final String SDK_Mobile_Test_Time_Visit_App = "sdk_mobile_test_time_visit_app";
+    public static final String SDK_MOBILE_TEST_CLICK_BUTTON_IN_APP = "sdk_mobile_click_button_in_app";
+    public static final String SDK_MOBILE_IDENTIFY_APP = "sdk_mobile_identify_app";
+    public static final String SDK_MOBILE_TIME_VISIT_APP = "sdk_mobile_time_visit_app";
     public static final String SDK_Mobile_Test_Screen_End_In_App = "sdk_mobile_test_screen_end_in_app";
-    public static final String SDK_Mobile_Test_Screen_Start_In_App = "sdk_mobile_test_screen_start_in_app";
+    public static final String SDK_MOBILE_SCREEN_START_IN_APP = "sdk_mobile_screen_start_in_app";
     public static final String SDK_Mobile_Test_Open_App = "sdk_mobile_test_open_app";
     public static final String SDK_Mobile_Test_Open_Update_App = "sdk_mobile_test_open_update_app";
     public static final String SDK_Mobile_Test_Open_First_App = "sdk_mobile_test_open_first_app";
-    public static final String SDK_Mobile_Test_Open_Notification_App = "sdk_mobile_test_open_notification_app";
-    public static final String SDK_Mobile_Test_Close_Notification_App = "sdk_mobile_test_close_notification_app";
-    public static final String SDK_Mobile_Test_Open_Popup_App = "sdk_mobile_test_open_popup_app";
-    public static final String SDK_Mobile_Test_Close_Popup_App = "sdk_mobile_test_close_popup_app";
-    public static final String SDK_Mobile_Test_Receive_Push_In_App = "sdk_mobile_test_receive_push_in_app";
+    public static final String SDK_MOBILE_OPEN_NOTIFICATION_APP = "sdk_mobile_open_notification_app";
+    public static final String SDK_MOBILE_CLOSE_NOTIFICATION_APP = "sdk_mobile_close_notification_app";
+    public static final String SDK_MOBILE_OPEN_POPUP_APP = "sdk_mobile_open_popup_app";
+    public static final String SDK_MOBILE_CLOSE_POPUP_APP = "sdk_mobile_close_popup_app";
+    public static final String SDK_MOBILE_RECEIVE_PUSH_IN_APP = "sdk_mobile_receive_push_in_app";
 
     public static final int TYPE_LOGIN_SUCCESS = 1;
     public static final int TYPE_TRANSFER_SUCCESS = 2;
@@ -111,6 +111,7 @@ public class MobioSDKClient {
     private ArrayList<Properties> listDataWaitToSend;
     private String domainURL;
     private String endPoint;
+    private String environment;
     private HashMap<String, ScreenConfigObject> configActivityMap;
     private HashMap<String, ScreenConfigObject> configFragmentMap;
 
@@ -154,11 +155,12 @@ public class MobioSDKClient {
         configFragmentMap = builder.mFragmentMap;
         sdkSource = builder.mSdkSource;
         sdkCode = builder.mSdkCode;
+        environment = builder.mEnvironment;
 
         initRecordCrashLog();
         saveSdkInfo(sdkSource, sdkCode);
 
-        saveNetworkProperties(merchantId, apiToken, domainURL, endPoint);
+        saveNetworkProperties(merchantId, apiToken, domainURL, endPoint, environment);
         initExecutors();
 
         mobioSDKLifecycleCallback = new MobioSDKLifecycleCallback(this, shouldTrackAppLifecycle, shouldTrackScreenLifecycle,
@@ -186,11 +188,12 @@ public class MobioSDKClient {
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_SDK_SOURCE, sdkSource);
     }
 
-    private void saveNetworkProperties(String merchantId, String apiToken, String domainURL, String endPoint) {
+    private void saveNetworkProperties(String merchantId, String apiToken, String domainURL, String endPoint, String environment) {
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_MERCHANT_ID, merchantId);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_API_TOKEN, apiToken);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_BASE_URL, domainURL);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_ENDPOINT, endPoint);
+        SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_ENVIRONMENT, environment);
     }
 
     private void initExecutors() {
@@ -345,7 +348,6 @@ public class MobioSDKClient {
     }
 
     public void showGlobalNotification(Push push, int id) {
-//        GlobalNotification.showGlobalNotification(id, push, configActivityMap, application);
         RichNotification.showRichNotification(application, push, id, configActivityMap);
     }
 
@@ -916,6 +918,7 @@ public class MobioSDKClient {
         private String mEndPoint;
         private String mSdkSource;
         private String mSdkCode;
+        private String mEnvironment;
         private HashMap<String, ScreenConfigObject> mActivityMap;
         private HashMap<String, ScreenConfigObject> mFragmentMap;
 
@@ -999,6 +1002,11 @@ public class MobioSDKClient {
 
         public Builder withFragmentMap(HashMap<String, ScreenConfigObject> fragmentMap) {
             mFragmentMap = fragmentMap;
+            return this;
+        }
+
+        public Builder withEnvironment(String environment) {
+            mEnvironment = environment;
             return this;
         }
 

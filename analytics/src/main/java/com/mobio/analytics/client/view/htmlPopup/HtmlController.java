@@ -155,7 +155,7 @@ public class HtmlController {
         layoutParams.setMargins(0, getHeightOfStatusBar(), 0, getHeightOfNavigationBar());
         containerLayout.setLayoutParams(layoutParams);
         containerLayout.setBackgroundColor(Color.TRANSPARENT);
-        if(!position.equals(POSITION_CENTER)) containerLayout.setClickable(true);
+        if(!position.equals(POSITION_CENTER)) containerLayout.setClickable(false);
         createWebview(containerLayout, assetPath, push);
         return containerLayout;
     }

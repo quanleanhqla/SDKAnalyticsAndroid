@@ -20,7 +20,7 @@ public class SDKPushFirebaseService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        MobioSDKClient.getInstance().handlePushNewToken(token);
+        MobioSDKClient.getInstance().setDeviceToken(token);
     }
 
     @Override

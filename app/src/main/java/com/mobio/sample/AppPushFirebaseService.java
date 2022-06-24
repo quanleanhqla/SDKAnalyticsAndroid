@@ -9,7 +9,7 @@ import com.mobio.analytics.client.MobioSDKClient;
 public class AppPushFirebaseService extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String s) {
-        MobioSDKClient.getInstance().handlePushNewToken(s);
+        MobioSDKClient.getInstance().setDeviceToken(s);
     }
 
     @Override
