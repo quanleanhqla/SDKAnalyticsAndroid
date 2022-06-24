@@ -33,3 +33,5 @@
 -keep class com.mobio.analytics.client.utility.SharedPreferencesUtils {*;}
 
 -keep public class com.mobio.analytics.client.model.digienty.* {*;}
+
+-keep class com.mobio.analytics.client.model.reponse.SendEventResponse {*;}
