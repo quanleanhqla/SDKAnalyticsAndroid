@@ -33,6 +33,6 @@
 -keep class com.mobio.analytics.client.model.old.ScreenConfigObject
 -keepclassmembers class com.mobio.analytics.client.model.old.ScreenConfigObject { *; }
 
--keep class com.mobio.analytics.client.utility.SharedPreferencesUtils
+-keep class com.mobio.analytics.client.utility.SharedPreferencesUtils {*;}
 
 -keep public class com.mobio.analytics.client.model.digienty.*
