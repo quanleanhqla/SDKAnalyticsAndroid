@@ -34,4 +34,6 @@
 
 -keep public class com.mobio.analytics.client.model.digienty.* {*;}
 
--keep class com.mobio.analytics.client.model.reponse.SendEventResponse {*;}
+-keepclassmembers,allowobfuscation class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
