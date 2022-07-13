@@ -71,7 +71,8 @@ public class MobioSDKClient {
 
     public static final String SDK_Mobile_Test_Click_Button_In_App = "sdk_mobile_test_click_button_in_app";
     public static final String SDK_Mobile_Test_Identify_App = "sdk_mobile_test_identify_app";
-    public static final String SDK_Mobile_Test_Time_Visit_App = "sdk_mobile_test_time_visit_app";
+//    public static final String SDK_Mobile_Test_Time_Visit_App = "sdk_mobile_test_time_visit_app";
+    public static final String SDK_Mobile_Test_Time_Visit_App = "sdk_mobile_time_visit_app";
     public static final String SDK_Mobile_Test_Screen_End_In_App = "sdk_mobile_test_screen_end_in_app";
     public static final String SDK_Mobile_Test_Screen_Start_In_App = "sdk_mobile_test_screen_start_in_app";
     public static final String SDK_Mobile_Test_Open_App = "sdk_mobile_test_open_app";
