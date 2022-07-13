@@ -127,7 +127,7 @@ public class WebviewController {
             "            }\n" +
             "            }\n" +
             "            \n" +
-            "        </script>"+
+            "        </script>" +
             "  </body>\n" +
             "</html>";
     private static final String keyWordSubstr = "<div id=\"m_modal2\">";
@@ -144,11 +144,11 @@ public class WebviewController {
         this.activity = activity;
         this.container = container;
         this.push = push;
-        if(push.getAlert() != null) {
+        if (push.getAlert() != null) {
             this.position = push.getAlert().getString("position");
         }
 
-        if(this.position == null) this.position = POSITION_CENTER;
+        if (this.position == null) this.position = POSITION_CENTER;
     }
 
     public void createWebview(String assetPath, WebView webView) {
@@ -328,10 +328,9 @@ public class WebviewController {
         RelativeLayout.LayoutParams rlParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, Utils.getHeightOfScreen(activity) / 14);
         rlParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        if(activity instanceof PopupBuilderActivity){
+        if (activity instanceof PopupBuilderActivity) {
             rlParams.setMargins(0, 0, 0, 0);
-        }
-        else {
+        } else {
             rlParams.setMargins(0, Utils.getHeightOfStatusBar(activity), 0, 0);
         }
         relativeLayout.setLayoutParams(rlParams);
@@ -390,10 +389,9 @@ public class WebviewController {
     }
 
     private void dismissMessage() {
-        if(activity instanceof PopupBuilderActivity) {
+        if (activity instanceof PopupBuilderActivity) {
             activity.finish();
-        }
-        else {
+        } else {
             ViewGroup root = getWindowRoot(activity);
             if (root != null) {
                 root.removeView(root.findViewById(container.getId()));
@@ -404,6 +402,7 @@ public class WebviewController {
     private void processReceivedMessage(String data, WebView webView) {
         Properties dataVM = Properties.convertJsonStringtoProperties(data);
         String message = dataVM.getString("message");
+        LogMobio.logD("QuanLA", new Gson().toJson(dataVM));
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
                 if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2) == 1) {
@@ -445,7 +444,7 @@ public class WebviewController {
                                 @Override
                                 public void run() {
 
-                                    if(position.equals(POSITION_CENTER)){
+                                    if (position.equals(POSITION_CENTER)) {
                                         return;
                                     }
 
@@ -570,6 +569,36 @@ public class WebviewController {
         }
         MobioSDKClient.getInstance().track(listEvent, action_time);
         if (!hasSecondPage) dismissMessage();
+
+        List<Properties> listTag = (List<Properties>) valueMap.getValueMap("tags");
+        Properties firstTag = listTag.get(0);
+        String tagName = firstTag.getString("tag_name");
+        String desScreen = null;
+        switch (tagName) {
+            case "screen:Saving":
+                desScreen = "com.mobio.demoanalytics.SavingActivity";
+                break;
+            case "screen:SaveMoneyConfirm":
+                desScreen = "com.mobio.demoanalytics.ConfirmSavingActivity";
+                break;
+            case "screen:Recharge":
+                desScreen = "com.mobio.demoanalytics.MobileRechargeActivity";
+                break;
+            case "screen:RechargeConfirm":
+                desScreen = "com.mobio.demoanalytics.ConfirmMobileRechargeActivity";
+                break;
+        }
+        if(desScreen != null && !desScreen.isEmpty()){
+            dismissMessage();
+            Class<?> act = null;
+            try {
+                act = Class.forName(desScreen);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            Intent intent = new Intent(activity, act);
+            activity.startActivity(intent);
+        }
     }
 
     private Properties createValueForBase(String type, String id, Properties field, Properties tags) {
