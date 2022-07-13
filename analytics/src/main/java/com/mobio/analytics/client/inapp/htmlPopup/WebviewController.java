@@ -584,16 +584,16 @@ public class WebviewController {
         String desScreen = null;
         switch (tagName) {
             case "screen:Saving":
-                desScreen = "com.mobio.demoanalytics.SavingActivity";
+                desScreen = "com.mobio.demoanalytics.activity.SavingActivity";
                 break;
             case "screen:SaveMoneyConfirm":
-                desScreen = "com.mobio.demoanalytics.ConfirmSavingActivity";
+                desScreen = "com.mobio.demoanalytics.activity.ConfirmSavingActivity";
                 break;
             case "screen:Recharge":
-                desScreen = "com.mobio.demoanalytics.MobileRechargeActivity";
+                desScreen = "com.mobio.demoanalytics.activity.MobileRechargeActivity";
                 break;
             case "screen:RechargeConfirm":
-                desScreen = "com.mobio.demoanalytics.ConfirmMobileRechargeActivity";
+                desScreen = "com.mobio.demoanalytics.activity.ConfirmMobileRechargeActivity";
                 break;
         }
         if(desScreen != null){
