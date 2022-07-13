@@ -392,10 +392,15 @@ public class WebviewController {
         if (activity instanceof PopupBuilderActivity) {
             activity.finish();
         } else {
-            ViewGroup root = getWindowRoot(activity);
-            if (root != null) {
-                root.removeView(root.findViewById(container.getId()));
-            }
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ViewGroup root = getWindowRoot(activity);
+                    if (root != null) {
+                        root.removeView(root.findViewById(container.getId()));
+                    }
+                }
+            });
         }
     }
 
@@ -486,11 +491,12 @@ public class WebviewController {
         Properties field = formData.getValueMap("fields", Properties.class);
 
         Properties tags = dataVM.getValueMap("tags", Properties.class);
+        List<Properties> listTags = dataVM.getList("tags", Properties.class);
         String buttonId = dataVM.getString("buttonId");
         boolean hasSecondPage = dataVM.getBoolean("hasSecondPage", false);
         int includedReport = dataVM.getInt("includedReport", 0);
 
-        Properties value = createValueForBase("submit", buttonId, field, tags);
+        Properties value = createValueForBase("submit", buttonId, field, listTags);
         Event.Base base = ModelFactory.createBase("button", value);
         Event event = new Event().putBase(base).putSource("popup_builder")
                 .putType("submit")
@@ -521,6 +527,7 @@ public class WebviewController {
     private void processClickButton(Properties valueMap) {
         long actionTime = 0;
         List<Properties> listEvents = valueMap.getList("events", Properties.class);
+        List<Properties> listTags = valueMap.getList("tags", Properties.class);
         Properties tags = valueMap.getValueMap("tags", Properties.class);
         int includedReport = valueMap.getInt("includedReport", 0);
         boolean hasSecondPage = valueMap.getBoolean("hasSecondPage", false);
@@ -528,6 +535,8 @@ public class WebviewController {
         String name = valueMap.getString("name");
 
         long action_time = System.currentTimeMillis();
+
+        LogMobio.logD("QuanLA", new Gson().toJson(listTags));
 
         ArrayList<Event> listEvent = new ArrayList<>();
         if (listEvents != null && listEvents.size() > 0) {
@@ -559,7 +568,7 @@ public class WebviewController {
         }
 
         if (includedReport == 1) {
-            Properties value = createValueForBase("click", id, null, tags);
+            Properties value = createValueForBase("click", id, null, listTags);
             Event.Base base = ModelFactory.createBase("button", value);
             Event event = new Event().putBase(base).putSource("popup_builder")
                     .putType("click")
@@ -570,8 +579,7 @@ public class WebviewController {
         MobioSDKClient.getInstance().track(listEvent, action_time);
         if (!hasSecondPage) dismissMessage();
 
-        List<Properties> listTag = (List<Properties>) valueMap.getValueMap("tags");
-        Properties firstTag = listTag.get(0);
+        Properties firstTag = listTags.get(0);
         String tagName = firstTag.getString("tag_name");
         String desScreen = null;
         switch (tagName) {
@@ -588,8 +596,7 @@ public class WebviewController {
                 desScreen = "com.mobio.demoanalytics.ConfirmMobileRechargeActivity";
                 break;
         }
-        if(desScreen != null && !desScreen.isEmpty()){
-            dismissMessage();
+        if(desScreen != null){
             Class<?> act = null;
             try {
                 act = Class.forName(desScreen);
@@ -598,10 +605,11 @@ public class WebviewController {
             }
             Intent intent = new Intent(activity, act);
             activity.startActivity(intent);
+            dismissMessage();
         }
     }
 
-    private Properties createValueForBase(String type, String id, Properties field, Properties tags) {
+    private Properties createValueForBase(String type, String id, Properties field, List<Properties> tags) {
         Properties value = new Properties()
                 .putValue("button", new Properties().putValue("type", type).putValue("id", id))
                 .putValue("tags", tags)
