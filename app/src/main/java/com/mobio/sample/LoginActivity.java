@@ -1,25 +1,36 @@
 package com.mobio.sample;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,9 +57,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvLong;
     private TextView tvLat;
     private TextView tvAddress;
-
-    private RelativeLayout rlRoot;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +64,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initView();
         addListener();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        LogMobio.logD("QuanLA", "orientation "+newConfig.orientation);
     }
 
     private void getAddress(double latitude, double longitude) {
@@ -112,7 +126,6 @@ public class LoginActivity extends AppCompatActivity {
         tvLong = findViewById(R.id.tv_long);
         tvLat = findViewById(R.id.tv_lat);
         tvAddress = findViewById(R.id.tv_address);
-        rlRoot = findViewById(R.id.rl_root);
     }
 
     private void showCustomUI() {
@@ -130,6 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                 String userName = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
 
+//                showPopup(etPassword);
 
                 if (!TextUtils.isEmpty(userName) &&
                         !TextUtils.isEmpty(password) &&
@@ -145,7 +159,40 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
 
-                MobioSDKClient.getInstance().identify();
+//                MobioSDKClient.getInstance().identify();
+            }
+        });
+    }
+
+    public void showPopup(View view) {
+
+        // inflate the layout of the popup window
+        LayoutInflater inflater = (LayoutInflater)
+                getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.popup_webview, null);
+
+        // create the popup window
+        int width = LinearLayout.LayoutParams.MATCH_PARENT;
+        int height = LinearLayout.LayoutParams.MATCH_PARENT;
+
+        boolean focusable = true; // lets taps outside the popup also dismiss it
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(
+                android.graphics.Color.TRANSPARENT));
+
+        // show the popup window
+        // which view you pass in doesn't matter, it is only used for the window tolken
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+        WebView webView = popupView.findViewById(R.id.wv_popup);
+        webView.loadUrl("https://mobio.io/");
+
+        // dismiss the popup window when touched
+        popupView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                popupWindow.dismiss();
+                return true;
             }
         });
     }

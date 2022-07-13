@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.mobio.analytics.client.activity.PopupBuilderActivity;
+import com.mobio.analytics.client.inapp.InAppController;
 import com.mobio.analytics.client.model.factory.ModelFactory;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
@@ -41,8 +42,6 @@ import com.mobio.analytics.client.model.digienty.Properties;
 import com.mobio.analytics.client.service.TerminateService;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
-import com.mobio.analytics.client.view.htmlPopup.HtmlController;
-import com.mobio.analytics.client.view.popup.CustomDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -207,24 +206,14 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
     }
 
     public void showPopup(Push push) {
-        if (currentActivity != null) {
+        if (!Utils.isActivityDead(currentActivity)) {
             currentActivity.runOnUiThread(() -> {
                 Push.Alert alert = push.getAlert();
                 if (alert == null) return;
 
                 String contentType = alert.getContentType();
                 if (contentType == null) return;
-                if (contentType.equals(Push.Alert.TYPE_POPUP) || contentType.equals(Push.Alert.TYPE_HTML)) {
-                    if (push.getData() != null
-                            && push.getData().getString("position") != null
-                            && !push.getData().getString("position").equals(HtmlController.POSITION_CENTER)) {
-                        HtmlController.showHtmlPopup(currentActivity, push, "", false);
-                    } else {
-                        startPopupActivity(currentActivity, push);
-                    }
-                } else {
-                    CustomDialog.showCustomDialog(currentActivity, push, findDes(push));
-                }
+                InAppController.showInApp(currentActivity, push, "", findDes(push));
             });
         }
     }
@@ -268,9 +257,11 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 
     private void trackOpenScreen(ScreenConfigObject screenConfigObject){
         long actionTime = System.currentTimeMillis();
-        mobioSDKClient.track(ModelFactory.createBaseList(
-                ModelFactory.createBase("screen", new Properties().putValue("screen_name", screenConfigObject.getTitle())),
-                "view", actionTime, "digienty"), actionTime);
+//        mobioSDKClient.track(ModelFactory.createBaseList(
+//                ModelFactory.createBase("screen", new Properties().putValue("screen_name", screenConfigObject.getTitle())),
+//                "view", actionTime, "digienty"), actionTime);
+        mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_Start_In_App, new Properties().putValue("screen_name", screenConfigObject.getTitle())
+                .putValue("time", Utils.getTimeUTC()));
     }
 
     private void trackCloseScreen(ScreenConfigObject screenConfigObject){
@@ -407,10 +398,12 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
                     for (int i = 0; i < screenConfigObject.getVisitTime().length; i++) {
                         if (screenConfigObject.getVisitTime()[i] == countSecond[0]) {
                             long action_time = System.currentTimeMillis();
-                            mobioSDKClient.track(ModelFactory.createBaseList(
-                                    ModelFactory.createBase("screen", new Properties().putValue("time_visit", countSecond[0])
-                                            .putValue("screen_name", screenConfigObject.getTitle())),
-                                    "time_visit", action_time, "digienty"), action_time);
+//                            mobioSDKClient.track(ModelFactory.createBaseList(
+//                                    ModelFactory.createBase("screen", new Properties().putValue("time_visit", countSecond[0])
+//                                            .putValue("screen_name", screenConfigObject.getTitle())),
+//                                    "time_visit", action_time, "digienty"), action_time);
+
+                            mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Time_Visit_App, new Properties().putValue("time_visit", countSecond[0]).putValue("screen_name", screenConfigObject.getTitle()));
                         }
                     }
                     if(countSecond[0] == screenConfigObject.getVisitTime()[screenConfigObject.getVisitTime().length-1]){

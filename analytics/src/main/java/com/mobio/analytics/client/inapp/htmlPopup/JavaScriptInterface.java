@@ -1,4 +1,4 @@
-package com.mobio.analytics.client.view.htmlPopup;
+package com.mobio.analytics.client.inapp.htmlPopup;
 
 import android.webkit.JavascriptInterface;
 

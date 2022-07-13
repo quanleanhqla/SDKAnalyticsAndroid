@@ -24,6 +24,10 @@
         <item name="colorAccent">@android:color/transparent</item>
     </style>
 
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
     <style name="CustomTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>

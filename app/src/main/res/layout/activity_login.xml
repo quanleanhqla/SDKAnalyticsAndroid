@@ -1,164 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rl_root"
     android:paddingRight="8pt"
     android:paddingLeft="8pt"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@mipmap/background">
 
-    <LinearLayout
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="16pt"
-        android:layout_marginRight="8pt"
-        android:orientation="horizontal"
-        android:id="@+id/ll_language"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/rl_root"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+
+        <LinearLayout
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="16pt"
+            android:layout_marginRight="8pt"
+            android:orientation="horizontal"
+            android:id="@+id/ll_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_language"
+                android:layout_marginRight="2pt"
+                android:id="@+id/imv_language"
+                android:layout_width="10pt"
+                android:layout_height="10pt"/>
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:textSize="7pt"
+                android:textColor="@color/white"
+                android:text="Tiếng việt"
+                android:id="@+id/tv_language"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
 
         <ImageView
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_language"
-            android:layout_marginRight="2pt"
-            android:id="@+id/imv_language"
-            android:layout_width="10pt"
-            android:layout_height="10pt"/>
+            android:src="@mipmap/logo"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/ll_language"
+            android:id="@+id/imv_logo"
+            android:layout_marginTop="50pt"
+            android:layout_width="136pt"
+            android:layout_height="28pt"/>
 
-        <TextView
-            android:layout_gravity="center_vertical"
-            android:textSize="7pt"
-            android:textColor="@color/white"
-            android:text="Tiếng việt"
-            android:id="@+id/tv_language"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-
-    <ImageView
-        android:src="@mipmap/logo"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/ll_language"
-        android:id="@+id/imv_logo"
-        android:layout_marginTop="50pt"
-        android:layout_width="136pt"
-        android:layout_height="28pt"/>
-
-    <EditText
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:layout_marginTop="28pt"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_vertical"
-        android:paddingLeft="8pt"
-        android:paddingRight="8pt"
-        android:layout_below="@id/imv_logo"
-        android:hint="Email/SĐT"
-        android:textColorHint="#66FFFFFF"
-        android:textColor="@color/white"
-        android:textSize="7pt"
-        android:background="@drawable/bgr_edittext"
-        android:id="@+id/et_username"
-        android:layout_width="match_parent"
-        android:layout_height="24pt"/>
-
-    <RelativeLayout
-        android:layout_marginTop="8pt"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/rl_password"
-        android:layout_below="@id/et_username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
         <EditText
             android:maxLines="1"
             android:ellipsize="end"
+            android:layout_marginTop="28pt"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
             android:paddingLeft="8pt"
             android:paddingRight="8pt"
-            android:hint="Mật khẩu"
-            android:id="@+id/et_password"
-            android:inputType="textPassword"
+            android:layout_below="@id/imv_logo"
+            android:hint="Email/SĐT"
             android:textColorHint="#66FFFFFF"
             android:textColor="@color/white"
             android:textSize="7pt"
-            android:gravity="center_vertical"
             android:background="@drawable/bgr_edittext"
+            android:id="@+id/et_username"
             android:layout_width="match_parent"
             android:layout_height="24pt"/>
 
-        <ImageView
-            android:layout_marginRight="6pt"
-            android:src="@drawable/ic_show_white"
-            android:layout_centerVertical="true"
-            android:layout_alignRight="@id/et_password"
-            android:id="@+id/imv_show_password"
-            android:layout_width="12pt"
-            android:layout_height="12pt"/>
-    </RelativeLayout>
+        <RelativeLayout
+            android:layout_marginTop="8pt"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/rl_password"
+            android:layout_below="@id/et_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:paddingLeft="8pt"
+                android:paddingRight="8pt"
+                android:hint="Mật khẩu"
+                android:id="@+id/et_password"
+                android:inputType="textPassword"
+                android:textColorHint="#66FFFFFF"
+                android:textColor="@color/white"
+                android:textSize="7pt"
+                android:gravity="center_vertical"
+                android:background="@drawable/bgr_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="24pt"/>
 
-    <TextView
-        android:textStyle="bold"
-        android:id="@+id/tv_forgot_password"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/rl_password"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="8pt"
-        android:text="Quên mật khẩu?"
-        android:textColor="#ffa133"
-        android:textSize="7pt" />
+            <ImageView
+                android:layout_marginRight="6pt"
+                android:src="@drawable/ic_show_white"
+                android:layout_centerVertical="true"
+                android:layout_alignRight="@id/et_password"
+                android:id="@+id/imv_show_password"
+                android:layout_width="12pt"
+                android:layout_height="12pt"/>
+        </RelativeLayout>
 
-    <Button
-        android:id="@+id/btn_login"
-        android:layout_width="match_parent"
-        android:layout_height="24pt"
-        android:layout_below="@id/tv_forgot_password"
-        android:layout_marginTop="17.5pt"
-        android:background="@drawable/bgr_button_login"
-        android:text="Đăng nhập"
-        android:textColor="#80FFFFFF"
-        android:textSize="8pt" />
-
-    <RelativeLayout
-        android:id="@+id/rl_touch_id"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="12pt"
-        android:layout_below="@id/btn_login"
-        android:background="@drawable/bgr_circle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:layout_centerInParent="true"
-            android:src="@drawable/ic_touch_id"
-            android:layout_width="12pt"
-            android:layout_height="16pt"/>
-    </RelativeLayout>
-
-    <TextView
-        android:layout_below="@id/rl_touch_id"
-        android:id="@+id/tv_long"
-        android:textColor="@color/black"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:layout_below="@id/tv_long"
-        android:id="@+id/tv_lat"
-        android:textColor="@color/black"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <ScrollView
-        android:layout_below="@id/tv_lat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
         <TextView
-            android:id="@+id/tv_address"
+            android:textStyle="bold"
+            android:id="@+id/tv_forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rl_password"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="8pt"
+            android:text="Quên mật khẩu?"
+            android:textColor="#ffa133"
+            android:textSize="7pt" />
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="24pt"
+            android:layout_below="@id/tv_forgot_password"
+            android:layout_marginTop="17.5pt"
+            android:background="@drawable/bgr_button_login"
+            android:text="Đăng nhập"
+            android:textColor="#80FFFFFF"
+            android:textSize="8pt" />
+
+        <RelativeLayout
+            android:id="@+id/rl_touch_id"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12pt"
+            android:layout_below="@id/btn_login"
+            android:background="@drawable/bgr_circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_touch_id"
+                android:layout_width="12pt"
+                android:layout_height="16pt"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_below="@id/rl_touch_id"
+            android:id="@+id/tv_long"
             android:textColor="@color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-    </ScrollView>
+
+        <TextView
+            android:layout_below="@id/tv_long"
+            android:id="@+id/tv_lat"
+            android:textColor="@color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <ScrollView
+            android:layout_below="@id/tv_lat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_address"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </ScrollView>
+    </RelativeLayout>
 
 
-</RelativeLayout>
+
+
+</ScrollView>

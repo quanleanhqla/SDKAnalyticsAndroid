@@ -4,6 +4,7 @@
     package="com.mobio.analytics">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -17,8 +18,10 @@
     <application>
 
         <activity
+            android:launchMode="singleInstance"
             android:name=".client.activity.PopupBuilderActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Translucent" />
         <activity
             android:name=".client.activity.TransparentDeeplinkHandleActivity"

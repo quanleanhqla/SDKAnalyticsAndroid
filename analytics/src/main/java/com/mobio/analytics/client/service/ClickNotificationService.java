@@ -10,8 +10,7 @@ import android.content.Intent;
 import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.activity.PopupBuilderActivity;
 import com.mobio.analytics.client.model.digienty.Push;
-import com.mobio.analytics.client.utility.LogMobio;
-import com.mobio.analytics.client.view.notification.RichNotification;
+import com.mobio.analytics.client.inapp.notification.RichNotification;
 
 import java.util.List;
 

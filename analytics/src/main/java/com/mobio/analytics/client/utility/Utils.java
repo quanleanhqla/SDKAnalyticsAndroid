@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.ConnectivityManager;
@@ -22,7 +24,10 @@ import android.os.Build;
 import android.provider.Settings;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.core.app.NotificationManagerCompat;
@@ -137,6 +142,64 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static boolean isActivityDead(Activity activity) {
+        if (activity == null) {
+            return true;
+        }
+        boolean isActivityDead = activity.isFinishing();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            isActivityDead = isActivityDead || activity.isDestroyed();
+        }
+        return isActivityDead;
+    }
+
+    public static int getHeightOfStatusBar(Activity activity) {
+        int height;
+        Resources myResources = activity.getResources();
+        int idStatusBarHeight = myResources.getIdentifier( "status_bar_height", "dimen", "android");
+        if (idStatusBarHeight > 0) {
+            height = activity.getResources().getDimensionPixelSize(idStatusBarHeight);
+        } else {
+            height = 0;
+        }
+        return height;
+    }
+
+    public static int getHeightOfNavigationBar(Activity activity) {
+        Resources resources = activity.getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId);
+        }
+        return 0;
+    }
+
+    public static boolean hasNavBar (WindowManager windowManager)
+    {
+        Display d = windowManager.getDefaultDisplay();
+
+        DisplayMetrics realDisplayMetrics = new DisplayMetrics();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            d.getRealMetrics(realDisplayMetrics);
+        }
+
+        int realHeight = realDisplayMetrics.heightPixels;
+        int realWidth = realDisplayMetrics.widthPixels;
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        d.getMetrics(displayMetrics);
+
+        int displayHeight = displayMetrics.heightPixels;
+        int displayWidth = displayMetrics.widthPixels;
+
+        return (realWidth - displayWidth) > 0 || (realHeight - displayHeight) > 0;
+    }
+
+    public static boolean isNavAtBottom(Activity activity){
+        return (activity.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
+                || (activity.getResources().getConfiguration().smallestScreenWidthDp >= 600);
     }
 
     public static boolean compareTwoJson(String first, String second) {

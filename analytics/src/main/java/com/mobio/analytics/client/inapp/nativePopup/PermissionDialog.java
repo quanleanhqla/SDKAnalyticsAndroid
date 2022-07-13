@@ -1,4 +1,4 @@
-package com.mobio.analytics.client.view.popup;
+package com.mobio.analytics.client.inapp.nativePopup;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +8,6 @@ import android.provider.Settings;
 
 import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.model.digienty.Notification;
-import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 
 public class PermissionDialog extends BaseDialog{
 
@@ -29,6 +28,11 @@ public class PermissionDialog extends BaseDialog{
     @Override
     String getAction() {
         return "Đồng ý";
+    }
+
+    @Override
+    String getImage() {
+        return null;
     }
 
     @Override

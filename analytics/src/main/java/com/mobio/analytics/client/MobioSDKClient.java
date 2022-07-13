@@ -43,8 +43,8 @@ import com.mobio.analytics.client.receiver.NetworkChangeReceiver;
 import com.mobio.analytics.client.utility.LogMobio;
 import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 import com.mobio.analytics.client.utility.Utils;
-import com.mobio.analytics.client.view.notification.RichNotification;
-import com.mobio.analytics.client.view.popup.PermissionDialog;
+import com.mobio.analytics.client.inapp.notification.RichNotification;
+import com.mobio.analytics.client.inapp.nativePopup.PermissionDialog;
 import com.mobio.analytics.network.RetrofitClient;
 
 import org.json.JSONException;
@@ -57,6 +57,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -67,19 +68,20 @@ import retrofit2.Response;
 public class MobioSDKClient {
     private static final String TAG = MobioSDKClient.class.getName();
     public static final String DEMO_EVENT = "android_event";
-    public static final String SDK_MOBILE_TEST_CLICK_BUTTON_IN_APP = "sdk_mobile_click_button_in_app";
-    public static final String SDK_MOBILE_IDENTIFY_APP = "sdk_mobile_identify_app";
-    public static final String SDK_MOBILE_TIME_VISIT_APP = "sdk_mobile_time_visit_app";
+
+    public static final String SDK_Mobile_Test_Click_Button_In_App = "sdk_mobile_test_click_button_in_app";
+    public static final String SDK_Mobile_Test_Identify_App = "sdk_mobile_test_identify_app";
+    public static final String SDK_Mobile_Test_Time_Visit_App = "sdk_mobile_test_time_visit_app";
     public static final String SDK_Mobile_Test_Screen_End_In_App = "sdk_mobile_test_screen_end_in_app";
-    public static final String SDK_MOBILE_SCREEN_START_IN_APP = "sdk_mobile_screen_start_in_app";
+    public static final String SDK_Mobile_Test_Screen_Start_In_App = "sdk_mobile_test_screen_start_in_app";
     public static final String SDK_Mobile_Test_Open_App = "sdk_mobile_test_open_app";
     public static final String SDK_Mobile_Test_Open_Update_App = "sdk_mobile_test_open_update_app";
     public static final String SDK_Mobile_Test_Open_First_App = "sdk_mobile_test_open_first_app";
-    public static final String SDK_MOBILE_OPEN_NOTIFICATION_APP = "sdk_mobile_open_notification_app";
-    public static final String SDK_MOBILE_CLOSE_NOTIFICATION_APP = "sdk_mobile_close_notification_app";
-    public static final String SDK_MOBILE_OPEN_POPUP_APP = "sdk_mobile_open_popup_app";
-    public static final String SDK_MOBILE_CLOSE_POPUP_APP = "sdk_mobile_close_popup_app";
-    public static final String SDK_MOBILE_RECEIVE_PUSH_IN_APP = "sdk_mobile_receive_push_in_app";
+    public static final String SDK_Mobile_Test_Open_Notification_App = "sdk_mobile_test_open_notification_app";
+    public static final String SDK_Mobile_Test_Close_Notification_App = "sdk_mobile_test_close_notification_app";
+    public static final String SDK_Mobile_Test_Open_Popup_App = "sdk_mobile_test_open_popup_app";
+    public static final String SDK_Mobile_Test_Close_Popup_App = "sdk_mobile_test_close_popup_app";
+    public static final String SDK_Mobile_Test_Receive_Push_In_App = "sdk_mobile_test_receive_push_in_app";
 
     public static final int TYPE_LOGIN_SUCCESS = 1;
     public static final int TYPE_TRANSFER_SUCCESS = 2;
@@ -128,6 +130,7 @@ public class MobioSDKClient {
 
     private ExecutorService analyticsExecutor;
     private ScheduledExecutorService sendSyncScheduler;
+
 
     public static MobioSDKClient getInstance() {
         synchronized (MobioSDKClient.class) {
@@ -178,12 +181,12 @@ public class MobioSDKClient {
         initNetworkReceiver();
     }
 
-    private void initRecordCrashLog(){
+    private void initRecordCrashLog() {
         Thread.setDefaultUncaughtExceptionHandler(new CustomizedExceptionHandler(
                 application));
     }
 
-    private void saveSdkInfo(String sdkSource, String sdkCode){
+    private void saveSdkInfo(String sdkSource, String sdkCode) {
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_SDK_CODE, sdkCode);
         SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_SDK_SOURCE, sdkSource);
     }
@@ -308,7 +311,7 @@ public class MobioSDKClient {
             return;
         }
         List<Properties> pushes = pushP.getList("pushes", Properties.class);
-        if (pushP != null && pushP.size() > 0) {
+        if (pushP.size() > 0) {
             currentJsonPush = new ArrayList<Properties>(pushes);
         }
 
@@ -400,8 +403,8 @@ public class MobioSDKClient {
         }
     }
 
-    public boolean sendv2(Properties value) {
-        LogMobio.logD("MobioSDKClient", "send "+new Gson().toJson(value));
+    private boolean sendv2(Properties value) {
+        LogMobio.logD("MobioSDKClient", "send " + new Gson().toJson(value));
         Response<SendEventResponse> response = null;
         try {
             String typeOfValue = Utils.getTypeOfData(value);
@@ -429,7 +432,7 @@ public class MobioSDKClient {
                 SendEventResponse sendEventResponse = response.body();
                 if (sendEventResponse != null) {
                     updateAllCacheValue(sendEventResponse);
-                    LogMobio.logD("MobioSDKClient", "response "+new Gson().toJson(sendEventResponse));
+                    LogMobio.logD("MobioSDKClient", "response " + new Gson().toJson(sendEventResponse));
                 }
                 return true;
             }
@@ -491,7 +494,7 @@ public class MobioSDKClient {
         return new ArrayList<>();
     }
 
-    public void updateListSharePref(ArrayList<Properties> list, String key) {
+    private void updateListSharePref(ArrayList<Properties> list, String key) {
         Properties vm = new Properties().putValue(key, list);
         String jsonEvent = new Gson().toJson(vm, new TypeToken<Properties>() {
         }.getType());
@@ -715,7 +718,7 @@ public class MobioSDKClient {
     private void processSend(Properties data) {
         listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.M_KEY_SEND_QUEUE);
 
-//        if (Utils.isOnline(application)) {
+        if (Utils.isOnline(application)) {
 //            if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
 //                for (Properties vm : listDataWaitToSend) {
 //                    if (sendv2(vm)) {
@@ -724,19 +727,46 @@ public class MobioSDKClient {
 //                    }
 //                }
 //            }
-        if (!sendv2(data)) {
+            if (!sendv2(data)) {
+                addSendQueue(data);
+            }
+        } else {
             addSendQueue(data);
         }
-//        } else {
-//            addSendQueue(data);
-//        }
     }
 
     private void addSendQueue(Properties vm) {
+        if (vm == null) return;
+
         if (listDataWaitToSend == null) {
             listDataWaitToSend = new ArrayList<>();
         }
-        listDataWaitToSend.add(vm);
+
+        String typeData = Utils.getTypeOfData(vm);
+
+        if (typeData == null) return;
+
+        if (typeData.equals("track")) {
+            boolean isExistTrackInList = false;
+            for (int i = 0; i < listDataWaitToSend.size(); i++) {
+                Properties tempPro = listDataWaitToSend.get(i);
+                if (Objects.requireNonNull(Utils.getTypeOfData(tempPro)).equals("track")) {
+                    isExistTrackInList = true;
+                    List<Event> listCurrentEvent = tempPro.getValueMap("track", Track.class).getList("events", Event.class);
+                    List<Event> listAddonEvent = vm.getValueMap("track", Track.class).getList("events", Event.class);
+
+                    listAddonEvent.addAll(listCurrentEvent);
+                    tempPro.getValueMap("track", Track.class).putEvents(new ArrayList<>(listAddonEvent));
+                    listDataWaitToSend.set(i, tempPro);
+                    break;
+                }
+            }
+            if (!isExistTrackInList) {
+                listDataWaitToSend.add(vm);
+            }
+        } else {
+            listDataWaitToSend.add(vm);
+        }
         updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.M_KEY_SEND_QUEUE);
     }
 
@@ -826,14 +856,24 @@ public class MobioSDKClient {
         }
     }
 
-    public void handlePushMessage(RemoteMessage remoteMessage){
-        if(remoteMessage == null) return;
+    public void handlePushMessage(RemoteMessage remoteMessage) {
+        if (remoteMessage == null) return;
 
         if (remoteMessage.getData().size() > 0) {
             try {
                 Push push = createPush(remoteMessage.getData().toString());
 
-                if(push == null) return;
+                if (push == null) return;
+
+                LogMobio.logD("QuanLA", new Gson().toJson(push));
+
+                String title = push.getAlert().getTitle();
+
+                if (title.contains("[Case Demo 1]")) {
+                    push.getAlert().putDestinationScreen("Recharge");
+                } else if (title.contains("[Case Demo 2]")) {
+                    push.getAlert().putDestinationScreen("Saving");
+                }
 
                 if (push.getAlert().getContentType().equals(Push.Alert.TYPE_POPUP)) {
                     long actionTime = System.currentTimeMillis();
@@ -860,8 +900,8 @@ public class MobioSDKClient {
     private Push createPush(String remoteMessage) {
         Push message = Push.convertJsonStringtoPush(remoteMessage);
 
-        if(message == null) return null;
-        if(message.getAlert() == null) return null;
+        if (message == null) return null;
+        if (message.getAlert() == null) return null;
 
         Push.Alert alert = message.getAlert();
         String contentType = alert.getContentType();
@@ -871,6 +911,23 @@ public class MobioSDKClient {
             alert.putBody("Bạn có 1 thông báo mới!");
         }
         return message;
+    }
+
+    public void handleAutoResendWhenReconnect() {
+        ArrayList<Properties> listDataWaitToSend = getListFromSharePref(SharedPreferencesUtils.M_KEY_SEND_QUEUE);
+        if (listDataWaitToSend != null && listDataWaitToSend.size() > 0) {
+            for (Properties vm : listDataWaitToSend) {
+                analyticsExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (sendv2(vm)) {
+                            listDataWaitToSend.remove(vm);
+                            updateListSharePref(listDataWaitToSend, SharedPreferencesUtils.M_KEY_SEND_QUEUE);
+                        }
+                    }
+                });
+            }
+        }
     }
 
     void trackApplicationLifecycleEvents() {

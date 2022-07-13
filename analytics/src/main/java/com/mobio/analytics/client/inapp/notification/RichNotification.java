@@ -1,4 +1,4 @@
-package com.mobio.analytics.client.view.notification;
+package com.mobio.analytics.client.inapp.notification;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -25,7 +25,6 @@ import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.factory.PendingIntentFactory;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.utility.DownloadManager;
-import com.mobio.analytics.client.utility.LogMobio;
 
 import java.util.HashMap;
 import java.util.List;
@@ -87,8 +86,14 @@ public class RichNotification {
         PendingIntent deletePendingIntent = PendingIntentFactory.getPushDeletePendingIntent(context, push, reqId);
         PendingIntent contentPendingIntent = PendingIntentFactory.getPushClickPendingIntent(context, push, reqId, findDes(push, configActivityMap));
 
-        switch (push.getAlert().getString("style")) {
+        String style = push.getAlert().getString("style");
+
+        if(style == null) style = "";
+
+        switch (style) {
             default: {
+                String urlImage = push.getAlert().getString("background_image");
+
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setContentTitle(push.getAlert().getTitle())
@@ -97,6 +102,11 @@ public class RichNotification {
                         .setDeleteIntent(deletePendingIntent)
                         .setGroup("SDKMobio")
                         .setAutoCancel(true);
+
+                if(urlImage != null){
+                    Bitmap bigPicture = DownloadManager.getBitmapFromURL(urlImage, false);
+                    builder.setLargeIcon(bigPicture);
+                }
 
                 Notification notification = builder.build();
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);

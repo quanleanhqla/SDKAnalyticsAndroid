@@ -24,14 +24,26 @@ public class MobioApplication extends Application {
         super.onCreate();
 
         HashMap<String, ScreenConfigObject> activityConfigObjectHashMap = new HashMap<>();
-        activityConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen", "LoginActivity", new int[] {5, 10, 15}, LoginActivity.class, true));
-        activityConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home", "HomeActivity", new int[] {5, 10}, HomeActivity.class, false));
-        activityConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer", "SendMoneyInActivity", new int[] {10}, SendMoneyInActivity.class, false));
-        activityConfigObjectHashMap.put("TestActivity", new ScreenConfigObject("Test", "TestActivity", new int[] {10}, TestActivity.class, false));
+        activityConfigObjectHashMap.put("LoginActivity", new ScreenConfigObject("Login screen",
+                "LoginActivity", new int[] {5, 10, 15}, LoginActivity.class,
+                true));
+        activityConfigObjectHashMap.put("HomeActivity", new ScreenConfigObject("Home",
+                "HomeActivity", new int[] {5, 10},HomeActivity.class,
+                false));
+        activityConfigObjectHashMap.put("SendMoneyInActivity", new ScreenConfigObject("Transfer",
+                "SendMoneyInActivity", new int[] {10}, SendMoneyInActivity.class,
+                false));
+        activityConfigObjectHashMap.put("TestActivity", new ScreenConfigObject("Test",
+                "TestActivity", new int[] {10}, TestActivity.class,
+                false));
 
         HashMap<String, ScreenConfigObject> fragmentConfigObjectHashMap = new HashMap<>();
-        fragmentConfigObjectHashMap.put("FragmentA", new ScreenConfigObject("A", "FragmentA", new int[] {5}, FragmentA.class, false));
-        fragmentConfigObjectHashMap.put("FragmentB", new ScreenConfigObject("B", "FragmentB", new int[] {10}, FragmentB.class, false));
+        fragmentConfigObjectHashMap.put("FragmentA", new ScreenConfigObject("A",
+                "FragmentA", new int[] {5}, FragmentA.class,
+                false));
+        fragmentConfigObjectHashMap.put("FragmentB", new ScreenConfigObject("B",
+                "FragmentB", new int[] {10}, FragmentB.class,
+                false));
 
         MobioSDKClient.Builder builder = new MobioSDKClient.Builder()
                 .withSdkCode("m-android-test-1")
@@ -49,8 +61,6 @@ public class MobioApplication extends Application {
                 .withFragmentMap(fragmentConfigObjectHashMap)
                 .withIntervalSecond(10)
                 .shouldRecordScreen(true);
-
-
 
         MobioSDKClient.setSingletonInstance(builder.build());
 

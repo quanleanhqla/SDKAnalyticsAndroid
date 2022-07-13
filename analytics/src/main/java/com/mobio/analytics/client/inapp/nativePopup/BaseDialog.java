@@ -1,4 +1,4 @@
-package com.mobio.analytics.client.view.popup;
+package com.mobio.analytics.client.inapp.nativePopup;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -12,12 +12,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mobio.analytics.R;
+import com.mobio.analytics.client.utility.DownloadImageTask;
+import com.mobio.analytics.client.utility.LogMobio;
 
 public abstract class BaseDialog {
     protected Activity activity;
     protected Dialog dialog;
 
-    public void show(){
+    public void show() {
         dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -29,6 +31,16 @@ public abstract class BaseDialog {
         TextView tvTitle = (TextView) dialog.findViewById(R.id.tv_title);
         TextView tvDetail = (TextView) dialog.findViewById(R.id.tv_detail);
         Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
+        ImageView imvContent = (ImageView) dialog.findViewById(R.id.imv_content);
+
+        String urlImage = getImage();
+
+        if (urlImage != null && !urlImage.isEmpty()) {
+            LogMobio.logD("QuanLA", "url");
+            imvContent.setVisibility(View.VISIBLE);
+            new DownloadImageTask(imvContent)
+                    .execute(urlImage);
+        } else imvContent.setVisibility(View.GONE);
 
         tvTitle.setText(getTitle());
         tvDetail.setText(getDetail());
@@ -73,11 +85,18 @@ public abstract class BaseDialog {
     }
 
     abstract String getDetail();
+
     abstract String getTitle();
+
     abstract String getAction();
 
+    abstract String getImage();
+
     abstract void close();
+
     abstract void cancel();
+
     abstract void action();
+
     abstract void doDismiss();
 }

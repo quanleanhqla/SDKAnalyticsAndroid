@@ -1,15 +1,16 @@
 package com.mobio.sample;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -18,11 +19,18 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mobio.analytics.client.utility.LogMobio;
+import com.mobio.analytics.client.inapp.htmlPopup.JavaScriptInterface;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,6 +40,67 @@ public class MainActivity extends Activity implements LocationListener {
 
     LocationManager locationManager;
     String provider;
+    private Dialog dialog;
+
+
+    private final String templateHtml = "<!DOCTYPE html>\n" +
+            "<html>\n" +
+            "<head>\n" +
+            "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=0\">\n" +
+            "    <style>\n" +
+            "                html {\n" +
+            "                    height: 100%;\n" +
+            "                }\n" +
+            "                body {\n" +
+            "                    min-height: 100%;\n" +
+            "                    position: relative;\n" +
+            "                    background: rgba(0,0,0,.2);\n" +
+            "                }\n" +
+            "                #m_modal {\n" +
+            "                    width: 100%;\n" +
+            "                    position: absolute;\n" +
+            "                    transform: translate(-50%, -50%);\n" +
+            "                    top: 50%;\n" +
+            "                    left: 50%;\n" +
+            "                    right: auto;\n" +
+            "                    bottom: auto;\n" +
+            "                    text-align: center;\n" +
+            "                    border-radius: 10px;\n" +
+            "                    background: #fff;\n" +
+            "                }\n" +
+            "                @media (min-width: 576px) {\n" +
+            "                    #m_modal {\n" +
+            "                    max-width: 300px;\n" +
+            "                    }\n" +
+            "                }\n" +
+            "\n" +
+            "                @media (min-width: 576px) {\n" +
+            "                    #m_modal {\n" +
+            "                    max-width: 500px;\n" +
+            "                    margin: 1.75rem auto;\n" +
+            "                    }\n" +
+            "                }\n" +
+            "\n" +
+            "                #m_modal img {\n" +
+            "\t                width: -webkit-fill-available !important;\n" +
+            "                }\n" +
+            "\n" +
+            "\n" +
+            "    </style>\n" +
+            "</head>\n" +
+            "\n" +
+            "<body>\n" +
+            "    <div id=\"m_modal\">\n" +
+            "    </div>\n" +
+            "</body>\n" +
+            "</html>";
+
+    private final String HTML_MIME_TYPE = "text/html";
+    private final String HTML_ENCODING = "utf-8";
+    private static final int ID_OF_URL_BAR = 112233;
+    private static final int ID_OF_URL_TEXTVIEW = 332211;
+    private static final int ID_OF_URL_LINE = 222211;
+    public static final String M_KEY_PUSH = "m_key_push";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +157,39 @@ public class MainActivity extends Activity implements LocationListener {
             Toast.makeText(getBaseContext(), "No Provider Found",
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void onButtonShowPopupWindowClick(View view) {
+
+        // inflate the layout of the popup window
+        LayoutInflater inflater = (LayoutInflater)
+                getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.popup_webview, null);
+
+        // create the popup window
+        int width = LinearLayout.LayoutParams.MATCH_PARENT;
+        int height = LinearLayout.LayoutParams.MATCH_PARENT;
+
+        boolean focusable = true; // lets taps outside the popup also dismiss it
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(
+                android.graphics.Color.TRANSPARENT));
+
+        // show the popup window
+        // which view you pass in doesn't matter, it is only used for the window tolken
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+        WebView webView = popupView.findViewById(R.id.wv_popup);
+        webView.loadUrl("https://mobio.io/");
+
+        // dismiss the popup window when touched
+        popupView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                popupWindow.dismiss();
+                return true;
+            }
+        });
     }
 
     public void statusCheck() {

@@ -20,19 +20,19 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.mobio.analytics.client.MobioSDKClient { public *; }
+-keep class com.mobio.analytics.client.MobioSDKClient { *; }
 
 -keep class com.mobio.analytics.client.MobioSDKClient$Builder {
     public *;
 }
 
--keep class com.mobio.analytics.client.utility.LogMobio{ public *; }
+-keep class com.mobio.analytics.client.utility.LogMobio{ *; }
 
--keep class com.mobio.analytics.client.model.old.ScreenConfigObject { public *; }
+-keep class com.mobio.analytics.client.model.old.ScreenConfigObject { *; }
 
--keep class com.mobio.analytics.client.utility.SharedPreferencesUtils {public *;}
+-keep class com.mobio.analytics.client.utility.SharedPreferencesUtils { *;}
 
--keep public class com.mobio.analytics.client.model.digienty.* {public *;}
+-keep public class com.mobio.analytics.client.model.digienty.* { *;}
 
 -keepclassmembers,allowobfuscation class * {
   @com.google.gson.annotations.SerializedName <fields>;

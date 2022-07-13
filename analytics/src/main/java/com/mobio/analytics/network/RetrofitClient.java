@@ -102,13 +102,14 @@ public class RetrofitClient {
 
     static class ErrorInterceptor implements Interceptor {
         int maxLimit = 3;
-        int waitThreshold = 5000;
+        int waitThreshold = 10000;
 
         @Inject
         public ErrorInterceptor() { }
 
         @Override
         public Response intercept(Chain chain) throws IOException {
+            LogMobio.logD("RetrofitClient", "intercept");
             Request request = chain.request();
             Response response = null;
             boolean responseOK = false;
@@ -123,6 +124,7 @@ public class RetrofitClient {
                     responseOK = response.isSuccessful();
                 }catch (Exception e){
                     e.printStackTrace();
+                    LogMobio.logD("RetrofitClient", "error "+e.toString());
                 }finally{
 //                    if(!responseOK){
 //                        try {

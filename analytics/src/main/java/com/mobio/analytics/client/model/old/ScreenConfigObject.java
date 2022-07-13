@@ -4,14 +4,14 @@ import java.util.Arrays;
 
 public class ScreenConfigObject {
     private String title;
-    private String activityName;
+    private String name;
     private int[] visitTime;
-    private Class className;
+    private Class<?> className;
     private boolean isInitialScreen;
 
-    public ScreenConfigObject(String title, String activityName, int[] visitTime, Class className, boolean isInitialScreen) {
+    public ScreenConfigObject(String title, String name, int[] visitTime, Class<?> className, boolean isInitialScreen) {
         this.title = title;
-        this.activityName = activityName;
+        this.name = name;
         this.visitTime = visitTime;
         this.className = className;
         this.isInitialScreen = isInitialScreen;
@@ -26,11 +26,11 @@ public class ScreenConfigObject {
     }
 
     public String getActivityName() {
-        return activityName;
+        return name;
     }
 
     public void setActivityName(String activityName) {
-        this.activityName = activityName;
+        this.name = activityName;
     }
 
     public int[] getVisitTime() {
@@ -41,11 +41,11 @@ public class ScreenConfigObject {
         this.visitTime = visitTime;
     }
 
-    public Class getClassName() {
+    public Class<?> getClassName() {
         return className;
     }
 
-    public void setClassName(Class className) {
+    public void setClassName(Class<?> className) {
         this.className = className;
     }
 
@@ -61,9 +61,10 @@ public class ScreenConfigObject {
     public String toString() {
         return "ScreenConfigObject{" +
                 "title='" + title + '\'' +
-                ", activityName='" + activityName + '\'' +
+                ", name='" + name + '\'' +
                 ", visitTime=" + Arrays.toString(visitTime) +
                 ", className=" + className +
+                ", isInitialScreen=" + isInitialScreen +
                 '}';
     }
 }

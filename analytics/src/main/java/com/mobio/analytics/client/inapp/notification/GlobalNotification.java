@@ -1,4 +1,4 @@
-package com.mobio.analytics.client.view.notification;
+package com.mobio.analytics.client.inapp.notification;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -19,8 +19,6 @@ import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.model.old.ScreenConfigObject;
 import com.mobio.analytics.client.receiver.NotificationDismissedReceiver;
 import com.mobio.analytics.client.service.ClickNotificationService;
-import com.mobio.analytics.client.utility.LogMobio;
-import com.mobio.analytics.client.utility.Utils;
 
 import java.util.HashMap;
 
