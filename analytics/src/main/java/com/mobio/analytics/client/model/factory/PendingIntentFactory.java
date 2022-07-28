@@ -39,6 +39,16 @@ public class PendingIntentFactory {
         return PendingIntent.getService(context, reqId, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    public static PendingIntent getPushActionPendingIntent(Context context, Push push, int reqId, String type){
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(context, ClickNotificationService.class));
+        intent.setAction(ClickNotificationService.ACTION_CLICK_INPUT);
+        intent.putExtra(ClickNotificationService.EXTRA_PARAM_INPUT, type);
+        intent.putExtra(ClickNotificationService.EXTRA_PARAM_PUSH, new Gson().toJson(push));
+
+        return PendingIntent.getService(context, reqId, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
     public static PendingIntent getPushClickLeftPendingIntent(Context context, Push push, int reqId){
         Intent intent = new Intent();
         intent.setComponent(new ComponentName(context, ClickNotificationService.class));

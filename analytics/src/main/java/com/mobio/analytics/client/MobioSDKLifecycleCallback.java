@@ -245,13 +245,13 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 
     private void trackOpenApp(Activity activity){
         if (shouldTrackApplicationLifecycleEvents) {
-            mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_App, new Properties().putValue("build", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.M_KEY_VERSION_CODE)))
+            mobioSDKClient.track(MobioSDKClient.SDK_MOBILE_OPEN_APP, new Properties().putValue("build", String.valueOf(SharedPreferencesUtils.getInt(activity, SharedPreferencesUtils.M_KEY_VERSION_CODE)))
                     .putValue("version", SharedPreferencesUtils.getString(activity, SharedPreferencesUtils.M_KEY_VERSION_NAME)));
         }
     }
 
     private void trackOpenFirstApp(int currentVersionCode, String currentVersionName){
-        mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Open_First_App, new Properties().putValue("build", String.valueOf(currentVersionCode))
+        mobioSDKClient.track(MobioSDKClient.SDK_MOBILE_OPEN_FIRST_APP, new Properties().putValue("build", String.valueOf(currentVersionCode))
                 .putValue("version", currentVersionName));
     }
 
@@ -260,13 +260,13 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 //        mobioSDKClient.track(ModelFactory.createBaseList(
 //                ModelFactory.createBase("screen", new Properties().putValue("screen_name", screenConfigObject.getTitle())),
 //                "view", actionTime, "digienty"), actionTime);
-        mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_Start_In_App, new Properties().putValue("screen_name", screenConfigObject.getTitle())
+        mobioSDKClient.track(MobioSDKClient.SDK_MOBILE_SCREEN_START_IN_APP, new Properties().putValue("screen_name", screenConfigObject.getTitle())
                 .putValue("time", Utils.getTimeUTC()));
     }
 
     private void trackCloseScreen(ScreenConfigObject screenConfigObject){
         if (screenConfigObject != null) {
-            mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Screen_End_In_App, new Properties().putValue("screen_name", screenConfigObject.getTitle())
+            mobioSDKClient.track(MobioSDKClient.SDK_MOBILE_SCREEN_END_IN_APP, new Properties().putValue("screen_name", screenConfigObject.getTitle())
                     .putValue("time", Utils.getTimeUTC()));
         }
     }
@@ -403,7 +403,7 @@ public class MobioSDKLifecycleCallback implements Application.ActivityLifecycleC
 //                                            .putValue("screen_name", screenConfigObject.getTitle())),
 //                                    "time_visit", action_time, "digienty"), action_time);
 
-                            mobioSDKClient.track(MobioSDKClient.SDK_Mobile_Test_Time_Visit_App, new Properties().putValue("time_visit", countSecond[0]).putValue("screen_name", screenConfigObject.getTitle()));
+                            mobioSDKClient.track(MobioSDKClient.SDK_MOBILE_TIME_VISIT_APP, new Properties().putValue("time_visit", countSecond[0]).putValue("screen_name", screenConfigObject.getTitle()));
                         }
                     }
                     if(countSecond[0] == screenConfigObject.getVisitTime()[screenConfigObject.getVisitTime().length-1]){

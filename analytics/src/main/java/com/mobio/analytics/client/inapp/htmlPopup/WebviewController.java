@@ -127,7 +127,7 @@ public class WebviewController {
             "            }\n" +
             "            }\n" +
             "            \n" +
-            "        </script>" +
+            "        </script>"+
             "  </body>\n" +
             "</html>";
     private static final String keyWordSubstr = "<div id=\"m_modal2\">";
@@ -144,11 +144,11 @@ public class WebviewController {
         this.activity = activity;
         this.container = container;
         this.push = push;
-        if (push.getAlert() != null) {
-            this.position = push.getAlert().getString("position");
+        if(push.getData() != null) {
+            this.position = push.getData().getString("position");
         }
 
-        if (this.position == null) this.position = POSITION_CENTER;
+        if(this.position == null) this.position = POSITION_CENTER;
     }
 
     public void createWebview(String assetPath, WebView webView) {
@@ -184,6 +184,7 @@ public class WebviewController {
         webView.addJavascriptInterface(new JavaScriptInterface(new JavaScriptInterface.OnActionJavascript() {
             @Override
             public void onReceiveMessage(String data) {
+                LogMobio.logD("QuanLA", "data "+data);
                 processReceivedMessage(data, webView);
             }
 
@@ -328,11 +329,7 @@ public class WebviewController {
         RelativeLayout.LayoutParams rlParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, Utils.getHeightOfScreen(activity) / 14);
         rlParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        if (activity instanceof PopupBuilderActivity) {
-            rlParams.setMargins(0, 0, 0, 0);
-        } else {
-            rlParams.setMargins(0, Utils.getHeightOfStatusBar(activity), 0, 0);
-        }
+        rlParams.setMargins(0, 0, 0, 0);
         relativeLayout.setLayoutParams(rlParams);
 
         TextView tvUrl = new TextView(activity);
@@ -389,25 +386,20 @@ public class WebviewController {
     }
 
     private void dismissMessage() {
-        if (activity instanceof PopupBuilderActivity) {
+        if(activity instanceof PopupBuilderActivity) {
             activity.finish();
-        } else {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ViewGroup root = getWindowRoot(activity);
-                    if (root != null) {
-                        root.removeView(root.findViewById(container.getId()));
-                    }
-                }
-            });
+        }
+        else {
+            ViewGroup root = getWindowRoot(activity);
+            if (root != null) {
+                root.removeView(root.findViewById(container.getId()));
+            }
         }
     }
 
     private void processReceivedMessage(String data, WebView webView) {
         Properties dataVM = Properties.convertJsonStringtoProperties(data);
         String message = dataVM.getString("message");
-        LogMobio.logD("QuanLA", new Gson().toJson(dataVM));
         if (message != null) {
             if (message.equals("MO_CLOSE_BUTTON_CLICK")) {
                 if (dataVM.getString("popupId") != null && dataVM.getInt("page", 2) == 1) {
@@ -440,6 +432,8 @@ public class WebviewController {
                             webView.loadUrl("javascript:showPopup({popup_position:'cc'});");
                         }
 
+                        LogMobio.logD("QuanLA", "Done");
+
                         long actionTime = System.currentTimeMillis();
                         MobioSDKClient.getInstance().track(ModelFactory.createBaseListForPopup(push, "popup", "open", actionTime), actionTime);
 
@@ -449,7 +443,7 @@ public class WebviewController {
                                 @Override
                                 public void run() {
 
-                                    if (position.equals(POSITION_CENTER)) {
+                                    if(position.equals(POSITION_CENTER)){
                                         return;
                                     }
 
@@ -490,13 +484,12 @@ public class WebviewController {
         String id = formData.getString("id");
         Properties field = formData.getValueMap("fields", Properties.class);
 
-        Properties tags = dataVM.getValueMap("tags", Properties.class);
-        List<Properties> listTags = dataVM.getList("tags", Properties.class);
+        List<Properties> tags = dataVM.getList("tags", Properties.class);
         String buttonId = dataVM.getString("buttonId");
         boolean hasSecondPage = dataVM.getBoolean("hasSecondPage", false);
         int includedReport = dataVM.getInt("includedReport", 0);
 
-        Properties value = createValueForBase("submit", buttonId, field, listTags);
+        Properties value = createValueForBase("submit", buttonId, field, tags);
         Event.Base base = ModelFactory.createBase("button", value);
         Event event = new Event().putBase(base).putSource("popup_builder")
                 .putType("submit")
@@ -527,16 +520,13 @@ public class WebviewController {
     private void processClickButton(Properties valueMap) {
         long actionTime = 0;
         List<Properties> listEvents = valueMap.getList("events", Properties.class);
-        List<Properties> listTags = valueMap.getList("tags", Properties.class);
-        Properties tags = valueMap.getValueMap("tags", Properties.class);
+        List<Properties> tags = valueMap.getList("tags", Properties.class);
         int includedReport = valueMap.getInt("includedReport", 0);
         boolean hasSecondPage = valueMap.getBoolean("hasSecondPage", false);
         String id = valueMap.getString("id");
         String name = valueMap.getString("name");
 
         long action_time = System.currentTimeMillis();
-
-        LogMobio.logD("QuanLA", new Gson().toJson(listTags));
 
         ArrayList<Event> listEvent = new ArrayList<>();
         if (listEvents != null && listEvents.size() > 0) {
@@ -568,7 +558,7 @@ public class WebviewController {
         }
 
         if (includedReport == 1) {
-            Properties value = createValueForBase("click", id, null, listTags);
+            Properties value = createValueForBase("click", id, null, tags);
             Event.Base base = ModelFactory.createBase("button", value);
             Event event = new Event().putBase(base).putSource("popup_builder")
                     .putType("click")
@@ -578,35 +568,6 @@ public class WebviewController {
         }
         MobioSDKClient.getInstance().track(listEvent, action_time);
         if (!hasSecondPage) dismissMessage();
-
-        Properties firstTag = listTags.get(0);
-        String tagName = firstTag.getString("tag_name");
-        String desScreen = null;
-        switch (tagName) {
-            case "screen:Saving":
-                desScreen = "com.mobio.demoanalytics.activity.SavingActivity";
-                break;
-            case "screen:SaveMoneyConfirm":
-                desScreen = "com.mobio.demoanalytics.activity.ConfirmSavingActivity";
-                break;
-            case "screen:Recharge":
-                desScreen = "com.mobio.demoanalytics.activity.MobileRechargeActivity";
-                break;
-            case "screen:RechargeConfirm":
-                desScreen = "com.mobio.demoanalytics.activity.ConfirmMobileRechargeActivity";
-                break;
-        }
-        if(desScreen != null){
-            Class<?> act = null;
-            try {
-                act = Class.forName(desScreen);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            Intent intent = new Intent(activity, act);
-            activity.startActivity(intent);
-            dismissMessage();
-        }
     }
 
     private Properties createValueForBase(String type, String id, Properties field, List<Properties> tags) {

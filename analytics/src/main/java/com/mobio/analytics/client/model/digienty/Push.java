@@ -1,8 +1,5 @@
 package com.mobio.analytics.client.model.digienty;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +7,7 @@ import org.json.JSONObject;
 import java.util.Iterator;
 import java.util.Map;
 
-public class Push extends Properties{
+public class Push extends Properties {
     private static final String KEY_DATA = "data";
     private static final String KEY_ALERT = "alert";
     private static final String KEY_BADGE = "badge";

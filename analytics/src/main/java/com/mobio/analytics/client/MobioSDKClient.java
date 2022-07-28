@@ -68,21 +68,19 @@ import retrofit2.Response;
 public class MobioSDKClient {
     private static final String TAG = MobioSDKClient.class.getName();
     public static final String DEMO_EVENT = "android_event";
-
-    public static final String SDK_Mobile_Test_Click_Button_In_App = "sdk_mobile_test_click_button_in_app";
-    public static final String SDK_Mobile_Test_Identify_App = "sdk_mobile_test_identify_app";
-//    public static final String SDK_Mobile_Test_Time_Visit_App = "sdk_mobile_test_time_visit_app";
-    public static final String SDK_Mobile_Test_Time_Visit_App = "sdk_mobile_time_visit_app";
-    public static final String SDK_Mobile_Test_Screen_End_In_App = "sdk_mobile_test_screen_end_in_app";
-    public static final String SDK_Mobile_Test_Screen_Start_In_App = "sdk_mobile_test_screen_start_in_app";
-    public static final String SDK_Mobile_Test_Open_App = "sdk_mobile_test_open_app";
-    public static final String SDK_Mobile_Test_Open_Update_App = "sdk_mobile_test_open_update_app";
-    public static final String SDK_Mobile_Test_Open_First_App = "sdk_mobile_test_open_first_app";
-    public static final String SDK_Mobile_Test_Open_Notification_App = "sdk_mobile_test_open_notification_app";
-    public static final String SDK_Mobile_Test_Close_Notification_App = "sdk_mobile_test_close_notification_app";
-    public static final String SDK_Mobile_Test_Open_Popup_App = "sdk_mobile_test_open_popup_app";
-    public static final String SDK_Mobile_Test_Close_Popup_App = "sdk_mobile_test_close_popup_app";
-    public static final String SDK_Mobile_Test_Receive_Push_In_App = "sdk_mobile_test_receive_push_in_app";
+    public static final String SDK_MOBILE_CLICK_BUTTON_IN_APP = "sdk_mobile_click_button_in_app";
+    public static final String SDK_MOBILE_IDENTIFY_APP = "sdk_mobile_identify_app";
+    public static final String SDK_MOBILE_TIME_VISIT_APP = "sdk_mobile_test_time_visit_app";
+    public static final String SDK_MOBILE_SCREEN_END_IN_APP = "sdk_mobile_test_screen_end_in_app";
+    public static final String SDK_MOBILE_SCREEN_START_IN_APP = "sdk_mobile_test_screen_start_in_app";
+    public static final String SDK_MOBILE_OPEN_APP = "sdk_mobile_test_open_app";
+    public static final String SDK_MOBILE_OPEN_UPDATE_APP = "sdk_mobile_test_open_update_app";
+    public static final String SDK_MOBILE_OPEN_FIRST_APP = "sdk_mobile_test_open_first_app";
+    public static final String SDK_MOBILE_OPEN_NOTIFICATION_APP = "sdk_mobile_open_notification_app";
+    public static final String SDK_MOBILE_CLOSE_NOTIFICATION_APP = "sdk_mobile_close_notification_app";
+    public static final String SDK_MOBILE_OPEN_POPUP_APP = "sdk_mobile_open_popup_app";
+    public static final String SDK_MOBILE_CLOSE_POPUP_APP = "sdk_mobile_close_popup_app";
+    public static final String SDK_MOBILE_RECEIVE_PUSH_IN_APP = "sdk_mobile_receive_push_in_app";
 
     public static final int TYPE_LOGIN_SUCCESS = 1;
     public static final int TYPE_TRANSFER_SUCCESS = 2;
@@ -405,23 +403,28 @@ public class MobioSDKClient {
     }
 
     private boolean sendv2(Properties value) {
-        LogMobio.logD("MobioSDKClient", "send " + new Gson().toJson(value));
         Response<SendEventResponse> response = null;
         try {
             String typeOfValue = Utils.getTypeOfData(value);
+            long nowTime = System.currentTimeMillis();
 
             if (typeOfValue == null) return false;
             switch (typeOfValue) {
                 case "track":
+                    value.getValueMap("track").putValue("action_time", nowTime);
                     response = RetrofitClient.getInstance(application).getMyApi().sendEvent(value).execute();
                     break;
                 case "identity":
+                    value.getValueMap("identity").putValue("action_time", nowTime);
                     response = RetrofitClient.getInstance(application).getMyApi().sendDevice(value).execute();
                     break;
                 case "notification":
+                    value.getValueMap("notification").putValue("action_time", nowTime);
                     response = RetrofitClient.getInstance(application).getMyApi().sendNotification(value).execute();
                     break;
             }
+
+            LogMobio.logD("MobioSDKClient", "send " + new Gson().toJson(value));
 
             if (response == null) return false;
 
@@ -669,7 +672,7 @@ public class MobioSDKClient {
             showGlobalPopup(push);
         } else {
             int randomId = (int) (Math.random() * 10000);
-            showGlobalNotification(push, randomId);
+            MobioSDKClient.getInstance().showGlobalNotification(push, randomId);
         }
     }
 
@@ -728,7 +731,12 @@ public class MobioSDKClient {
 //                    }
 //                }
 //            }
-            if (!sendv2(data)) {
+            if(SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.M_KEY_ALLOW_CALL_API)) {
+                if (!sendv2(data)) {
+                    addSendQueue(data);
+                }
+            }
+            else {
                 addSendQueue(data);
             }
         } else {
@@ -864,17 +872,25 @@ public class MobioSDKClient {
             try {
                 Push push = createPush(remoteMessage.getData().toString());
 
-                if (push == null) return;
+                if (push == null){
+                    Properties properties = Properties.convertJsonStringtoProperties(remoteMessage.getData().toString());
+                    if(properties.containsKey("tracking_code")) {
+                        int status = properties.getValueMap("tracking_code").getInt("status", 0);
+                        LogMobio.logD("QuanLA", "status "+status);
+                        if(status == 1) {
+                            SharedPreferencesUtils.editBool(application, SharedPreferencesUtils.M_KEY_ALLOW_CALL_API, true);
+                            if(Utils.isOnline(application)) {
+                                handleAutoResendWhenReconnect();
+                            }
+                        }
+                        else {
+                            SharedPreferencesUtils.editBool(application, SharedPreferencesUtils.M_KEY_ALLOW_CALL_API, false);
+                        }
+                    }
+                    return;
+                }
 
                 LogMobio.logD("QuanLA", new Gson().toJson(push));
-
-                String title = push.getAlert().getTitle();
-
-                if (title.contains("[Case Demo 1]")) {
-                    push.getAlert().putDestinationScreen("Recharge");
-                } else if (title.contains("[Case Demo 2]")) {
-                    push.getAlert().putDestinationScreen("Saving");
-                }
 
                 if (push.getAlert().getContentType().equals(Push.Alert.TYPE_POPUP)) {
                     long actionTime = System.currentTimeMillis();
@@ -882,10 +898,10 @@ public class MobioSDKClient {
                 }
 
                 if (SharedPreferencesUtils.getBool(application, SharedPreferencesUtils.M_KEY_APP_FOREGROUD)) {
-                    MobioSDKClient.getInstance().showGlobalPopup(push);
+                    showGlobalPopup(push);
                 } else {
                     int reqId = (int) (Math.random() * 10000);
-                    MobioSDKClient.getInstance().showGlobalNotification(push, reqId);
+                    showGlobalNotification(push, reqId);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -947,7 +963,7 @@ public class MobioSDKClient {
             SharedPreferencesUtils.editString(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_VERSION_NAME, currentVersionName);
             SharedPreferencesUtils.editInt(application.getApplicationContext(), SharedPreferencesUtils.M_KEY_VERSION_CODE, currentVersionCode);
             //track(DEMO_EVENT, TYPE_APP_LIFECYCLE,"Application updated");
-            track(MobioSDKClient.SDK_Mobile_Test_Open_Update_App, new Properties().putValue("build", currentVersionName)
+            track(MobioSDKClient.SDK_MOBILE_OPEN_UPDATE_APP, new Properties().putValue("build", currentVersionName)
                     .putValue("version", String.valueOf(currentVersionCode)));
         }
     }

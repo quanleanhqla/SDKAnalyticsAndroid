@@ -20,6 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_toStartOf="@+id/notificationTimer"
         android:layout_toLeftOf="@id/notificationTimer"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:text="Remote Title"
         android:textSize="15dp"
         android:textStyle="bold" />
@@ -36,7 +38,7 @@
         android:layout_toLeftOf="@id/notificationTimer"
         android:ellipsize="end"
         android:lineSpacingMultiplier="1.2"
-        android:maxLines="1"
+        android:singleLine="true"
         android:text="Remote message"
         android:textSize="14dp"/>
 

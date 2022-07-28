@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/push_collapsed"
+        layout="@layout/push_collapsed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <FrameLayout
+        android:id="@+id/fl_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/push_collapsed"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:layout_marginTop="4dp"
+            android:id="@+id/big_picture_imageview"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:scaleType="centerCrop" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_marginTop="4dp"
+        android:id="@+id/ll_input"
+        android:layout_below="@id/fl_picture"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/holo_red_light"
+            android:clickable="true"
+            android:text="Yes"
+            android:textSize="16dp"
+            android:id="@+id/tv_action1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:textColor="@android:color/holo_red_light"
+            android:clickable="true"
+            android:textSize="16dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:text="Yes"
+            android:id="@+id/tv_action2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:textColor="@android:color/holo_red_light"
+            android:clickable="true"
+            android:text="Yes"
+            android:id="@+id/tv_action3"
+            android:textSize="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</RelativeLayout>

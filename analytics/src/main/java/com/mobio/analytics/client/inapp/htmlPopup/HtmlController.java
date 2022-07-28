@@ -31,7 +31,7 @@ public class HtmlController{
         this.push = push;
         this.assetPath = assetPath;
         if (push.getData() != null) {
-            this.position = push.getAlert().getString("position");
+            this.position = push.getData().getString("position");
             if(position == null) position = POSITION_CENTER;
         }
     }

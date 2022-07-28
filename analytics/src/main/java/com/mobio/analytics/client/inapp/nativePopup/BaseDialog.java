@@ -35,7 +35,7 @@ public abstract class BaseDialog {
 
         String urlImage = getImage();
 
-        if (urlImage != null && !urlImage.isEmpty()) {
+        if (urlImage != null) {
             LogMobio.logD("QuanLA", "url");
             imvContent.setVisibility(View.VISIBLE);
             new DownloadImageTask(imvContent)

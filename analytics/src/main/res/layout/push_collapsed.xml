@@ -5,18 +5,20 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:layout_centerVertical="true"
         android:id="@+id/notificationImage"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginLeft="12dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
         android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
         android:scaleType="fitCenter"
         android:src="@mipmap/icon" />
 
     <TextView
+        android:maxLines="1"
+        android:ellipsize="end"
         android:id="@+id/notificationTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,7 +40,7 @@
         android:layout_toLeftOf="@id/notificationImage"
         android:ellipsize="end"
         android:lineSpacingMultiplier="1.2"
-        android:maxLines="1"
+        android:singleLine="true"
         android:text="Remote message"
         android:textSize="14dp"/>
 

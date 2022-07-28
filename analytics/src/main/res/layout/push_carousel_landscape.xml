@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"/>
 
     <FrameLayout
+        android:layout_marginTop="4dp"
         android:layout_width="match_parent"
         android:layout_height="192dp"
         android:layout_below="@id/push_collapsed"
@@ -19,7 +20,7 @@
             android:id="@+id/carousel_landscape_image"
             android:layout_width="match_parent"
             android:layout_height="192dp"
-            android:scaleType="fitCenter" />
+            android:scaleType="centerCrop" />
 
         <ImageView
             android:id="@+id/left"

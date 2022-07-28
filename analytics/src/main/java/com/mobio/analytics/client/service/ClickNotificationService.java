@@ -30,6 +30,7 @@ public class ClickNotificationService extends IntentService {
     public static final String ACTION_CLICK_RIGHT = "com.mobio.analytics.client.service.action.RIGHT";
     public static final String ACTION_CLICK_SUBMIT_RATE = "com.mobio.analytics.client.service.action.SUBMIT_RATE";
     public static final String ACTION_CLICK_RATE = "com.mobio.analytics.client.service.action.RATE";
+    public static final String ACTION_CLICK_INPUT = "com.mobio.analytics.client.service.action.YES";
 
     // TODO: Rename parameters
     public static final String EXTRA_PARAM_DES = "com.mobio.analytics.client.service.extra.DES";
@@ -37,6 +38,12 @@ public class ClickNotificationService extends IntentService {
     public static final String EXTRA_PARAM_ID = "com.mobio.analytics.client.service.extra.ID";
     public static final String EXTRA_PARAM_PUSH = "com.mobio.analytics.client.service.extra.PUSH";
     public static final String EXTRA_PARAM_RATE_POSITION = "com.mobio.analytics.client.service.extra.RATE_POSITION";
+    public static final String EXTRA_PARAM_INPUT = "com.mobio.analytics.client.service.extra.INPUT";
+
+
+    public static final String TYPE_INPUT_YES = "M_TYPE_YES";
+    public static final String TYPE_INPUT_NO = "M_TYPE_NO";
+    public static final String TYPE_INPUT_MAYBE = "M_TYPE_MAYBE";
 
     public ClickNotificationService() {
         super("ClickNotificationService");
@@ -54,6 +61,11 @@ public class ClickNotificationService extends IntentService {
             } else if (ACTION_CLOSE.equals(action)) {
                 final String strPush = intent.getStringExtra(EXTRA_PARAM_PUSH);
                 handleActionClose(strPush);
+            }
+            else if (ACTION_CLICK_INPUT.equals(action)) {
+                final String strPush = intent.getStringExtra(EXTRA_PARAM_PUSH);
+                final String actionType = intent.getStringExtra(EXTRA_PARAM_INPUT);
+                handleAction(strPush, actionType);
             }
             else if (ACTION_CLICK_LEFT.equals(action)){
                 final String pushStr = intent.getStringExtra(EXTRA_PARAM_PUSH);
@@ -109,24 +121,28 @@ public class ClickNotificationService extends IntentService {
         // TODO: Handle action Close
     }
 
+    private void handleAction(String strPush, String type) {
+        // TODO: Handle action Close
+    }
+
     private void handleActionClickLeft(String pushStr, int id) {
         Push push = Push.convertJsonStringtoPush(pushStr);
-        List<String> listImageUrl = ((List<String>) push.getAlert().get("image_url"));
+        List<String> listImageUrl = ((List<String>) push.getAlert().getValueMap("rich_notification").get("image_url"));
         assert listImageUrl != null;
         listImageUrl.add(0, listImageUrl.get(listImageUrl.size()-1));
         listImageUrl.remove(listImageUrl.size()-1);
-        push.getAlert().putValue("image_url", listImageUrl);
+        push.getAlert().getValueMap("rich_notification").putValue("image_url", listImageUrl);
 
         MobioSDKClient.getInstance().showGlobalNotification(push, id);
     }
 
     private void handleActionClickRight(String pushStr, int id) {
         Push push = Push.convertJsonStringtoPush(pushStr);
-        List<String> listImageUrl = ((List<String>) push.getAlert().get("image_url"));
+        List<String> listImageUrl = ((List<String>) push.getAlert().getValueMap("rich_notification").get("image_url"));
         assert listImageUrl != null;
         listImageUrl.add(listImageUrl.get(0));
         listImageUrl.remove(0);
-        push.getAlert().putValue("image_url", listImageUrl);
+        push.getAlert().getValueMap("rich_notification").putValue("image_url", listImageUrl);
 
         MobioSDKClient.getInstance().showGlobalNotification(push, id);
     }

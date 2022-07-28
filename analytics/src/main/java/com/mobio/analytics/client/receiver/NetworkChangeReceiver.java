@@ -6,6 +6,7 @@ import android.content.Intent;
 
 import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.utility.NetworkUtil;
+import com.mobio.analytics.client.utility.SharedPreferencesUtils;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
@@ -15,7 +16,9 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             if (status == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED) {
                 /// TODO: 13/06/2022 handle no network
             } else {
-                MobioSDKClient.getInstance().handleAutoResendWhenReconnect();
+                if(SharedPreferencesUtils.getBool(context, SharedPreferencesUtils.M_KEY_ALLOW_CALL_API)) {
+                    MobioSDKClient.getInstance().handleAutoResendWhenReconnect();
+                }
             }
         }
     }

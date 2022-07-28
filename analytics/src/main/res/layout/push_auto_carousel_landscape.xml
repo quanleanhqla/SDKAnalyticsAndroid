@@ -11,16 +11,19 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="192dp"
         android:layout_below="@id/push_collapsed"
         android:layout_gravity="center">
 
-        <ImageView
-            android:layout_marginTop="4dp"
-            android:id="@+id/big_picture_imageview"
+        <ViewFlipper
+            android:autoStart="true"
+            android:id="@+id/carousel_landscape_image"
             android:layout_width="match_parent"
             android:layout_height="192dp"
-            android:scaleType="centerCrop" />
+            android:flipInterval="2500"
+            android:layout_margin="4dp"
+            android:inAnimation="@android:anim/slide_in_left"
+            android:outAnimation="@android:anim/slide_out_right" />
 
     </FrameLayout>
 

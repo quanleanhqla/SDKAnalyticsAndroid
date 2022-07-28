@@ -123,7 +123,6 @@ public class RetrofitClient {
                     response = chain.proceed(request);
                     responseOK = response.isSuccessful();
                 }catch (Exception e){
-                    e.printStackTrace();
                     LogMobio.logD("RetrofitClient", "error "+e.toString());
                 }finally{
 //                    if(!responseOK){

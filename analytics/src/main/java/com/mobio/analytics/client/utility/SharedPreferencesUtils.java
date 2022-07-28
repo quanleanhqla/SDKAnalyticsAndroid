@@ -30,6 +30,7 @@ public class SharedPreferencesUtils {
     public static final String M_KEY_SDK_CODE = "sdk_code";
     public static final String M_KEY_SDK_SOURCE = "sdk_source";
     public static final String M_KEY_SDK_NAME = "sdk_name";
+    public static final String M_KEY_ALLOW_CALL_API = "m_allow_call_api";
 
     private static SharedPreferences getSharedPreferences(Context context){
         return context.getSharedPreferences(M_KEY_SP, Context.MODE_PRIVATE);

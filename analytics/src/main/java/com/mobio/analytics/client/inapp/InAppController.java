@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.gson.Gson;
+import com.mobio.analytics.client.MobioSDKClient;
 import com.mobio.analytics.client.activity.PopupBuilderActivity;
 import com.mobio.analytics.client.model.digienty.Push;
 import com.mobio.analytics.client.inapp.htmlPopup.HtmlController;
@@ -42,15 +43,17 @@ public class InAppController {
         String type = push.getAlert().getContentType();
         switch (type) {
             case MInAppTypeAlert:
-                if(getPopupPosition(push).equals("cc")) {
-                    CustomDialog.showCustomDialog(activity, push, des);
-                }
-                else if(getPopupPosition(push).equals("tc")){
-                    inAppFragment = new InAppNativeHeaderFragment();
-                }
-                else if(getPopupPosition(push).equals("bc")){
-                    inAppFragment = new InAppNativeFooterFragment();
-                }
+//                if(getPopupPosition(push).equals("cc")) {
+//                    CustomDialog.showCustomDialog(activity, push, des);
+//                }
+//                else if(getPopupPosition(push).equals("tc")){
+//                    inAppFragment = new InAppNativeHeaderFragment();
+//                }
+//                else if(getPopupPosition(push).equals("bc")){
+//                    inAppFragment = new InAppNativeFooterFragment();
+//                }
+                int reqId = (int) (Math.random() * 10000);
+                MobioSDKClient.getInstance().showGlobalNotification(push, reqId);
                 break;
             case MInAppTypeHtml:
                 startPopupActivity(activity, push);
@@ -85,7 +88,7 @@ public class InAppController {
     }
 
     private static String getPopupPosition(Push push){
-        String positionPopup = push.getAlert().getString("position");
+        String positionPopup = push.getData().getString("position");
         if(positionPopup == null || positionPopup.isEmpty()) return "cc";
         return positionPopup;
     }

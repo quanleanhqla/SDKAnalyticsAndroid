@@ -16,10 +16,11 @@
         android:layout_gravity="center">
 
         <ImageView
+            android:layout_marginTop="4dp"
             android:id="@+id/big_picture_imageview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitCenter" />
+            android:layout_height="192dp"
+            android:scaleType="centerCrop" />
 
     </FrameLayout>
 

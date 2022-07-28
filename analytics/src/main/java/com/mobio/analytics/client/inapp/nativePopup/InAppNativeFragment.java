@@ -30,7 +30,7 @@ public class InAppNativeFragment extends Fragment {
 
     void setUpImage(String urlImage, ImageView imageView){
         if(urlImage != null && !urlImage.isEmpty()) {
-            new DownloadImageTask(imageView).equals(urlImage);
+            new DownloadImageTask(imageView).execute(urlImage);
         }
     }
 

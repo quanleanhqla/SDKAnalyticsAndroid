@@ -31,4 +31,22 @@
         <item name="android:windowTranslucentStatus" tools:targetApi="kitkat">false</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">#00000000</item>
     </style>
+
+    <style name="PushTitle" parent="android:Widget.TextView">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="PushMessageMultiLine" parent="android:Widget.TextView">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">14dp</item>
+    </style>
+
+    <style name="MetaData" parent="android:Widget.TextView">
+        <item name="android:textColor">#808080</item>
+        <item name="android:textSize">12dp</item>
+    </style>
 </resources>

@@ -26,27 +26,36 @@ public class PopupBuilderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initDialogHtml();
-    }
+        setContentView(R.layout.activity_popup_builder);
 
-    private void initDialogHtml(){
-        dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.popup_webview);
-
-        webView = dialog.findViewById(R.id.wv_popup);
-        rlRoot = dialog.findViewById(R.id.rl_root);
+        webView = findViewById(R.id.web);
+        rlRoot = findViewById(R.id.rl_root);
 
         push = getDataPush();
         if (push != null) {
             new WebviewController(this, rlRoot, push).createWebview("", webView);
         }
-
-        dialog.show();
+//        initDialogHtml();
     }
+
+//    private void initDialogHtml(){
+//        dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//        dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+//        dialog.setCancelable(false);
+//        dialog.setContentView(R.layout.popup_webview);
+//
+//        webView = dialog.findViewById(R.id.wv_popup);
+//        rlRoot = dialog.findViewById(R.id.rl_root);
+//
+//        push = getDataPush();
+//        if (push != null) {
+//            new WebviewController(this, rlRoot, push).createWebview("", webView);
+//        }
+//
+//        dialog.show();
+//    }
 
     public Push getDataPush() {
         if (getIntent() != null) {
